@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "GPUConverCore/GPURenderWidget.h"
+#include "GPUFilterVideoDecodec.h"
 
 class Widget : public QWidget
 {
@@ -14,6 +15,7 @@ public:
 
 private:
     GPURenderWidget* m_pRenderWidget = nullptr;
+    GPUFilterVideoDecodec* m_pVideoDecodec = nullptr;
 
 private slots:
     void onClickedButton(void);

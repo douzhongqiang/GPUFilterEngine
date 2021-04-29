@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS += \
     GPUFilterCore \
-    GPUFilterTestApp
+    GPUFilterTestApp \
+    GPUFilterVideoCore
 
 CONFIG += ordered

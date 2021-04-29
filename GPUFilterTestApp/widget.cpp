@@ -1,6 +1,8 @@
 #include "widget.h"
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QThread>
+#include <QFileDialog>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -14,6 +16,9 @@ Widget::Widget(QWidget *parent)
     QPushButton* pButton = new QPushButton("Load");
     pLayout->addWidget(pButton);
     QObject::connect(pButton, &QPushButton::clicked, this, &Widget::onClickedButton);
+
+    // Create Video Decodec
+    m_pVideoDecodec = new GPUFilterVideoDecodec(this);
 }
 
 Widget::~Widget()
@@ -23,5 +28,13 @@ Widget::~Widget()
 
 void Widget::onClickedButton(void)
 {
-    m_pRenderWidget->setImage(QImage("./green-5919790_1280.jpg"));
+    if (m_pVideoDecodec && !m_pVideoDecodec->isRunning())
+    {
+        QString filename = QFileDialog::getOpenFileName(this, "Open Video", "./");
+        if (filename.isEmpty())
+            return;
+
+        if (m_pVideoDecodec->openVideoFile(filename))
+            m_pVideoDecodec->start();
+    }
 }

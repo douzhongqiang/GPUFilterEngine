@@ -56,6 +56,22 @@ uniform LightMaterial lightMaterial[10];    // 光的材质
 uniform vec3 ViewPostion;                   // 相机的位置
 uniform int M_nLightCount = 0;              // 光的个数
 
+vec3 yuvTorgb()
+{
+    vec3 yuv;
+    vec3 rgb;
+
+    yuv.x = texture2D(objectMaterial.extraSample1, OutCoord.xy).r;
+    yuv.y = texture2D(objectMaterial.extraSample2, OutCoord.xy).r - 0.5;
+    yuv.z = texture2D(objectMaterial.extraSample3, OutCoord.xy).r - 0.5;
+
+    rgb = mat3(1,       1,         1,
+               0,       -0.39465,  2.03211,
+               1.13983, -0.58060,  0) * yuv;
+
+    return rgb;
+}
+
 // =========================================================================================
 // Get Object Material Color
 // input 0: ambient; 1:diffuse; 2:specular
@@ -72,6 +88,12 @@ vec4 getObjectMaterialColor(int type)
             return vec4(objectMaterial.diffuseColor, 1.0);
         else
             return vec4(objectMaterial.specularColor, 1.0);
+    }
+
+    if (objectMaterial.isUsedExtraSample)
+    {
+        vec3 result = yuvTorgb();
+        return vec4(result, 1.0);
     }
 
     if (type == 0)
@@ -158,22 +180,6 @@ vec3 processSpotLight(int index)
     return ambient + diffuse + specular;
 }
 // =========================================================================================
-
-vec3 yuvTorgb(int index)
-{
-    vec3 yuv;
-    vec3 rgb;
-
-    yuv.x = texture2D(objectMaterial.extraSample1, OutCoord.xy).r;
-    yuv.y = texture2D(objectMaterial.extraSample2, OutCoord.xy).r - 0.5;
-    yuv.z = texture2D(objectMaterial.extraSample3, OutCoord.xy).r - 0.5;
-
-    rgb = mat3(1,       1,         1,
-                       0,       -0.39465,  2.03211,
-                       1.13983, -0.58060,  0) * yuv;
-
-    return rgb;
-}
 
 void main(void)
 {
