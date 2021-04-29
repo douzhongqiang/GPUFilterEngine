@@ -1,7 +1,12 @@
 #include "GPUFilterSpotLight.h"
+#include <QtMath>
 
 GPUFilterSpotLight::GPUFilterSpotLight(QObject* parent)
     :GPUFilterLightBase(parent)
+    , m_lightPostion(0.0f, 0.0f, 0.0f)
+    , m_direction(0.0f, 0.0f, -1.0f)
+    , m_cutout(12.5f)
+    , m_outerCutoff(17.5f)
 {
 
 }
@@ -53,5 +58,19 @@ int GPUFilterSpotLight::getType(void)
 
 void GPUFilterSpotLight::processShader(QOpenGLShaderProgram* pShaderProgram, int index)
 {
+    QString tempString("lightMaterial[%1].%2");
 
+    QString uniformString = tempString.arg(index).arg("lightDirection");
+    pShaderProgram->setUniformValue(uniformString.toStdString().c_str(), m_direction);
+
+    uniformString = tempString.arg(index).arg("lightPoint");
+    pShaderProgram->setUniformValue(uniformString.toStdString().c_str(), m_lightPostion);
+
+    uniformString = tempString.arg(index).arg("cutoff");
+    pShaderProgram->setUniformValue(uniformString.toStdString().c_str(), (float)qCos(qDegreesToRadians(m_cutout)));
+
+    uniformString = tempString.arg(index).arg("outerCutoff");
+    pShaderProgram->setUniformValue(uniformString.toStdString().c_str(), (float)qCos(qDegreesToRadians(m_outerCutoff)));
+
+    GPUFilterLightBase::processShader(pShaderProgram, index);
 }

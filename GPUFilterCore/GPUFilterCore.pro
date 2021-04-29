@@ -20,6 +20,7 @@ SOURCES += \
     OpenGLCore/GPUFilterCamera.cpp \
     OpenGLCore/GPUFilterDirectionLight.cpp \
     OpenGLCore/GPUFilterFBO.cpp \
+    OpenGLCore/GPUFilterFlashLight.cpp \
     OpenGLCore/GPUFilterLightBase.cpp \
     OpenGLCore/GPUFilterMaterial.cpp \
     OpenGLCore/GPUFilterMesh.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
     OpenGLCore/GPUFilterCamera.h \
     OpenGLCore/GPUFilterDirectionLight.h \
     OpenGLCore/GPUFilterFBO.h \
+    OpenGLCore/GPUFilterFlashLight.h \
     OpenGLCore/GPUFilterLightBase.h \
     OpenGLCore/GPUFilterMaterial.h \
     OpenGLCore/GPUFilterMesh.h \

@@ -117,7 +117,11 @@ void GPUFilterScene::removeMesh(GPUFilterMesh* pMesh)
 // Add Lights
 void GPUFilterScene::addLight(GPUFilterLightBase* pLight)
 {
+    if (pLight == nullptr)
+        return;
+
     m_lightVec.append(pLight);
+    pLight->setCurrentScene(this);
 }
 
 // Get Shader Program

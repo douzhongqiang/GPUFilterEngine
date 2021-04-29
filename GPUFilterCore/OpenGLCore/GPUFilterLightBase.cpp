@@ -47,6 +47,17 @@ QVector3D GPUFilterLightBase::getSpecularColor(void)
     return m_specularColor;
 }
 
+// set/get Scene
+void GPUFilterLightBase::setCurrentScene(GPUFilterScene* pScene)
+{
+    m_pScene = pScene;
+}
+
+GPUFilterScene* GPUFilterLightBase::getCurrentScene(void)
+{
+    return m_pScene;
+}
+
 int GPUFilterLightBase::getType(void)
 {
     return m_type;

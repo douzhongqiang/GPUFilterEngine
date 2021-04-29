@@ -111,3 +111,45 @@ bool GPUFilterMaterial::isLightEffect(void)
 {
     return m_isLightEffect;
 }
+
+// get/set Used Extra Texture
+void GPUFilterMaterial::setExtraTextureEnabled(bool isEnabled)
+{
+    m_isUsedExtraTexture = isEnabled;
+}
+
+bool GPUFilterMaterial::isExtraTextureEnabled(void)
+{
+    return m_isUsedExtraTexture;
+}
+
+// set/get Extra Texture
+void GPUFilterMaterial::setExtraTexture1(QSharedPointer<GPUFilterTexture> texture)
+{
+    m_pExtraTexture1 = texture;
+}
+
+void GPUFilterMaterial::setExtraTexture2(QSharedPointer<GPUFilterTexture> texture)
+{
+    m_pExtraTexture2 = texture;
+}
+
+void GPUFilterMaterial::setExtraTexture3(QSharedPointer<GPUFilterTexture> texture)
+{
+    m_pExtraTexture3 = texture;
+}
+
+QSharedPointer<GPUFilterTexture> GPUFilterMaterial::getExtraTexture1(void)
+{
+    return m_pExtraTexture1;
+}
+
+QSharedPointer<GPUFilterTexture> GPUFilterMaterial::getExtraTexture2(void)
+{
+    return m_pExtraTexture2;
+}
+
+QSharedPointer<GPUFilterTexture> GPUFilterMaterial::getExtraTexture3(void)
+{
+    return m_pExtraTexture3;
+}

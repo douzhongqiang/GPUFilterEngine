@@ -5,6 +5,7 @@
 #include <QVector3D>
 #include <QOpenGLShaderProgram>
 
+class GPUFilterScene;
 class GPUFilterLightBase : public QObject
 {
     Q_OBJECT
@@ -32,6 +33,10 @@ public:
     void setSpecularColor(const QVector3D& color);
     QVector3D getSpecularColor(void);
 
+    // set/get Scene
+    void setCurrentScene(GPUFilterScene* pScene);
+    GPUFilterScene* getCurrentScene(void);
+
     virtual int getType(void);
     virtual void processShader(QOpenGLShaderProgram* pShaderProgram, int index);
 
@@ -42,6 +47,8 @@ protected:
 
     LightType m_type = t_DirectionLight;
     bool m_isEnabled = true;
+
+    GPUFilterScene* m_pScene = nullptr;
 };
 
 #endif

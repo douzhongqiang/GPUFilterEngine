@@ -280,6 +280,36 @@ void GPUFilterMesh::processMaterial(void)
         }
     }
 
+    // process Extra Texture
+    bool isEnabledExtraTexture = m_pMaterial->isExtraTextureEnabled();
+    pShaderProgram->setUniformValue("objectMaterial.isUsedExtraSample", isEnabledExtraTexture);
+    if (isEnabledExtraTexture)
+    {
+        // Extra Texture1
+        QSharedPointer<GPUFilterTexture> pTexture1 = m_pMaterial->getExtraTexture1();
+        if (pTexture1)
+        {
+            pTexture1->activeTexture(3);
+            pShaderProgram->setUniformValue("objectMaterial.extraSample1", 3);
+        }
+
+        // Extra Texture2
+        QSharedPointer<GPUFilterTexture> pTexture2 = m_pMaterial->getExtraTexture2();
+        if (pTexture2)
+        {
+            pTexture2->activeTexture(4);
+            pShaderProgram->setUniformValue("objectMaterial.extraSample2", 4);
+        }
+
+        // Extra Texture3
+        QSharedPointer<GPUFilterTexture> pTexture3 = m_pMaterial->getExtraTexture3();
+        if (pTexture3)
+        {
+            pTexture3->activeTexture(5);
+            pShaderProgram->setUniformValue("objectMaterial.extraSample3", 5);
+        }
+    }
+
     g_GPUFunc->glBindBuffer(GL_TEXTURE_2D, 0);
 }
 
@@ -298,25 +328,42 @@ void GPUFilterMesh::processMaterialTexture(void)
 
     // Set Color Enabled
     bool isEnabledColor = m_pMaterial->getColorEnabled();
-    if (isEnabledColor)
-        return;
+    if (!isEnabledColor)
+    {
+        // Set Texture Material
 
-    // Set Texture Material
+        // Set Ambient Texture
+        QSharedPointer<GPUFilterTexture> pAmbientTexture = m_pMaterial->getAmbientTexture();
+        if (pAmbientTexture && !pAmbientTexture->hasCreated())
+            pAmbientTexture->create();
 
-    // Set Ambient Texture
-    QSharedPointer<GPUFilterTexture> pAmbientTexture = m_pMaterial->getAmbientTexture();
-    if (pAmbientTexture && !pAmbientTexture->hasCreated())
-        pAmbientTexture->create();
+        // Set Diffues Texture
+        QSharedPointer<GPUFilterTexture> pDiffuseTexture = m_pMaterial->getDiffuesTexture();
+        if (pDiffuseTexture && !pDiffuseTexture->hasCreated())
+            pDiffuseTexture->create();
 
-    // Set Diffues Texture
-    QSharedPointer<GPUFilterTexture> pDiffuseTexture = m_pMaterial->getDiffuesTexture();
-    if (pDiffuseTexture && !pDiffuseTexture->hasCreated())
-        pDiffuseTexture->create();
+        // Set Specular Texture
+        QSharedPointer<GPUFilterTexture> pSpecularTexture = m_pMaterial->getSpecularTexture();
+        if (pSpecularTexture && !pSpecularTexture->hasCreated())
+            pSpecularTexture->create();
+    }
 
-    // Set Specular Texture
-    QSharedPointer<GPUFilterTexture> pSpecularTexture = m_pMaterial->getSpecularTexture();
-    if (pSpecularTexture && !pSpecularTexture->hasCreated())
-        pSpecularTexture->create();
+    // Set Extra Texture
+    if (m_pMaterial->isExtraTextureEnabled())
+    {
+        // Create Extra Texture
+        QSharedPointer<GPUFilterTexture> pTexture1 = m_pMaterial->getExtraTexture1();
+        if (pTexture1 && !pTexture1->hasCreated())
+            pTexture1->create();
+
+        QSharedPointer<GPUFilterTexture> pTexture2 = m_pMaterial->getExtraTexture2();
+        if (pTexture2 && !pTexture2->hasCreated())
+            pTexture2->create();
+
+        QSharedPointer<GPUFilterTexture> pTexture3 = m_pMaterial->getExtraTexture3();
+        if (pTexture3 && !pTexture3->hasCreated())
+            pTexture3->create();
+    }
 }
 
 void GPUFilterMesh::onAmbientTextureChanged(void)

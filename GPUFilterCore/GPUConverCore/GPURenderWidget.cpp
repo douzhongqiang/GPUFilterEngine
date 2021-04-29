@@ -5,6 +5,8 @@
 #include "OpenGLCore/GPUFilterTexture.h"
 #include "OpenGLCore/GPUFilterDirectionLight.h"
 #include "OpenGLCore/GPUFilterPointLight.h"
+#include "OpenGLCore/GPUFilterSpotLight.h"
+#include "OpenGLCore/GPUFilterFlashLight.h"
 #include "OpenGLCore/GPUFilterTool.h"
 #include <QSharedDataPointer>
 #include <QFileDialog>
@@ -95,7 +97,7 @@ void GPURenderWidget::createTestLights(void)
     // Add Light
     GPUFilterDirectionLight* pLight = new GPUFilterDirectionLight;
     pLight->setDirection(QVector3D(-1.0f, -1.0f, -1.0f));
-    m_pMainScene->addLight(pLight);
+//    m_pMainScene->addLight(pLight);
 
     QVector3D pointPos(1.1f, 0.0f, 0.5f);
 
@@ -103,7 +105,17 @@ void GPURenderWidget::createTestLights(void)
     GPUFilterPointLight* pPointLight = new GPUFilterPointLight;
     pPointLight->setLightPostion(pointPos);
 //    pPointLight->setAmbientColor(QVector3D(1.0f, 1.0f, 1.0f));
-    m_pMainScene->addLight(pPointLight);
+//    m_pMainScene->addLight(pPointLight);
+
+    // Add Spot Light
+    GPUFilterSpotLight* pSpotLight = new GPUFilterSpotLight;
+    pSpotLight->setLightPostion(QVector3D(0.0f, 0.0f, 5.0f));
+    pSpotLight->setCutoutInfo(4.0f, 4.5f);
+    //m_pMainScene->addLight(pSpotLight);
+
+    // Add Flash Light
+    GPUFilterFlashLight* pFlashLight = new GPUFilterFlashLight;
+    m_pMainScene->addLight(pFlashLight);
 
     // Add Test Light Postion
     GPUFilterGeometry* pMesh = new GPUFilterGeometry;

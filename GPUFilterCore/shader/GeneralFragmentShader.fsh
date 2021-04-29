@@ -21,6 +21,12 @@ struct Material
     vec3 specularColor;     // 镜面反射颜色
 
     float shininess;        // 镜面发射系数
+
+    // 针对YUV和RGB转换，扩展材质
+    bool isUsedExtraSample;
+    sampler2D extraSample1;
+    sampler2D extraSample2;
+    sampler2D extraSample3;
 };
 
 // 光的材质结构
@@ -32,15 +38,17 @@ struct LightMaterial
     vec3 diffuseColor;      // 漫反射颜色
     vec3 specularColor;     // 镜面反射颜色
 
-    // 针对方向光
     vec3 lightDirection;    // 光的方向
+    vec3 lightPoint;        // 光的位置
 
-    // 针对点光源
-    vec3 lightPoint;        // 点光源
     // 衰减相关
     float constant;         // 衰减常数
     float linear;           // 一次项系数
     float quadratic;        // 二次系数
+
+    // 聚光灯相关
+    float cutoff;       // 聚光灯的切角
+    float outerCutoff;    // 外圆锥的切角
 };
 
 uniform Material objectMaterial;            // 物体的材质
@@ -75,6 +83,7 @@ vec4 getObjectMaterialColor(int type)
 }
 // =========================================================================================
 
+// =====================================灯光处理====================================================
 // 处理方向光
 vec3 processDirectionLight(int index)
 {
@@ -123,6 +132,49 @@ vec3 processPointLight(int index)
     return ambient + diffuse + specular;
 }
 
+// 处理聚光灯
+vec3 processSpotLight(int index)
+{
+    // 环境光
+    vec3 ambient = lightMaterial[index].ambientColor * vec3(getObjectMaterialColor(0));
+
+    vec3 lightDir = normalize(lightMaterial[index].lightPoint - OutPostion);
+    float theta = dot(lightDir, normalize(-lightMaterial[index].lightDirection));
+    float epsilon = lightMaterial[index].cutoff - lightMaterial[index].outerCutoff;
+    float intensity = clamp((theta - lightMaterial[index].outerCutoff) / epsilon, 0.0, 1.0);
+
+    // 漫反射
+    float diff = max(dot(OutNormal, lightDir), 0);
+    vec3 diffuse = diff * lightMaterial[index].diffuseColor * vec3(getObjectMaterialColor(1));
+    diffuse *= intensity;
+
+    // 鏡面反射
+    vec3 viewDir = normalize(ViewPostion - OutPostion);
+    vec3 reflectDir = reflect(-lightDir, OutNormal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), objectMaterial.shininess);
+    vec3 specular = spec * lightMaterial[index].specularColor * vec3(getObjectMaterialColor(2));
+    specular *= intensity;
+
+    return ambient + diffuse + specular;
+}
+// =========================================================================================
+
+vec3 yuvTorgb(int index)
+{
+    vec3 yuv;
+    vec3 rgb;
+
+    yuv.x = texture2D(objectMaterial.extraSample1, OutCoord.xy).r;
+    yuv.y = texture2D(objectMaterial.extraSample2, OutCoord.xy).r - 0.5;
+    yuv.z = texture2D(objectMaterial.extraSample3, OutCoord.xy).r - 0.5;
+
+    rgb = mat3(1,       1,         1,
+                       0,       -0.39465,  2.03211,
+                       1.13983, -0.58060,  0) * yuv;
+
+    return rgb;
+}
+
 void main(void)
 {
     if (!objectMaterial.lightEffect)
@@ -143,6 +195,10 @@ void main(void)
         else if (lightMaterial[i].type == 1)
         {
             resultColor += processPointLight(i);
+        }
+        else if (lightMaterial[i].type == 2)
+        {
+            resultColor += processSpotLight(i);
         }
     }
 
