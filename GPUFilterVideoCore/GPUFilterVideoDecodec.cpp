@@ -1,4 +1,6 @@
 #include "GPUFilterVideoDecodec.h"
+#include <QTimer>
+#include <QDebug>
 
 GPUFilterVideoDecodec::GPUFilterVideoDecodec(QObject* parent)
     :QThread(parent)
@@ -8,12 +10,41 @@ GPUFilterVideoDecodec::GPUFilterVideoDecodec(QObject* parent)
 {
     for (int i=0; i<m_nTotal; ++i)
         m_frames.push_back(nullptr);
+
+    initTimer();
 }
 
 GPUFilterVideoDecodec::~GPUFilterVideoDecodec()
 {
 
 }
+
+void GPUFilterVideoDecodec::initTimer(void)
+{
+    m_pTimer = new QTimer;
+    m_pThread = new QThread(this);
+    m_pTimer->setTimerType(Qt::PreciseTimer);
+    m_pTimer->moveToThread(m_pThread);
+
+    QObject::connect(m_pTimer, &QTimer::timeout, this, &GPUFilterVideoDecodec::updateDisplay);
+    QObject::connect(m_pThread, SIGNAL(started()), m_pTimer, SLOT(start()));
+    QObject::connect(m_pThread, &QThread::destroyed, m_pTimer, &QTimer::deleteLater);
+}
+
+void GPUFilterVideoDecodec::startTimer(int interval)
+{
+    m_pTimer->setInterval(interval);
+
+    if (!m_pThread->isRunning())
+        m_pThread->start();
+}
+
+void GPUFilterVideoDecodec::stopTimer(void)
+{
+    m_pThread->quit();
+    m_pThread->wait();
+}
+
 
 // open video file
 bool GPUFilterVideoDecodec::openVideoFile(const QString& fileName)
@@ -54,6 +85,14 @@ bool GPUFilterVideoDecodec::openVideoFile(const QString& fileName)
         return false;
     }
 
+    AVStream* pStram = m_pFormatContext->streams[m_nVideoIndex];
+    qDebug() << pStram->avg_frame_rate.den << pStram->avg_frame_rate.num;
+
+    m_fps = pStram->avg_frame_rate.num * 1.0 / pStram->avg_frame_rate.den;
+
+    // Start Timer
+    startTimer(1000.0 / m_fps);
+
     return true;
 }
 
@@ -66,8 +105,8 @@ bool GPUFilterVideoDecodec::getYUVData(QVector<QByteArray>& yuvData, int& type)
     yuvData.clear();
 
     AVFrame* pFrame = m_frames[m_nStartIndex++];
-    if (m_nEndIndex >= m_nTotal)
-        m_nEndIndex = 0;
+    if (m_nStartIndex >= m_nTotal)
+        m_nStartIndex = 0;
 
     if (pFrame == nullptr)
     {
@@ -89,6 +128,12 @@ bool GPUFilterVideoDecodec::getYUVData(QVector<QByteArray>& yuvData, int& type)
 
     m_semaphore.release();
     return true;
+}
+
+void GPUFilterVideoDecodec::getVideoSize(int& width, int& height)
+{
+    width = m_nVideoWidth;
+    height = m_nVideoHeight;
 }
 
 // open video decodec

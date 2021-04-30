@@ -85,6 +85,10 @@ signals:
     void ambientTextureChanged(void);
     void diffuesTextureChanged(void);
     void specularTextureChanged(void);
+
+    void extraTexture1Changed(void);
+    void extraTexture2Changed(void);
+    void extraTexture3Changed(void);
 };
 
 #endif

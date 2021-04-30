@@ -96,6 +96,10 @@ private slots:
     void onAmbientTextureChanged(void);
     void onDiffuesTextureChanged(void);
     void onSpecularTextureChanged(void);
+
+    void onExtraTexture1Changed(void);
+    void onExtraTexture2Changed(void);
+    void onExtraTexture3Changed(void);
 };
 
 #endif

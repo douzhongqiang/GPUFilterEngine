@@ -19,6 +19,7 @@ Widget::Widget(QWidget *parent)
 
     // Create Video Decodec
     m_pVideoDecodec = new GPUFilterVideoDecodec(this);
+    QObject::connect(m_pVideoDecodec, &GPUFilterVideoDecodec::updateDisplay, this, &Widget::onUpdateDisplay);
 }
 
 Widget::~Widget()
@@ -37,4 +38,19 @@ void Widget::onClickedButton(void)
         if (m_pVideoDecodec->openVideoFile(filename))
             m_pVideoDecodec->start();
     }
+}
+
+void Widget::onUpdateDisplay(void)
+{
+    if (m_pVideoDecodec == nullptr)
+        return;
+
+    QVector<QByteArray> yuvDatas;
+    int type = 0;
+    m_pVideoDecodec->getYUVData(yuvDatas, type);
+
+    int nWidth, nHeight;
+    m_pVideoDecodec->getVideoSize(nWidth, nHeight);
+
+    m_pRenderWidget->setYUVData(type, yuvDatas, nWidth, nHeight);
 }

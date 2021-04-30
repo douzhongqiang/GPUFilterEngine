@@ -19,6 +19,7 @@ private:
 
 private slots:
     void onClickedButton(void);
+    void onUpdateDisplay(void);
 };
 
 #endif // WIDGET_H

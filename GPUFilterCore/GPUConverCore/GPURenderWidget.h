@@ -20,6 +20,7 @@ public:
     ~GPURenderWidget();
 
     void setImage(const QImage& image);
+    void setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height);
 
 protected:
     void initializeGL() override;

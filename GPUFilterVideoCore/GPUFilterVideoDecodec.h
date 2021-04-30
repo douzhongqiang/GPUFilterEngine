@@ -29,6 +29,8 @@ public:
     // get Frame Data
     bool getYUVData(QVector<QByteArray>& yuvData, int& type);
 
+    void getVideoSize(int& width, int& height);
+
     void run(void) override;
 
 private:
@@ -44,6 +46,7 @@ private:
 
     int m_nVideoWidth = 0;
     int m_nVideoHeight = 0;
+    float m_fps = 0;
     enum AVPixelFormat m_pixelFormat;
 
     QSemaphore m_semaphore;
@@ -52,6 +55,16 @@ private:
     std::atomic<int> m_nStartIndex;
     std::atomic<int> m_nEndIndex;
     QVector<AVFrame*> m_frames;
+
+    // Timer About
+    void initTimer(void);
+    void startTimer(int interval);
+    void stopTimer(void);
+    QTimer* m_pTimer = nullptr;
+    QThread* m_pThread = nullptr;
+
+signals:
+    void updateDisplay(void);
 };
 
 #endif

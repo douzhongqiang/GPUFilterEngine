@@ -193,12 +193,20 @@ void GPUFilterMesh::setMaterial(QSharedPointer<GPUFilterMaterial> pMaterial)
         QObject::disconnect(m_pMaterial.get(), &GPUFilterMaterial::ambientTextureChanged, this, &GPUFilterMesh::onAmbientTextureChanged);
         QObject::disconnect(m_pMaterial.get(), &GPUFilterMaterial::diffuesTextureChanged, this, &GPUFilterMesh::onDiffuesTextureChanged);
         QObject::disconnect(m_pMaterial.get(), &GPUFilterMaterial::specularTextureChanged, this, &GPUFilterMesh::onSpecularTextureChanged);
+
+        QObject::disconnect(m_pMaterial.get(), &GPUFilterMaterial::extraTexture1Changed, this, &GPUFilterMesh::onExtraTexture1Changed);
+        QObject::disconnect(m_pMaterial.get(), &GPUFilterMaterial::extraTexture2Changed, this, &GPUFilterMesh::onExtraTexture2Changed);
+        QObject::disconnect(m_pMaterial.get(), &GPUFilterMaterial::extraTexture3Changed, this, &GPUFilterMesh::onExtraTexture3Changed);
     }
 
     m_pMaterial = pMaterial;
     QObject::connect(m_pMaterial.get(), &GPUFilterMaterial::ambientTextureChanged, this, &GPUFilterMesh::onAmbientTextureChanged);
     QObject::connect(m_pMaterial.get(), &GPUFilterMaterial::diffuesTextureChanged, this, &GPUFilterMesh::onDiffuesTextureChanged);
     QObject::connect(m_pMaterial.get(), &GPUFilterMaterial::specularTextureChanged, this, &GPUFilterMesh::onSpecularTextureChanged);
+
+    QObject::connect(m_pMaterial.get(), &GPUFilterMaterial::extraTexture1Changed, this, &GPUFilterMesh::onExtraTexture1Changed);
+    QObject::connect(m_pMaterial.get(), &GPUFilterMaterial::extraTexture2Changed, this, &GPUFilterMesh::onExtraTexture2Changed);
+    QObject::connect(m_pMaterial.get(), &GPUFilterMaterial::extraTexture3Changed, this, &GPUFilterMesh::onExtraTexture3Changed);
 }
 
 QSharedPointer<GPUFilterMaterial> GPUFilterMesh::getMaterial(void)
@@ -398,6 +406,45 @@ void GPUFilterMesh::onSpecularTextureChanged(void)
         return;
 
     QSharedPointer<GPUFilterTexture> pTexture = m_pMaterial->getSpecularTexture();
+    if (pTexture.isNull())
+        return;
+
+    if (m_hasCreated && !pTexture->hasCreated())
+        pTexture->create();
+}
+
+void GPUFilterMesh::onExtraTexture1Changed(void)
+{
+    if (m_pMaterial.isNull())
+        return;
+
+    QSharedPointer<GPUFilterTexture> pTexture = m_pMaterial->getExtraTexture1();
+    if (pTexture.isNull())
+        return;
+
+    if (m_hasCreated && !pTexture->hasCreated())
+        pTexture->create();
+}
+
+void GPUFilterMesh::onExtraTexture2Changed(void)
+{
+    if (m_pMaterial.isNull())
+        return;
+
+    QSharedPointer<GPUFilterTexture> pTexture = m_pMaterial->getExtraTexture2();
+    if (pTexture.isNull())
+        return;
+
+    if (m_hasCreated && !pTexture->hasCreated())
+        pTexture->create();
+}
+
+void GPUFilterMesh::onExtraTexture3Changed(void)
+{
+    if (m_pMaterial.isNull())
+        return;
+
+    QSharedPointer<GPUFilterTexture> pTexture = m_pMaterial->getExtraTexture3();
     if (pTexture.isNull())
         return;
 

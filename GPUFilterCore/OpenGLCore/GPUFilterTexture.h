@@ -22,12 +22,6 @@ public:
         t_LUMINANCE
     };
 
-    enum TextureType
-    {
-        t_diffuse,
-        t_specular
-    };
-
 public:
     GPUFilterTexture(QObject* parent = nullptr);
     ~GPUFilterTexture();
@@ -54,10 +48,6 @@ public:
     void setFilterType(FilterType type);        // This Function Called, Before create
     FilterType getFilterType(void);
 
-    // set/get Texture Type
-    void setTextureType(TextureType type);
-    TextureType getTextureType(void);
-
     // set/get texture format
     void setImageFormat(ImageFormat format);
     ImageFormat getImageFormat(void);
@@ -69,7 +59,6 @@ private:
     GLuint m_nTextureID = 0;
     FilterType m_filterType;
     ImageFormat m_imageFormat;
-    TextureType m_textureType;
 
     GLuint coverToGLType(ImageFormat format);
 

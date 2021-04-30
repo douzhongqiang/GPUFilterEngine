@@ -127,16 +127,19 @@ bool GPUFilterMaterial::isExtraTextureEnabled(void)
 void GPUFilterMaterial::setExtraTexture1(QSharedPointer<GPUFilterTexture> texture)
 {
     m_pExtraTexture1 = texture;
+    emit extraTexture1Changed();
 }
 
 void GPUFilterMaterial::setExtraTexture2(QSharedPointer<GPUFilterTexture> texture)
 {
     m_pExtraTexture2 = texture;
+    emit extraTexture2Changed();
 }
 
 void GPUFilterMaterial::setExtraTexture3(QSharedPointer<GPUFilterTexture> texture)
 {
     m_pExtraTexture3 = texture;
+    emit extraTexture3Changed();
 }
 
 QSharedPointer<GPUFilterTexture> GPUFilterMaterial::getExtraTexture1(void)

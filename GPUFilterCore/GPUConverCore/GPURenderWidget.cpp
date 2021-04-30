@@ -255,3 +255,32 @@ void GPURenderWidget::wheelEvent(QWheelEvent *event)
     this->update();
     return QOpenGLWidget::wheelEvent(event);
 }
+
+void GPURenderWidget::setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height)
+{
+    if (yuvData.size() <= 2)
+        return;
+
+    m_pMaterial->setColorEnabled(false);
+    m_pMaterial->setExtraTextureEnabled(true);
+
+    // Set Y Data
+    GPUFilterTexture* pYTexture = new GPUFilterTexture;
+    pYTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+    pYTexture->setImageData(yuvData[0].data(), width, height);
+    m_pMaterial->setExtraTexture1(QSharedPointer<GPUFilterTexture>(pYTexture));
+
+    // Set U Data
+    GPUFilterTexture* pUTexture = new GPUFilterTexture;
+    pUTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+    pUTexture->setImageData(yuvData[1].data(), width / 2, height / 2);
+    m_pMaterial->setExtraTexture1(QSharedPointer<GPUFilterTexture>(pUTexture));
+
+    // Set V Data
+    GPUFilterTexture* pVTexture = new GPUFilterTexture;
+    pVTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+    pVTexture->setImageData(yuvData[2].data(), width / 2, height / 2);
+    m_pMaterial->setExtraTexture1(QSharedPointer<GPUFilterTexture>(pVTexture));
+
+    this->update();
+}

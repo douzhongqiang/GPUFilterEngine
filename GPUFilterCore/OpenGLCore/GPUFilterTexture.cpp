@@ -160,16 +160,6 @@ void GPUFilterTexture::activeTexture(int textureID)
     this->bind();
 }
 
-void GPUFilterTexture::setTextureType(TextureType type)
-{
-    m_textureType = type;
-}
-
-GPUFilterTexture::TextureType GPUFilterTexture::getTextureType(void)
-{
-    return m_textureType;
-}
-
 // set/get texture format
 void GPUFilterTexture::setImageFormat(ImageFormat format)
 {
