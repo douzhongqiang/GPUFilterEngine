@@ -274,13 +274,13 @@ void GPURenderWidget::setYUVData(int type, const QVector<QByteArray>& yuvData, i
     GPUFilterTexture* pUTexture = new GPUFilterTexture;
     pUTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
     pUTexture->setImageData(yuvData[1].data(), width / 2, height / 2);
-    m_pMaterial->setExtraTexture1(QSharedPointer<GPUFilterTexture>(pUTexture));
+    m_pMaterial->setExtraTexture2(QSharedPointer<GPUFilterTexture>(pUTexture));
 
     // Set V Data
     GPUFilterTexture* pVTexture = new GPUFilterTexture;
     pVTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
     pVTexture->setImageData(yuvData[2].data(), width / 2, height / 2);
-    m_pMaterial->setExtraTexture1(QSharedPointer<GPUFilterTexture>(pVTexture));
+    m_pMaterial->setExtraTexture3(QSharedPointer<GPUFilterTexture>(pVTexture));
 
     this->update();
 }
