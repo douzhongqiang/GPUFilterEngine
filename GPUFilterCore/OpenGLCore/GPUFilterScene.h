@@ -33,6 +33,10 @@ public:
     // Get Camera
     GPUFilterCamera* getCamera(void);
 
+    // Set/Get Background Color
+    void setBgColor(const QColor& color);
+    QColor getBgColor(void);
+
 private:
     GPUFilterShaderProgram* m_pShaderProgram = nullptr;
     GPUFilterCamera* m_pCamera = nullptr;
@@ -44,6 +48,8 @@ private:
 
     void effectLights(void);
     void effectLights(GPUFilterLightBase* pLight, int index);
+
+    QColor m_bgColor;
 };
 
 #endif

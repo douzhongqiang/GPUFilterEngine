@@ -3,6 +3,7 @@
 
 GPUFilterScene::GPUFilterScene(QObject* parent)
     :QObject(parent)
+    , m_bgColor(0, 0, 0)
 {
 
 }
@@ -53,7 +54,7 @@ void GPUFilterScene::init(void)
 
 void GPUFilterScene::render(void)
 {
-    g_GPUFunc->glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+    g_GPUFunc->glClearColor(m_bgColor.redF(), m_bgColor.greenF(), m_bgColor.blueF(), m_bgColor.alphaF());
     g_GPUFunc->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     g_GPUFunc->glEnable(GL_DEPTH_TEST);
@@ -158,4 +159,15 @@ void GPUFilterScene::effectLights(GPUFilterLightBase* pLight, int index)
 
     QOpenGLShaderProgram* pShaderProgram = m_pShaderProgram->getShaderProgram();
     pLight->processShader(pShaderProgram, index);
+}
+
+// Set/Get Background Color
+void GPUFilterScene::setBgColor(const QColor& color)
+{
+    m_bgColor = color;
+}
+
+QColor GPUFilterScene::getBgColor(void)
+{
+    return m_bgColor;
 }

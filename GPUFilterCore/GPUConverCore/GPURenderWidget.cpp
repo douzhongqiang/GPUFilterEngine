@@ -19,8 +19,14 @@ GPURenderWidget::GPURenderWidget(QWidget* parent)
 
     m_pMainScene = new GPUFilterScene(this);
     createTestRectMesh();
-    createTestCubeMesh();
+    //createTestCubeMesh();
     createTestLights();
+
+    // Create Floor
+    createFloor();
+    // Create TV Mesh
+    createTVMesh();
+    createTVMesh2();
 
     m_pConverScene = new GPUConverScene(this);
 }
@@ -133,6 +139,71 @@ void GPURenderWidget::createTestLights(void)
     mat.translate(pointPos);
     mat.scale(0.05f, 0.05f, 0.05f);
     pMesh->setModelMartix(mat);
+}
+
+void GPURenderWidget::createFloor(void)
+{
+    GPUFilterGeometryRect* pFloorMesh = new GPUFilterGeometryRect;
+    m_pMainScene->addMesh(pFloorMesh);
+
+    // Set Floor Material
+    GPUFilterMaterial* pMaterial = new GPUFilterMaterial;
+    pMaterial->setColorEnabled(false);
+    pMaterial->setExtraTextureEnabled(false);
+    pMaterial->setLightEffect(false);
+    pFloorMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(pMaterial));
+
+    GPUFilterTexture* pTexture = new GPUFilterTexture;
+    pTexture->setImage(QImage("./metal.png"));
+    pMaterial->setDiffuesTexture(QSharedPointer<GPUFilterTexture>(pTexture));
+
+    QMatrix4x4 mat;
+    QVector3D pointPos(0.0f, -5.0f, -20.0f);
+    m_floorPostion = pointPos;
+    mat.translate(m_floorPostion);
+    mat.scale(10.0f, 10.0f, 10.0f);
+    mat.rotate(90.0f, QVector3D(1.0f, 0.0f, 0.0f));
+    pFloorMesh->setModelMartix(mat);
+}
+
+void GPURenderWidget::createTVMesh(void)
+{
+    m_pTVMesh = new GPUFilterGeometryRect;
+    m_pMainScene->addMesh(m_pTVMesh);
+
+    // Set Floor Material
+#if 0
+    m_pMaterial = new GPUFilterMaterial;
+    m_pMaterial->setColorEnabled(true);
+    m_pMaterial->setExtraTextureEnabled(false);
+    m_pMaterial->setLightEffect(false);
+    m_pMaterial->setAmbientColor(QVector3D(0.0f, 0.0f, 0.0f));
+    m_pMaterial->setDiffuesColor(QVector3D(0.0f, 0.0f, 0.0f));
+    m_pMaterial->setSpecularColor(QVector3D(0.0f, 0.0f, 0.0f));
+#endif
+    m_pTVMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(m_pMaterial));
+
+    // Set Mode Matrix
+    QMatrix4x4 mat;
+    QVector3D pointPos(0.0f, 0.0f, m_floorPostion.z() - 2.5f);
+    mat.translate(pointPos);
+    mat.scale(5.0f, m_floorPostion.y(), 1.0f);
+    m_pTVMesh->setModelMartix(mat);
+}
+
+void GPURenderWidget::createTVMesh2(void)
+{
+    m_pTVMesh2 = new GPUFilterGeometryRect;
+    m_pMainScene->addMesh(m_pTVMesh2);
+    m_pTVMesh2->setMaterial(QSharedPointer<GPUFilterMaterial>(m_pMaterial));
+
+    // Set Mode Matrix
+    QMatrix4x4 mat;
+    QVector3D pointPos(0.0f, 0.0f, m_floorPostion.z() - 2.5f);
+    pointPos.setY(-pointPos.y() + 2 * m_floorPostion.y());
+    mat.translate(pointPos);
+    mat.scale(5.0f, -m_floorPostion.y(), 1.0f);
+    m_pTVMesh2->setModelMartix(mat);
 }
 
 void GPURenderWidget::setImage(const QImage& image)
@@ -265,22 +336,51 @@ void GPURenderWidget::setYUVData(int type, const QVector<QByteArray>& yuvData, i
     m_pMaterial->setExtraTextureEnabled(true);
 
     // Set Y Data
-    GPUFilterTexture* pYTexture = new GPUFilterTexture;
-    pYTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
-    pYTexture->setImageData(yuvData[0].data(), width, height);
-    m_pMaterial->setExtraTexture1(QSharedPointer<GPUFilterTexture>(pYTexture));
+    if (m_pMaterial->getExtraTexture1().isNull())
+    {
+        QSharedPointer<GPUFilterTexture> pYTexture(new GPUFilterTexture);
+        pYTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+        m_pMaterial->setExtraTexture1(pYTexture);
+    }
+    m_pMaterial->getExtraTexture1()->setImageData(yuvData[0].data(), width, height);
 
     // Set U Data
-    GPUFilterTexture* pUTexture = new GPUFilterTexture;
-    pUTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
-    pUTexture->setImageData(yuvData[1].data(), width / 2, height / 2);
-    m_pMaterial->setExtraTexture2(QSharedPointer<GPUFilterTexture>(pUTexture));
+    if (m_pMaterial->getExtraTexture2().isNull())
+    {
+        QSharedPointer<GPUFilterTexture> pUTexture(new GPUFilterTexture);
+        pUTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+//        pUTexture->setImageData(yuvData[1].data(), width / 2, height / 2);
+        m_pMaterial->setExtraTexture2(pUTexture);
+    }
+    m_pMaterial->getExtraTexture2()->setImageData(yuvData[1].data(), width / 2, height / 2);
 
     // Set V Data
-    GPUFilterTexture* pVTexture = new GPUFilterTexture;
-    pVTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
-    pVTexture->setImageData(yuvData[2].data(), width / 2, height / 2);
-    m_pMaterial->setExtraTexture3(QSharedPointer<GPUFilterTexture>(pVTexture));
+    if (m_pMaterial->getExtraTexture3().isNull())
+    {
+        QSharedPointer<GPUFilterTexture> pVTexture(new GPUFilterTexture);
+        pVTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+//        pVTexture->setImageData(yuvData[2].data(), width / 2, height / 2);
+        m_pMaterial->setExtraTexture3(pVTexture);
+    }
+    m_pMaterial->getExtraTexture3()->setImageData(yuvData[2].data(), width / 2, height / 2);
+
+    // Set Scale Size
+    int scaleSize = qMax(width, height);
+    float scaleWidth = width * 5.0 / scaleSize;
+    float scaleHeight = height * 5.0 / scaleSize;
+
+    QMatrix4x4 mat;
+    QVector3D pointPos(0.0f, scaleHeight - 5.0f, m_floorPostion.z() - 1.5f);
+    mat.translate(pointPos);
+    mat.scale(scaleWidth, -scaleHeight, 5.0f);
+    m_pTVMesh->setModelMartix(mat);
+
+    // Set Mode Matrix
+    mat.setToIdentity();
+    pointPos.setY(-pointPos.y() + 2 * m_floorPostion.y());
+    mat.translate(pointPos);
+    mat.scale(scaleWidth, scaleHeight, 5.0f);
+    m_pTVMesh2->setModelMartix(mat);
 
     this->update();
 }

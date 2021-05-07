@@ -188,6 +188,9 @@ void GPUFilterMesh::draw(void)
 // set/get Material
 void GPUFilterMesh::setMaterial(QSharedPointer<GPUFilterMaterial> pMaterial)
 {
+    if (m_pMaterial == pMaterial)
+        return;
+
     if (!m_pMaterial.isNull())
     {
         QObject::disconnect(m_pMaterial.get(), &GPUFilterMaterial::ambientTextureChanged, this, &GPUFilterMesh::onAmbientTextureChanged);

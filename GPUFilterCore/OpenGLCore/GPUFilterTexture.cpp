@@ -10,7 +10,7 @@ GPUFilterTexture::GPUFilterTexture(QObject* parent)
 
 GPUFilterTexture::~GPUFilterTexture()
 {
-
+    release();
 }
 
 bool GPUFilterTexture::create(void)

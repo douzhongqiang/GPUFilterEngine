@@ -16,7 +16,13 @@ GPUFilterVideoDecodec::GPUFilterVideoDecodec(QObject* parent)
 
 GPUFilterVideoDecodec::~GPUFilterVideoDecodec()
 {
+    this->requestInterruption();
 
+    stopTimer();
+
+    m_semaphore.release();
+    this->quit();
+    this->wait();
 }
 
 void GPUFilterVideoDecodec::initTimer(void)
@@ -104,7 +110,9 @@ bool GPUFilterVideoDecodec::getYUVData(QVector<QByteArray>& yuvData, int& type)
 
     yuvData.clear();
 
-    AVFrame* pFrame = m_frames[m_nStartIndex++];
+    AVFrame* pFrame = m_frames[m_nStartIndex];
+//    qDebug() << "released:" << m_nStartIndex << (pFrame == nullptr);
+    m_nStartIndex++;
     if (m_nStartIndex >= m_nTotal)
         m_nStartIndex = 0;
 
@@ -127,6 +135,9 @@ bool GPUFilterVideoDecodec::getYUVData(QVector<QByteArray>& yuvData, int& type)
     }
 
     m_semaphore.release();
+
+    av_frame_free(&pFrame);
+
     return true;
 }
 
@@ -183,7 +194,9 @@ bool GPUFilterVideoDecodec::decodecVideo(AVPacket* packet)
     }
 
     m_semaphore.acquire(1);
-    m_frames[m_nEndIndex++] = tempFrame;
+    m_frames[m_nEndIndex] = tempFrame;
+//    qDebug() << "acquired:" << m_nEndIndex;
+    m_nEndIndex++;
     if (m_nEndIndex >= m_nTotal)
         m_nEndIndex = 0;
 

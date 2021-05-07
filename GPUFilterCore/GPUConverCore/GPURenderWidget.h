@@ -11,6 +11,7 @@
 
 class GPUFilterMaterial;
 class GPUFilterTexture;
+class GPUFilterGeometryRect;
 class GPUFILTERCORE_EXPORT GPURenderWidget : public QOpenGLWidget , public QOpenGLFunctions_3_3_Core
 {
     Q_OBJECT
@@ -38,9 +39,18 @@ private:
     GPUFilterScene* m_pMainScene = nullptr;
     GPUFilterMaterial* m_pMaterial = nullptr;
 
+    GPUFilterGeometryRect* m_pTVMesh = nullptr;
+    GPUFilterGeometryRect* m_pTVMesh2 = nullptr;
+
     void createTestRectMesh(void);
     void createTestCubeMesh(void);
     void createTestLights(void);
+
+    void createFloor(void);
+    void createTVMesh(void);
+    void createTVMesh2(void);
+
+    QVector3D m_floorPostion;
 };
 
 #endif
