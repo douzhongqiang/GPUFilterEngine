@@ -4,9 +4,10 @@
 #include <QObject>
 #include <QVector3D>
 #include <QOpenGLShaderProgram>
+#include "GPUFilterCore_global.h"
 
 class GPUFilterScene;
-class GPUFilterLightBase : public QObject
+class GPUFILTERCORE_EXPORT GPUFilterLightBase : public QObject
 {
     Q_OBJECT
 

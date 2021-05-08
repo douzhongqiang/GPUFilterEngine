@@ -10,8 +10,9 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QMatrix4x4>
+#include "GPUFilterCore_global.h"
 
-class GPUFilterCamera : public QObject
+class GPUFILTERCORE_EXPORT GPUFilterCamera : public QObject
 {
     Q_OBJECT
 

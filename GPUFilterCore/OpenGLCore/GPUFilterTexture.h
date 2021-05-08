@@ -3,8 +3,9 @@
 
 #include <QObject>
 #include <QtOpenGL>
+#include "GPUFilterCore_global.h"
 
-class GPUFilterTexture : public QObject
+class GPUFILTERCORE_EXPORT GPUFilterTexture : public QObject
 {
     Q_OBJECT
 

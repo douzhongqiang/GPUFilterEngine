@@ -254,6 +254,8 @@ void GPUFilterMesh::processMaterial(void)
     pShaderProgram->setUniformValue("objectMaterial.shininess", m_pMaterial->getShininess());
     // Set Light Effect
     pShaderProgram->setUniformValue("objectMaterial.lightEffect", m_pMaterial->isLightEffect());
+    // set factor
+    pShaderProgram->setUniformValue("M_factor", m_pMaterial->getFactor());
 
     if (isEnabledColor)
     {

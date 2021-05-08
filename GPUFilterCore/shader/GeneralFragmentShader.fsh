@@ -80,6 +80,7 @@ vec4 getObjectMaterialColor(int type)
     if (!objectMaterial.enabled)
         return vec4(OutColor, 1.0);
 
+
     if (objectMaterial.enabledColor)
     {
         if (type == 0)
@@ -181,12 +182,15 @@ vec3 processSpotLight(int index)
 }
 // =========================================================================================
 
+uniform vec3 M_factor;
+
 void main(void)
 {
     if (!objectMaterial.lightEffect)
     {
         // 使用漫反射的图片或者颜色
-        gl_FragColor = getObjectMaterialColor(1);
+        vec3 tempVecColor = vec3(getObjectMaterialColor(1));
+        gl_FragColor = vec4(M_factor * tempVecColor, 1.0);
         return;
     }
 
@@ -208,5 +212,5 @@ void main(void)
         }
     }
 
-    gl_FragColor = vec4(resultColor, 1.0);
+    gl_FragColor = vec4(M_factor * resultColor, 1.0);
 }

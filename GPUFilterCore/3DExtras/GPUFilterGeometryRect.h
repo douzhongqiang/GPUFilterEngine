@@ -2,8 +2,10 @@
 #define GPUFILTERGEOMETRYRECT_H
 
 #include "OpenGLCore/GPUFilterMesh.h"
+#include "GPUFilterCore_global.h"
+
 class GPUFilterCamera;
-class GPUFilterGeometryRect : public GPUFilterMesh
+class GPUFILTERCORE_EXPORT GPUFilterGeometryRect : public GPUFilterMesh
 {
     Q_OBJECT
 

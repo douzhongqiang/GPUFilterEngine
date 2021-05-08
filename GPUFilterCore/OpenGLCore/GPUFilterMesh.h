@@ -7,9 +7,10 @@
 #include <QMatrix4x4>
 #include "GPUFilterTexture.h"
 #include "GPUFilterMaterial.h"
+#include "GPUFilterCore_global.h"
 
 class GPUFilterScene;
-class GPUFilterMesh : public QObject
+class GPUFILTERCORE_EXPORT GPUFilterMesh : public QObject
 {
     Q_OBJECT
 public:

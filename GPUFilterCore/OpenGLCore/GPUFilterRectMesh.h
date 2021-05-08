@@ -3,8 +3,9 @@
 
 #include <QObject>
 #include "GPUFilterMesh.h"
+#include "GPUFilterCore_global.h"
 
-class GPUFilterRectMesh : public GPUFilterMesh
+class GPUFILTERCORE_EXPORT GPUFilterRectMesh : public GPUFilterMesh
 {
     Q_OBJECT
 

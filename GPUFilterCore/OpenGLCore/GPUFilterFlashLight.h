@@ -4,8 +4,9 @@
 #include <QObject>
 #include <QVector3D>
 #include "GPUFilterSpotLight.h"
+#include "GPUFilterCore_global.h"
 
-class GPUFilterFlashLight : public GPUFilterSpotLight
+class GPUFILTERCORE_EXPORT GPUFilterFlashLight : public GPUFilterSpotLight
 {
     Q_OBJECT
 

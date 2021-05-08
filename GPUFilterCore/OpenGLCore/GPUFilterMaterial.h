@@ -6,8 +6,9 @@
 #include <QVector3D>
 #include <QSharedPointer>
 #include "GPUFilterTexture.h"
+#include "GPUFilterCore_global.h"
 
-class GPUFilterMaterial : public QObject
+class GPUFILTERCORE_EXPORT GPUFilterMaterial : public QObject
 {
     Q_OBJECT
 
@@ -59,6 +60,10 @@ public:
     QSharedPointer<GPUFilterTexture> getExtraTexture2(void);
     QSharedPointer<GPUFilterTexture> getExtraTexture3(void);
 
+    // set/get factor
+    void setFactor(const QVector3D& factor);
+    QVector3D getFactor(void);
+
 private:
     bool m_isColorEnabled = true;
 
@@ -66,6 +71,9 @@ private:
     QVector3D m_ambientColor;
     QVector3D m_diffuesColor;
     QVector3D m_specularColor;
+
+    // factor
+    QVector3D m_factor;
 
     // Texture
     QSharedPointer<GPUFilterTexture> m_pAmbientTexture;

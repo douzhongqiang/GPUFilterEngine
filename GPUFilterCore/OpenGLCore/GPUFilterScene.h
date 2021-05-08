@@ -8,8 +8,9 @@
 #include "GPUFilterShaderProgram.h"
 #include "GPUFilterMesh.h"
 #include "GPUFilterLightBase.h"
+#include "GPUFilterCore_global.h"
 
-class GPUFilterScene : public QObject
+class GPUFILTERCORE_EXPORT GPUFilterScene : public QObject
 {
     Q_OBJECT
 
@@ -37,7 +38,7 @@ public:
     void setBgColor(const QColor& color);
     QColor getBgColor(void);
 
-private:
+protected:
     GPUFilterShaderProgram* m_pShaderProgram = nullptr;
     GPUFilterCamera* m_pCamera = nullptr;
 

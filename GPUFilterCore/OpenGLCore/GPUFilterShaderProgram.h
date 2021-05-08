@@ -4,8 +4,9 @@
 #include <QObject>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
+#include "GPUFilterCore_global.h"
 
-class GPUFilterShaderProgram : public QObject
+class GPUFILTERCORE_EXPORT GPUFilterShaderProgram : public QObject
 {
     Q_OBJECT
 

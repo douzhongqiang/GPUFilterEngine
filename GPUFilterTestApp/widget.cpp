@@ -7,7 +7,7 @@
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
-    m_pRenderWidget = new GPURenderWidget;
+    m_pRenderWidget = new GPUFilterVideoPlayerWidget;
     m_pRenderWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QVBoxLayout* pLayout = new QVBoxLayout(this);

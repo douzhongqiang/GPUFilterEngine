@@ -1,4 +1,4 @@
-#include "GPURenderWidget.h"
+#include "GPUFilterVideoPlayerScene.h"
 #include "3DExtras/GPUFilterGeometryRect.h"
 #include "3DExtras/GPUFilterGeometryCubeBox.h"
 #include "OpenGLCore/GPUFilterMaterial.h"
@@ -8,43 +8,100 @@
 #include "OpenGLCore/GPUFilterSpotLight.h"
 #include "OpenGLCore/GPUFilterFlashLight.h"
 #include "OpenGLCore/GPUFilterTool.h"
-#include <QFileDialog>
 
-GPURenderWidget::GPURenderWidget(QWidget* parent)
-    :QOpenGLWidget(parent)
+GPUFilterVideoPlayerScene::GPUFilterVideoPlayerScene(QObject* parent)
+    :GPUFilterScene(parent)
+    , m_floorPostion(0.0f, -5.0f, -20.0f)
 {
-    this->setFocusPolicy(Qt::ClickFocus);
-    this->setMouseTracking(true);
+    initScene();
+}
 
-    m_pMainScene = new GPUFilterScene(this);
+GPUFilterVideoPlayerScene::~GPUFilterVideoPlayerScene()
+{
+
+}
+
+void GPUFilterVideoPlayerScene::render(void)
+{
+    g_GPUFunc->glEnable(GL_DEPTH_TEST);
+    g_GPUFunc->glDepthFunc(GL_LESS);
+
+    g_GPUFunc->glEnable(GL_STENCIL_TEST);
+    g_GPUFunc->glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    g_GPUFunc->glStencilFunc(GL_ALWAYS, 1, 0xFF);
+
+    g_GPUFunc->glClearColor(m_bgColor.redF(), m_bgColor.greenF(), m_bgColor.blueF(), m_bgColor.alphaF());
+    g_GPUFunc->glClearStencil(0);
+    g_GPUFunc->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    m_pShaderProgram->bind();
+
+    effectLights();
+
+    g_GPUFunc->glStencilMask(0x00);
+
+    // Draw Mesh
+    for (auto iter = m_meshVec.begin(); iter != m_meshVec.end(); ++iter)
+    {
+        GPUFilterMesh* pMesh = *iter;
+        if (pMesh == nullptr)
+            continue;
+
+        // Set View And Projection Matrix
+        m_pShaderProgram->getShaderProgram()->setUniformValue("V", m_pCamera->getVMatrix());
+        m_pShaderProgram->getShaderProgram()->setUniformValue("P", m_pCamera->getPMatrix());
+        // Set Camera Postion
+        m_pShaderProgram->getShaderProgram()->setUniformValue("ViewPostion", m_pCamera->getCameraPostion());
+
+        if (pMesh == m_pFloorMesh)
+        {
+            g_GPUFunc->glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            g_GPUFunc->glStencilMask(0xFF);
+            g_GPUFunc->glDepthMask(GL_FALSE);
+        }
+        else if (pMesh == m_pTVMesh2)
+        {
+            g_GPUFunc->glStencilFunc(GL_EQUAL, 1, 0xFF);
+            g_GPUFunc->glStencilMask(0x00);
+
+            pMesh->getMaterial()->setFactor(QVector3D(0.4f, 0.4f, 0.4f));
+        }
+        // Draw
+        pMesh->draw();
+
+        if (pMesh == m_pFloorMesh)
+        {
+            g_GPUFunc->glDepthMask(GL_TRUE);
+        }
+        else if (pMesh == m_pTVMesh2)
+        {
+            g_GPUFunc->glStencilMask(0xFF);
+            pMesh->getMaterial()->setFactor(QVector3D(1.0f, 1.0f, 1.0f));
+        }
+    }
+
+    m_pShaderProgram->unbind();
+}
+
+void GPUFilterVideoPlayerScene::initScene(void)
+{
     createTestRectMesh();
-    //createTestCubeMesh();
+    createTestCubeMesh();
     createTestLights();
 
-    // Create Floor
-    createFloor();
-    // Create TV Mesh
     createTVMesh();
+    createFloor();
     createTVMesh2();
-
-    m_pConverScene = new GPUConverScene(this);
 }
 
-GPURenderWidget::~GPURenderWidget()
+void GPUFilterVideoPlayerScene::createTestRectMesh(void)
 {
+    m_pRectMesh = new GPUFilterGeometryRect;
+    this->addMesh(m_pRectMesh);
 
-}
-
-void GPURenderWidget::createTestRectMesh(void)
-{
-    GPUFilterGeometryRect* pRectMesh = new GPUFilterGeometryRect;
-    m_pMainScene->addMesh(pRectMesh);
     m_pMaterial = new GPUFilterMaterial;
-    m_pMaterial->setAmbientColor(QVector3D(0.0f, 1.0f, 1.0f));
-    m_pMaterial->setDiffuesColor(QVector3D(0.0f, 1.0f, 1.0f));
-    m_pMaterial->setSpecularColor(QVector3D(0.0f, 1.0f, 1.0f));
-    pRectMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(m_pMaterial));
-    pRectMesh->setAlwayToBottom(true);
+    m_pRectMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(m_pMaterial));
+    m_pRectMesh->setAlwayToBottom(true);
     m_pMaterial->setLightEffect(false);
 
     // Set Image
@@ -70,14 +127,11 @@ void GPURenderWidget::createTestRectMesh(void)
     m_pMaterial->setSpecularTexture(pTexture3);
 }
 
-void GPURenderWidget::createTestCubeMesh(void)
+void GPUFilterVideoPlayerScene::createTestCubeMesh(void)
 {
     GPUFilterGeometry* pMesh = new GPUFilterGeometry;
-    m_pMainScene->addMesh(pMesh);
+    this->addMesh(pMesh);
     GPUFilterMaterial* pMaterial = new GPUFilterMaterial;
-    pMaterial->setAmbientColor(QVector3D(0.0f, 1.0f, 1.0f));
-    pMaterial->setDiffuesColor(QVector3D(0.0f, 1.0f, 1.0f));
-    pMaterial->setSpecularColor(QVector3D(0.0f, 1.0f, 1.0f));
     pMaterial->setColorEnabled(false);
 
     // Set Texture
@@ -92,39 +146,70 @@ void GPURenderWidget::createTestCubeMesh(void)
     pMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(pMaterial));
 
     QMatrix4x4 mat;
-    mat.translate(0.0f, 0.0f, -1.0f);
+    QVector3D pos = m_floorPostion;
+    pos.setX(m_floorPostion.x() + 7.5f);
+    pos.setY(m_floorPostion.y() + 1.0f);
+    pos.setZ(m_floorPostion.z() + 2.5f);
+    mat.translate(pos);
     mat.scale(1.0f, -1.0f, 1.0f);
     pMesh->setModelMartix(mat);
 }
 
-void GPURenderWidget::createTestLights(void)
+void GPUFilterVideoPlayerScene::createTestLights(void)
 {
     // Add Light
     GPUFilterDirectionLight* pLight = new GPUFilterDirectionLight;
     pLight->setDirection(QVector3D(-1.0f, -1.0f, -1.0f));
-//    m_pMainScene->addLight(pLight);
+    this->addLight(pLight);
 
-    QVector3D pointPos(1.1f, 0.0f, 0.5f);
+#if 1
+    QVector<QVector3D> posVec;
+    posVec << QVector3D(m_floorPostion.x() + 8.0f, m_floorPostion.y() + 4.0f, m_floorPostion.z() + 8.0f)
+           << QVector3D(m_floorPostion.x() - 8.0f, m_floorPostion.y() + 4.0f, m_floorPostion.z() + 8.0f)
+           << QVector3D(m_floorPostion.x() + 8.0f, m_floorPostion.y() + 4.0f, m_floorPostion.z() - 8.0f)
+           << QVector3D(m_floorPostion.x() - 8.0f, m_floorPostion.y() + 4.0f, m_floorPostion.z() - 8.0f);
 
-    // Add Point Light
-    GPUFilterPointLight* pPointLight = new GPUFilterPointLight;
-    pPointLight->setLightPostion(pointPos);
-//    pPointLight->setAmbientColor(QVector3D(1.0f, 1.0f, 1.0f));
-//    m_pMainScene->addLight(pPointLight);
+    for (auto iter = posVec.begin(); iter != posVec.end(); ++iter)
+    {
+        QVector3D pointPos = *iter;
 
+        // Add Point Light
+        GPUFilterPointLight* pPointLight = new GPUFilterPointLight;
+        pPointLight->setLightPostion(pointPos);
+        this->addLight(pPointLight);
+
+        // Add Test Light Postion
+        GPUFilterGeometry* pMesh = new GPUFilterGeometry;
+        this->addMesh(pMesh);
+        GPUFilterMaterial* pMaterial = new GPUFilterMaterial;
+        pMaterial->setAmbientColor(QVector3D(1.0f, 1.0f, 1.0f));
+        pMaterial->setDiffuesColor(QVector3D(1.0f, 1.0f, 1.0f));
+        pMaterial->setSpecularColor(QVector3D(1.0f, 1.0f, 1.0f));
+        pMaterial->setColorEnabled(true);
+        pMaterial->setLightEffect(false);
+        pMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(pMaterial));
+        pMesh->setVisible(true);
+
+        QMatrix4x4 mat;
+        mat.translate(pointPos);
+        mat.scale(0.05f, 0.05f, 0.05f);
+        pMesh->setModelMartix(mat);
+    }
+
+#endif
     // Add Spot Light
     GPUFilterSpotLight* pSpotLight = new GPUFilterSpotLight;
-    pSpotLight->setLightPostion(QVector3D(0.0f, 0.0f, 5.0f));
-    pSpotLight->setCutoutInfo(4.0f, 4.5f);
-    //m_pMainScene->addLight(pSpotLight);
+    QVector3D spotPoint = m_floorPostion;
+    spotPoint.setY(spotPoint.x() + 10.0f);
+    spotPoint.setY(spotPoint.y() + 1.0f);
+    spotPoint.setZ(spotPoint.z() + 5.0f);
+    pSpotLight->setLightPostion(spotPoint);
+    pSpotLight->setDirection(QVector3D(0.0f, -1.0f, 0.0f));
+    pSpotLight->setCutoutInfo(60.0f, 65.0f);
+    this->addLight(pSpotLight);
 
-    // Add Flash Light
-    GPUFilterFlashLight* pFlashLight = new GPUFilterFlashLight;
-    m_pMainScene->addLight(pFlashLight);
-
-    // Add Test Light Postion
     GPUFilterGeometry* pMesh = new GPUFilterGeometry;
-    m_pMainScene->addMesh(pMesh);
+    this->addMesh(pMesh);
     GPUFilterMaterial* pMaterial = new GPUFilterMaterial;
     pMaterial->setAmbientColor(QVector3D(1.0f, 1.0f, 1.0f));
     pMaterial->setDiffuesColor(QVector3D(1.0f, 1.0f, 1.0f));
@@ -132,28 +217,37 @@ void GPURenderWidget::createTestLights(void)
     pMaterial->setColorEnabled(true);
     pMaterial->setLightEffect(false);
     pMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(pMaterial));
-    pMesh->setVisible(false);
+    pMesh->setVisible(true);
 
     QMatrix4x4 mat;
-    mat.translate(pointPos);
+    mat.translate(spotPoint);
     mat.scale(0.05f, 0.05f, 0.05f);
     pMesh->setModelMartix(mat);
+
+#if 1
+    // Add Flash Light
+    GPUFilterFlashLight* pFlashLight = new GPUFilterFlashLight;
+    pFlashLight->setDiffuesColor(QVector3D(200.0 / 255 * 0.5f, 87.0 / 255 * 0.5f, 217.0 / 255 * 0.5f));
+    pFlashLight->setSpecularColor(QVector3D(0.0f, 0.0f, 0.0f));
+    pFlashLight->setCutoutInfo(1.2f, 4.0f);
+    this->addLight(pFlashLight);
+#endif
 }
 
-void GPURenderWidget::createFloor(void)
+void GPUFilterVideoPlayerScene::createFloor(void)
 {
-    GPUFilterGeometryRect* pFloorMesh = new GPUFilterGeometryRect;
-    m_pMainScene->addMesh(pFloorMesh);
+    m_pFloorMesh = new GPUFilterGeometryRect;
+    this->addMesh(m_pFloorMesh);
 
     // Set Floor Material
     GPUFilterMaterial* pMaterial = new GPUFilterMaterial;
     pMaterial->setColorEnabled(true);
     pMaterial->setExtraTextureEnabled(false);
-    pMaterial->setLightEffect(false);
-    pFloorMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(pMaterial));
-    pMaterial->setAmbientColor(QVector3D(1.0f, 1.0f, 1.0f));
-    pMaterial->setDiffuesColor(QVector3D(1.0f, 1.0f, 1.0f));
-    pMaterial->setSpecularColor(QVector3D(1.0f, 1.0f, 1.0f));
+    pMaterial->setLightEffect(true);
+    m_pFloorMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(pMaterial));
+    pMaterial->setAmbientColor(QVector3D(0.78f, 0.78f, 0.78f));
+    pMaterial->setDiffuesColor(QVector3D(0.78f, 0.78f, 0.78f));
+    pMaterial->setSpecularColor(QVector3D(0.78f, 0.78f, 0.78f));
 
     QMatrix4x4 mat;
     QVector3D pointPos(0.0f, -5.0f, -20.0f);
@@ -161,13 +255,13 @@ void GPURenderWidget::createFloor(void)
     mat.translate(m_floorPostion);
     mat.scale(10.0f, 10.0f, 10.0f);
     mat.rotate(90.0f, QVector3D(1.0f, 0.0f, 0.0f));
-    pFloorMesh->setModelMartix(mat);
+    m_pFloorMesh->setModelMartix(mat);
 }
 
-void GPURenderWidget::createTVMesh(void)
+void GPUFilterVideoPlayerScene::createTVMesh(void)
 {
     m_pTVMesh = new GPUFilterGeometryRect;
-    m_pMainScene->addMesh(m_pTVMesh);
+    this->addMesh(m_pTVMesh);
 
     // Set Floor Material
 #if 0
@@ -180,6 +274,7 @@ void GPURenderWidget::createTVMesh(void)
     m_pMaterial->setSpecularColor(QVector3D(0.0f, 0.0f, 0.0f));
 #endif
     m_pTVMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(m_pMaterial));
+    m_pMaterial->setLightEffect(true);
 
     // Set Mode Matrix
     QMatrix4x4 mat;
@@ -189,10 +284,10 @@ void GPURenderWidget::createTVMesh(void)
     m_pTVMesh->setModelMartix(mat);
 }
 
-void GPURenderWidget::createTVMesh2(void)
+void GPUFilterVideoPlayerScene::createTVMesh2(void)
 {
     m_pTVMesh2 = new GPUFilterGeometryRect;
-    m_pMainScene->addMesh(m_pTVMesh2);
+    this->addMesh(m_pTVMesh2);
     m_pTVMesh2->setMaterial(QSharedPointer<GPUFilterMaterial>(m_pMaterial));
 
     // Set Mode Matrix
@@ -204,128 +299,7 @@ void GPURenderWidget::createTVMesh2(void)
     m_pTVMesh2->setModelMartix(mat);
 }
 
-void GPURenderWidget::setImage(const QImage& image)
-{
-    this->makeCurrent();
-    QString str = QFileDialog::getOpenFileName(this, "Open Image", "./");
-    if (str.isEmpty())
-        return;
-
-    QSharedPointer<GPUFilterTexture> pTexture(new GPUFilterTexture(this));
-    if (pTexture.isNull())
-        return;
-
-    pTexture->setImage(QImage(str));
-    m_pMaterial->setDiffuesTexture(pTexture);
-
-    this->update();
-
-//#if 1
-//    QImage tempImage = image.convertToFormat(QImage::Format_RGB888);
-//    m_pMaterial->setColorEnabled(false);
-//    m_pTexture = new GPUFilterTexture(this);
-//    m_pTexture->create();
-//    m_pTexture->setImage(tempImage);
-//    m_pMaterial->setAmbientTexture(m_pTexture);
-//    m_pMaterial->setDiffuesTexture(m_pTexture);
-
-//    this->update();
-//    return;
-
-//#else
-
-//    tempImage = image.convertToFormat(QImage::Format_RGB888);
-//    char* pImageData[1] = {0};
-//    pImageData[0] = (char*)tempImage.constBits();
-//    m_pConverScene->setSrcData(GPUConverScene::t_RGB, (const char**)pImageData, tempImage.width(), tempImage.height());
-
-//    this->update();
-//#endif
-}
-
-void GPURenderWidget::initializeGL()
-{
-    this->initializeOpenGLFunctions();
-    return m_pMainScene->init();
-
-    m_pConverScene->init();
-}
-
-void GPURenderWidget::resizeGL(int w, int h)
-{
-//    m_pConverScene->resize(w, h);
-    m_pMainScene->resize(w, h);
-
-    return QOpenGLWidget::resizeGL(w, h);
-}
-
-void GPURenderWidget::paintGL()
-{
-//    m_pConverScene->render();
-
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    m_pMainScene->render();
-}
-
-void GPURenderWidget::keyPressEvent(QKeyEvent* event)
-{
-    if (m_pMainScene && m_pMainScene->getCamera())
-    {
-        m_pMainScene->getCamera()->keyPressEvent(event);
-        m_pMainScene->getCamera()->activeCamera();
-    }
-
-    this->update();
-    return QOpenGLWidget::keyPressEvent(event);
-}
-
-void GPURenderWidget::mousePressEvent(QMouseEvent* event)
-{
-    if (m_pMainScene && m_pMainScene->getCamera())
-    {
-        m_pMainScene->getCamera()->mousePressEvent(event);
-        m_pMainScene->getCamera()->activeCamera();
-    }
-
-    return QOpenGLWidget::mousePressEvent(event);
-}
-
-void GPURenderWidget::mouseMoveEvent(QMouseEvent* event)
-{
-    if (m_pMainScene && m_pMainScene->getCamera())
-    {
-        m_pMainScene->getCamera()->mouseMoveEvent(event);
-        m_pMainScene->getCamera()->activeCamera();
-    }
-    this->update();
-
-    return QOpenGLWidget::mouseMoveEvent(event);
-}
-
-void GPURenderWidget::mouseReleaseEvent(QMouseEvent* event)
-{
-    if (m_pMainScene && m_pMainScene->getCamera())
-    {
-        m_pMainScene->getCamera()->mouseReleaseEvent(event);
-        m_pMainScene->getCamera()->activeCamera();
-    }
-
-    return QOpenGLWidget::mouseReleaseEvent(event);
-}
-
-void GPURenderWidget::wheelEvent(QWheelEvent *event)
-{
-    if (m_pMainScene && m_pMainScene->getCamera())
-    {
-        m_pMainScene->getCamera()->wheelEvent(event);
-        m_pMainScene->getCamera()->activeCamera();
-    }
-
-    this->update();
-    return QOpenGLWidget::wheelEvent(event);
-}
-
-void GPURenderWidget::setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height)
+void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height)
 {
     if (yuvData.size() <= 2)
         return;
@@ -379,6 +353,4 @@ void GPURenderWidget::setYUVData(int type, const QVector<QByteArray>& yuvData, i
     mat.translate(pointPos);
     mat.scale(scaleWidth, scaleHeight, 5.0f);
     m_pTVMesh2->setModelMartix(mat);
-
-    this->update();
 }

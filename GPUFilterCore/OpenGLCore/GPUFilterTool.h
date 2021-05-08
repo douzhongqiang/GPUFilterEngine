@@ -3,11 +3,12 @@
 
 #include <QObject>
 #include <QOpenGLFunctions_3_3_Core>
+#include "GPUFilterCore_global.h"
 
 #define g_GPUFilterTool GPUFilterTool::getInstance()
 #define g_GPUFunc g_GPUFilterTool->getOpenGLFunc()
 
-class GPUFilterTool : public QObject
+class GPUFILTERCORE_EXPORT GPUFilterTool : public QObject
 {
 public:
     static GPUFilterTool* getInstance(void);

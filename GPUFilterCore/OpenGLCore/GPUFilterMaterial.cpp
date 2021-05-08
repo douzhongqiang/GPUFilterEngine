@@ -2,6 +2,7 @@
 
 GPUFilterMaterial::GPUFilterMaterial(QObject* parent)
     :QObject(parent)
+    , m_factor(1.0f, 1.0f, 1.0f)
 {
 
 }
@@ -30,18 +31,18 @@ void GPUFilterMaterial::setAmbientColor(const QVector3D& color)
 
 QVector3D GPUFilterMaterial::getAmbientColor(void)
 {
-    return m_diffuesColor;
+    return m_ambientColor;
 }
 
 // set/get Diffuse
 void GPUFilterMaterial::setDiffuesColor(const QVector3D& color)
 {
-    m_specularColor = color;
+    m_diffuesColor = color;
 }
 
 QVector3D GPUFilterMaterial::getDiffuesColor(void)
 {
-    return m_specularColor;
+    return m_diffuesColor;
 }
 
 // set/get Specular
@@ -155,4 +156,15 @@ QSharedPointer<GPUFilterTexture> GPUFilterMaterial::getExtraTexture2(void)
 QSharedPointer<GPUFilterTexture> GPUFilterMaterial::getExtraTexture3(void)
 {
     return m_pExtraTexture3;
+}
+
+// set/get factor
+void GPUFilterMaterial::setFactor(const QVector3D& factor)
+{
+    m_factor = factor;
+}
+
+QVector3D GPUFilterMaterial::getFactor(void)
+{
+    return m_factor;
 }
