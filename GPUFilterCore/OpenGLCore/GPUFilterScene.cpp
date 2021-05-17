@@ -10,13 +10,13 @@ GPUFilterScene::GPUFilterScene(QObject* parent)
 
 GPUFilterScene::~GPUFilterScene()
 {
-    for (auto iter = m_meshVec.begin(); iter != m_meshVec.end(); ++iter)
-    {
-        if (*iter == nullptr)
-            continue;
+//    for (auto iter = m_meshVec.begin(); iter != m_meshVec.end(); ++iter)
+//    {
+//        if (*iter == nullptr)
+//            continue;
 
-        (*iter)->setParent(nullptr);
-    }
+//        (*iter)->setParent(nullptr);
+//    }
 }
 
 void GPUFilterScene::init(void)

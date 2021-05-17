@@ -69,6 +69,7 @@ private:
     int m_nWidth = 0;
     int m_nHeight = 0;
     void setImageDataToTexture(void);
+    void updateImageDataToTexture(void);
 };
 
 #endif

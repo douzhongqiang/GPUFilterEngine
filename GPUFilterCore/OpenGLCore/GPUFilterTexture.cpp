@@ -10,7 +10,7 @@ GPUFilterTexture::GPUFilterTexture(QObject* parent)
 
 GPUFilterTexture::~GPUFilterTexture()
 {
-    release();
+//    release();
 }
 
 bool GPUFilterTexture::create(void)
@@ -95,11 +95,20 @@ void GPUFilterTexture::setImage(const QImage& image)
     m_imageData.clear();
     int len = image.byteCount();
     m_imageData.append((const char*)tempImage.constBits(), len);
-    m_nWidth = image.width();
-    m_nHeight = image.height();
 
-    // Set Data To Texture
-    setImageDataToTexture();
+    if (m_nWidth != image.width() && m_nHeight != image.height())
+    {
+        m_nWidth = image.width();
+        m_nHeight = image.height();
+
+        // Set Data To Texture
+        setImageDataToTexture();
+    }
+    else
+    {
+        // Update For Image Data To Texture
+        updateImageDataToTexture();
+    }
 }
 
 void GPUFilterTexture::setImageDataToTexture(void)
@@ -117,6 +126,21 @@ void GPUFilterTexture::setImageDataToTexture(void)
     m_imageData.clear();
 }
 
+void GPUFilterTexture::updateImageDataToTexture(void)
+{
+    if (m_imageData.size() <= 0 || !m_hasCreated)
+        return;
+
+    this->bind();
+
+    GLint type = coverToGLType(m_imageFormat);
+    g_GPUFunc->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_nWidth, m_nHeight, \
+                            type, GL_UNSIGNED_BYTE, m_imageData.data());
+
+    this->unbind();
+    m_imageData.clear();
+}
+
 void GPUFilterTexture::setImage(const QString& image)
 {
     QImage tempImage;
@@ -129,8 +153,6 @@ void GPUFilterTexture::setImage(const QString& image)
 void GPUFilterTexture::setImageData(const char* pData, int width, int height)
 {
     m_imageData.clear();
-    m_nWidth = width;
-    m_nHeight = height;
     int perCount = 0;
     if (m_imageFormat == t_RGB)
         perCount = 3;
@@ -141,7 +163,19 @@ void GPUFilterTexture::setImageData(const char* pData, int width, int height)
     int len = width * height * perCount;
     m_imageData.append(pData, len);
 
-    setImageDataToTexture();
+    if (m_nWidth != width && m_nHeight != height)
+    {
+        m_nWidth = width;
+        m_nHeight = height;
+
+        // Set Data To Texture
+        setImageDataToTexture();
+    }
+    else
+    {
+        // Update For Image Data To Texture
+        updateImageDataToTexture();
+    }
 }
 
 void GPUFilterTexture::setFilterType(FilterType type)

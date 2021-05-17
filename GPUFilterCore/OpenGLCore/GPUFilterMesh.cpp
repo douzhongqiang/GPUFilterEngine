@@ -11,7 +11,7 @@ GPUFilterMesh::GPUFilterMesh(QObject* parent)
 
 GPUFilterMesh::~GPUFilterMesh()
 {
-
+    release();
 }
 
 // Add Postion
@@ -155,7 +155,10 @@ void GPUFilterMesh::createVAO(void)
 
 void GPUFilterMesh::release(void)
 {
+    g_GPUFunc->glDeleteBuffers(1, &m_nVBO);
+    g_GPUFunc->glDeleteBuffers(1, &m_nIBO);
 
+    g_GPUFunc->glDeleteVertexArrays(1, &m_nVAO);
 }
 
 void GPUFilterMesh::addTexture(QSharedPointer<GPUFilterTexture> pTexture)
