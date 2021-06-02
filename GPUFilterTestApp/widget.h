@@ -21,6 +21,8 @@ private:
 private slots:
     void onClickedButton(void);
     void onUpdateDisplay(void);
+
+    void onClickedLoadModelButton(void);
 };
 
 #endif // WIDGET_H

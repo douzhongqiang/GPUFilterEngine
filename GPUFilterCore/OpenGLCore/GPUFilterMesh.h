@@ -37,6 +37,7 @@ public:
     void addCoord(const QVector3D& coord);
     // create Indices
     void createIndices(void);
+    void setIndices(const QVector<GLuint>& indices);
 
     // set/get Model Matrix
     void setModelMartix(const QMatrix4x4& mat);
@@ -73,6 +74,7 @@ protected:
     QVector<QVector3D> m_normalVec;
     QVector<QVector3D> m_coordVec;
     QVector<GLuint> m_indices;
+    bool m_hasSetedIndices = false;
 
     GLuint m_nVBO = 0;
     GLuint m_nIBO = 0;      // Element Buffer Object

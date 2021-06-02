@@ -1,4 +1,4 @@
-QT += core gui
+QT += core gui opengl
 
 TEMPLATE = lib
 DEFINES += GPUFILTERMODEL_LIBRARY
@@ -25,7 +25,7 @@ HEADERS += \
 INCLUDEPATH += $$PWD/../GPUFilterCore
 INCLUDEPATH += $$PWD/../3party/assimp/include
 
-LIBS += -L$$PWD/bin -lGPUFilterCore
+LIBS += -L$$PWD/../GPUFilterTestApp/bin -lGPUFilterCore
 CONFIG(debug, debug|release) {
     #VS2019
     LIBS += -L$$PWD/../3party/assimp/lib/Debug -lassimp-vc140-mt

@@ -23,14 +23,26 @@ HEADERS += \
     GPUFilterVideoPlayerWidget.h \
     widget.h
 
+INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../GPUFilterCore
 INCLUDEPATH += $$PWD/../GPUFilterVideoCore
+INCLUDEPATH += $$PWD/../GPUFilterModel
 
 LIBS += -L$$PWD/bin -lGPUFilterCore
 LIBS += -L$$PWD/bin -lGPUFilterVideoCore
+LIBS += -L$$PWD/bin -lGPUFilterModel
 
 INCLUDEPATH += $$PWD/../3party/ffmpeg/include
 LIBS += -L$$PWD/../3party/ffmpeg/libs -lavcodec -lavformat -lavutil -lswscale -lswresample
+
+INCLUDEPATH += $$PWD/../3party/assimp/include
+CONFIG(debug, debug|release) {
+    #VS2019
+    LIBS += -L$$PWD/../3party/assimp/lib/Debug -lassimp-vc140-mt
+}
+else{
+    LIBS += -L$$PWD/../3party/assimp/lib/Release -lassimp-vc140-mt
+}
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

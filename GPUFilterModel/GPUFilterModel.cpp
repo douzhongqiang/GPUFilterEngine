@@ -3,6 +3,8 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QVector3D>
+#include "OpenGLCore/GPUFilterMaterial.h"
+#include "OpenGLCore/GPUFilterScene.h"
 
 GPUFilterModel::GPUFilterModel(QObject* parent)
     :QObject(parent)
@@ -66,7 +68,7 @@ void GPUFilterModel::processMesh(aiMesh* pMesh, const aiScene* pScene, GPUFilter
 
     for (unsigned int i=0; i<pMesh->mNumVertices; ++i)
     {
-        // 设置点信息
+        // Add Vertices
         aiVector3D pVertices = pMesh->mVertices[i];
         QVector3D pointPos;
         pointPos.setX(pVertices.x);
@@ -74,31 +76,26 @@ void GPUFilterModel::processMesh(aiMesh* pMesh, const aiScene* pScene, GPUFilter
         pointPos.setZ(pVertices.z);
         pFilterMesh->addVertexPostion(pointPos);
 
-#if 0
+        // Add Normal
         aiVector3D pNormal = pMesh->mNormals[i];
-        attrPoint.normal[0] = pNormal.x;
-        attrPoint.normal[1] = pNormal.y;
-        attrPoint.normal[2] = pNormal.z;
+        QVector3D normalVec;
+        normalVec.setX(pNormal.x);
+        normalVec.setY(pNormal.y);
+        normalVec.setZ(pNormal.z);
+        pFilterMesh->addNormal(normalVec);
 
+        // Add Texture Coord
+        QVector3D textureCoord;
         if (pMesh->mTextureCoords[0])
         {
-            attrPoint.textureCoord[0] = pMesh->mTextureCoords[0][i].x;
-            attrPoint.textureCoord[1] = pMesh->mTextureCoords[0][i].y;
-        }
-        else
-        {
-            attrPoint.textureCoord[0] = 0.0f;
-            attrPoint.textureCoord[1] = 0.0f;
+            textureCoord.setX(pMesh->mTextureCoords[0][i].x);
+            textureCoord.setY(pMesh->mTextureCoords[0][i].y);
         }
 
-        pointArray.append(attrPoint);
-#endif
+        pFilterMesh->addCoord(textureCoord);
     }
 
-#if 0
-    pOpenglMesh->setPoints(pointArray);
-
-    // 设置索引
+    // Set indices
     QVector<unsigned int> indicesVec;
     for (unsigned int i =0; i<pMesh->mNumFaces; ++i)
     {
@@ -108,28 +105,95 @@ void GPUFilterModel::processMesh(aiMesh* pMesh, const aiScene* pScene, GPUFilter
             indicesVec << face.mIndices[j];
         }
     }
-    pOpenglMesh->setIndices(indicesVec);
+    pFilterMesh->setIndices(indicesVec);
 
-    // 加载材质
-    qDebug() << pMesh->mName.data;
+    // Set Material
     int nMaterialIndex = pMesh->mMaterialIndex;
     if (nMaterialIndex >= 0)
     {
         aiMaterial* pMaterial = pScene->mMaterials[nMaterialIndex];
-        processMaterial(pMaterial, aiTextureType_DIFFUSE, pOpenglMesh);
-        processMaterial(pMaterial, aiTextureType_SPECULAR, pOpenglMesh);
-    }
+        GPUFilterMaterial* pFilterMaterial = new GPUFilterMaterial(pFilterMesh);
+        pFilterMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(pFilterMaterial));
 
-    pOpenglMesh->setupMesh();
-#endif
+        processMaterial(pMaterial, aiTextureType_DIFFUSE, pFilterMaterial);
+        processMaterial(pMaterial, aiTextureType_SPECULAR, pFilterMaterial);
+    }
 }
 
-void GPUFilterModel::processMaterial(aiMaterial* pMaterial, aiTextureType type, GPUFilterMesh* pOpenGLMaterial)
+void GPUFilterModel::processMaterial(aiMaterial* pMaterial, aiTextureType type, GPUFilterMaterial* pFilterMaterial)
 {
+    unsigned int diffuseCount = pMaterial->GetTextureCount(type);
+    for (unsigned int i=0; i<diffuseCount; ++i)
+    {
+        aiString textureString;
+        pMaterial->GetTexture(type, i, &textureString);
 
+        QString texturePath = m_dirPath + "/" + QString(textureString.C_Str());
+        qDebug() << type << texturePath;
+
+        bool needCreate = true;
+        for (int i=0; i<m_textures.size(); ++i)
+        {
+            if (texturePath == m_textures[i]->objectName())
+            {
+                needCreate = false;
+                if (type == aiTextureType_DIFFUSE)
+                {
+                    pFilterMaterial->setAmbientTexture(m_textures[i]);
+                    pFilterMaterial->setDiffuesTexture(m_textures[i]);
+                }
+                else
+                    pFilterMaterial->setSpecularTexture(m_textures[i]);
+                break;
+            }
+        }
+
+        if (!needCreate)
+            continue;
+
+        QSharedPointer<GPUFilterTexture> pTexture(new GPUFilterTexture(this));
+        pTexture->setImage(texturePath);
+        m_textures.push_back(pTexture);
+
+        if (type == aiTextureType_DIFFUSE)
+        {
+            pFilterMaterial->setAmbientTexture(pTexture);
+            pFilterMaterial->setDiffuesTexture(pTexture);
+        }
+        else
+            pFilterMaterial->setSpecularTexture(pTexture);
+    }
 }
 
 void GPUFilterModel::draw(void)
 {
+    if (m_pRootNode)
+        m_pRootNode->draw();
+}
 
+void GPUFilterModel::addToScene(GPUFilterScene* pScene)
+{
+    if (!m_pRootNode)
+        return;
+
+    addToScene(m_pRootNode, pScene);
+}
+
+void GPUFilterModel::addToScene(GPUFilterNode* pNode, GPUFilterScene* pScene)
+{
+    if (!pNode)
+        return;
+
+    QVector<GPUFilterMesh*> meshVec = pNode->getMesh();
+    qDebug() << meshVec.size();
+    for (auto iter = meshVec.begin(); iter != meshVec.end(); ++iter)
+    {
+        pScene->addMesh(*iter);
+    }
+
+    QVector<GPUFilterNode*> nodes = pNode->getChilds();
+    for (auto iter = nodes.begin(); iter != nodes.end(); ++iter)
+    {
+        addToScene(*iter, pScene);
+    }
 }

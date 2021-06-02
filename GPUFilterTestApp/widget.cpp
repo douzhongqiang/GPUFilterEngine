@@ -17,6 +17,10 @@ Widget::Widget(QWidget *parent)
     pLayout->addWidget(pButton);
     QObject::connect(pButton, &QPushButton::clicked, this, &Widget::onClickedButton);
 
+    QPushButton* pLoadModelButton = new QPushButton("Load Model");
+    pLayout->addWidget(pLoadModelButton);
+    QObject::connect(pLoadModelButton, &QPushButton::clicked, this, &Widget::onClickedLoadModelButton);
+
     // Create Video Decodec
     m_pVideoDecodec = new GPUFilterVideoDecodec(this);
     QObject::connect(m_pVideoDecodec, &GPUFilterVideoDecodec::updateDisplay, this, &Widget::onUpdateDisplay);
@@ -53,4 +57,13 @@ void Widget::onUpdateDisplay(void)
     m_pVideoDecodec->getVideoSize(nWidth, nHeight);
 
     m_pRenderWidget->setYUVData(type, yuvDatas, nWidth, nHeight);
+}
+
+void Widget::onClickedLoadModelButton(void)
+{
+    QString filename = QFileDialog::getOpenFileName(this, "Open Video", "./");
+    if (filename.isEmpty())
+        return;
+
+    m_pRenderWidget->loadModel(filename);
 }

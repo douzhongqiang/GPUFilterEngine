@@ -73,3 +73,9 @@ void GPUFilterNode::addMesh(GPUFilterMesh* pMesh)
 {
     m_meshVec.push_back(pMesh);
 }
+
+// get Meshs
+QVector<GPUFilterMesh*> GPUFilterNode::getMesh(void)
+{
+    return m_meshVec;
+}

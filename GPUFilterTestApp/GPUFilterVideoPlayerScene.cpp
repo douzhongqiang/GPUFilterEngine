@@ -8,6 +8,7 @@
 #include "OpenGLCore/GPUFilterSpotLight.h"
 #include "OpenGLCore/GPUFilterFlashLight.h"
 #include "OpenGLCore/GPUFilterTool.h"
+#include "GPUFilterModel.h"
 
 GPUFilterVideoPlayerScene::GPUFilterVideoPlayerScene(QObject* parent)
     :GPUFilterScene(parent)
@@ -23,6 +24,8 @@ GPUFilterVideoPlayerScene::~GPUFilterVideoPlayerScene()
 
 void GPUFilterVideoPlayerScene::render(void)
 {
+    return GPUFilterScene::render();
+
     g_GPUFunc->glEnable(GL_DEPTH_TEST);
     g_GPUFunc->glDepthFunc(GL_LESS);
 
@@ -92,6 +95,8 @@ void GPUFilterVideoPlayerScene::initScene(void)
     createTVMesh();
     createFloor();
     createTVMesh2();
+
+    createModelObject();
 }
 
 void GPUFilterVideoPlayerScene::createTestRectMesh(void)
@@ -299,6 +304,11 @@ void GPUFilterVideoPlayerScene::createTVMesh2(void)
     m_pTVMesh2->setModelMartix(mat);
 }
 
+void GPUFilterVideoPlayerScene::createModelObject(void)
+{
+    m_pModel = new GPUFilterModel(this);
+}
+
 void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height)
 {
     if (yuvData.size() <= 2)
@@ -353,4 +363,10 @@ void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& 
     mat.translate(pointPos);
     mat.scale(scaleWidth, scaleHeight, 5.0f);
     m_pTVMesh2->setModelMartix(mat);
+}
+
+void GPUFilterVideoPlayerScene::loadModel(const QString& modelFilePath)
+{
+    m_pModel->loadModel(modelFilePath);
+    m_pModel->addToScene(this);
 }

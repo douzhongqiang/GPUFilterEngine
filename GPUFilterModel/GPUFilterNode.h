@@ -3,8 +3,9 @@
 
 #include <QObject>
 #include "OpenGLCore/GPUFilterMesh.h"
+#include "GPUFilterModel_global.h"
 
-class GPUFilterNode : public QObject
+class GPUFILTERMODEL_EXPORT GPUFilterNode : public QObject
 {
     Q_OBJECT
 
@@ -28,6 +29,8 @@ public:
 
     // Add Mesh
     void addMesh(GPUFilterMesh* pMesh);
+    // get Meshs
+    QVector<GPUFilterMesh*> getMesh(void);
 
 private:
     QString m_nodeName;

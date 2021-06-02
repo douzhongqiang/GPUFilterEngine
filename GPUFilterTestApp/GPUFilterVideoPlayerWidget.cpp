@@ -22,6 +22,11 @@ void GPUFilterVideoPlayerWidget::setYUVData(int type, const QVector<QByteArray>&
     this->update();
 }
 
+void GPUFilterVideoPlayerWidget::loadModel(const QString& modelFilePath)
+{
+    m_pScene->loadModel(modelFilePath);
+}
+
 void GPUFilterVideoPlayerWidget::initializeGL()
 {
     this->initializeOpenGLFunctions();

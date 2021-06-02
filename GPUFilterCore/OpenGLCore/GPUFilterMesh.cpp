@@ -40,9 +40,18 @@ void GPUFilterMesh::addCoord(const QVector3D& coord)
 
 void GPUFilterMesh::createIndices(void)
 {
+    if (m_hasSetedIndices)
+        return;
+
     m_indices.clear();
     for (int i=0; i<m_posVec.size(); ++i)
         m_indices << i;
+}
+
+void GPUFilterMesh::setIndices(const QVector<GLuint>& indices)
+{
+    m_indices = indices;
+    m_hasSetedIndices = true;
 }
 
 void GPUFilterMesh::setModelMartix(const QMatrix4x4& mat)
