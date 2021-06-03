@@ -310,12 +310,12 @@ void GPUFilterVideoPlayerScene::createModelObject(void)
 
     QMatrix4x4 mat;
     QVector3D pos = m_floorPostion;
-    pos.setX(m_floorPostion.x() - 7.5f);
+    pos.setX(m_floorPostion.x() - 5.5f);
     pos.setY(m_floorPostion.y() + 1.0f);
-    pos.setZ(m_floorPostion.z() + 2.5f);
+    pos.setZ(m_floorPostion.z() + 4.5f);
 //    mat.rotate(-90.0f, 1.0f, 0.0f, 0.0f);
-//    mat.scale(0.1f, 0.1f, 0.1f);
     mat.translate(pos);
+    mat.scale(4.0f, 4.0f, 4.0f);
     m_pModel->setModelMatrix(mat);
 }
 

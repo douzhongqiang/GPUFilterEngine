@@ -113,12 +113,15 @@ vec4 getObjectMaterialColor(int type)
         return vec4(result, 1.0);
     }
 
+    vec4 resultColor;
     if (type == 0)
-        return texture(objectMaterial.ambient, OutCoord.xy);
+        resultColor = texture(objectMaterial.ambient, OutCoord.xy);
     else if (type == 1)
-        return texture(objectMaterial.diffuse, OutCoord.xy);
+        resultColor = texture(objectMaterial.diffuse, OutCoord.xy);
     else
-        return texture(objectMaterial.specular, OutCoord.xy);
+        resultColor = texture(objectMaterial.specular, OutCoord.xy);
+
+    return resultColor;
 }
 // =========================================================================================
 
@@ -228,5 +231,6 @@ void main(void)
         }
     }
 
-    gl_FragColor = vec4(M_factor * resultColor, 1.0);
+    vec4 destColor = vec4(M_factor * resultColor, 1.0);
+    gl_FragColor = destColor;
 }
