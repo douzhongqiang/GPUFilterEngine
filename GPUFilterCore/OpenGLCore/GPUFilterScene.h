@@ -37,6 +37,9 @@ public:
     // Set/Get Background Color
     void setBgColor(const QColor& color);
     QColor getBgColor(void);
+    // Fill Or Line
+    void setFillStatus(bool isFill);
+    bool isFill(void);
 
 protected:
     GPUFilterShaderProgram* m_pShaderProgram = nullptr;
@@ -51,6 +54,7 @@ protected:
     void effectLights(GPUFilterLightBase* pLight, int index);
 
     QColor m_bgColor;
+    bool m_isFill = true;
 };
 
 #endif

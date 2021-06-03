@@ -6,6 +6,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <QSharedPointer>
+#include <QMatrix4x4>
 #include "GPUFilterNode.h"
 #include "OpenGLCore/GPUFilterMesh.h"
 #include "OpenGLCore/GPUFilterTexture.h"
@@ -30,10 +31,14 @@ public:
     void addToScene(GPUFilterScene* pScene);
     void addToScene(GPUFilterNode* pNode, GPUFilterScene* pScene);
 
+    void setModelMatrix(const QMatrix4x4& mat);
+    QMatrix4x4 getModelMatrix(void);
+
 private:
     QString m_dirPath;
     GPUFilterNode* m_pRootNode = nullptr;
 
     QVector<QSharedPointer<GPUFilterTexture>> m_textures;
+    QMatrix4x4 m_modelMatrix;
 };
 #endif

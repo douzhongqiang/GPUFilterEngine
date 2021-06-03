@@ -479,3 +479,8 @@ bool GPUFilterMesh::isVisible(void)
 {
     return m_isVisible;
 }
+
+int GPUFilterMesh::getVertexCount(void)
+{
+    return m_posVec.size();
+}

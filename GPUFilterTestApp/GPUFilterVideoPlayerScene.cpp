@@ -307,6 +307,16 @@ void GPUFilterVideoPlayerScene::createTVMesh2(void)
 void GPUFilterVideoPlayerScene::createModelObject(void)
 {
     m_pModel = new GPUFilterModel(this);
+
+    QMatrix4x4 mat;
+    QVector3D pos = m_floorPostion;
+    pos.setX(m_floorPostion.x() - 7.5f);
+    pos.setY(m_floorPostion.y() + 1.0f);
+    pos.setZ(m_floorPostion.z() + 2.5f);
+//    mat.rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+//    mat.scale(0.1f, 0.1f, 0.1f);
+    mat.translate(pos);
+    m_pModel->setModelMatrix(mat);
 }
 
 void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height)

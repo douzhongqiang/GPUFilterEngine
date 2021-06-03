@@ -59,6 +59,11 @@ void GPUFilterScene::render(void)
 
     g_GPUFunc->glEnable(GL_DEPTH_TEST);
 
+    if (m_isFill)
+        g_GPUFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    else
+        g_GPUFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     m_pShaderProgram->bind();
 
     effectLights();
@@ -101,7 +106,9 @@ void GPUFilterScene::addMesh(GPUFilterMesh* pMesh)
 
     pMesh->setCurrentScene(this);
     if (m_isInited)
+    {
         pMesh->create();
+    }
 
     m_meshVec.append(pMesh);
 }
@@ -170,4 +177,14 @@ void GPUFilterScene::setBgColor(const QColor& color)
 QColor GPUFilterScene::getBgColor(void)
 {
     return m_bgColor;
+}
+
+void GPUFilterScene::setFillStatus(bool isFill)
+{
+    m_isFill = isFill;
+}
+
+bool GPUFilterScene::isFill(void)
+{
+    return m_isFill;
 }

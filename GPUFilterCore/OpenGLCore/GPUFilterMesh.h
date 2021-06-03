@@ -68,6 +68,8 @@ public:
     void setVisible(bool isVisible);
     bool isVisible(void);
 
+    int getVertexCount(void);
+
 protected:
     QVector<QVector3D> m_posVec;
     QVector<QVector3D> m_colorVec;

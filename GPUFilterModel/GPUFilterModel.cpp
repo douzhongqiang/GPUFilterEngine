@@ -5,6 +5,7 @@
 #include <QVector3D>
 #include "OpenGLCore/GPUFilterMaterial.h"
 #include "OpenGLCore/GPUFilterScene.h"
+#include "3DExtras/GPUFilterGeometryCubeBox.h"
 
 GPUFilterModel::GPUFilterModel(QObject* parent)
     :QObject(parent)
@@ -114,9 +115,14 @@ void GPUFilterModel::processMesh(aiMesh* pMesh, const aiScene* pScene, GPUFilter
         aiMaterial* pMaterial = pScene->mMaterials[nMaterialIndex];
         GPUFilterMaterial* pFilterMaterial = new GPUFilterMaterial(pFilterMesh);
         pFilterMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(pFilterMaterial));
+        pFilterMaterial->setColorEnabled(true);
+        pFilterMaterial->setAmbientColor(QVector3D(0.2f, 0.2f, 0.2f));
+        pFilterMaterial->setDiffuesColor(QVector3D(0.4f, 0.4f, 0.4f));
+        pFilterMaterial->setSpecularColor(QVector3D(0.8f, 0.8f, 0.8f));
 
         processMaterial(pMaterial, aiTextureType_DIFFUSE, pFilterMaterial);
         processMaterial(pMaterial, aiTextureType_SPECULAR, pFilterMaterial);
+
     }
 }
 
@@ -159,6 +165,9 @@ void GPUFilterModel::processMaterial(aiMaterial* pMaterial, aiTextureType type, 
         {
             pFilterMaterial->setAmbientTexture(pTexture);
             pFilterMaterial->setDiffuesTexture(pTexture);
+
+            pFilterMaterial->setColorEnabled(false);
+            pFilterMaterial->setExtraTextureEnabled(false);
         }
         else
             pFilterMaterial->setSpecularTexture(pTexture);
@@ -184,11 +193,14 @@ void GPUFilterModel::addToScene(GPUFilterNode* pNode, GPUFilterScene* pScene)
     if (!pNode)
         return;
 
+    qDebug() << "Node Name: " << pNode->getNodeName();
     QVector<GPUFilterMesh*> meshVec = pNode->getMesh();
-    qDebug() << meshVec.size();
     for (auto iter = meshVec.begin(); iter != meshVec.end(); ++iter)
     {
-        pScene->addMesh(*iter);
+        GPUFilterMesh* pMesh = *iter;
+        pMesh->setModelMartix(m_modelMatrix);
+
+        pScene->addMesh(pMesh);
     }
 
     QVector<GPUFilterNode*> nodes = pNode->getChilds();
@@ -196,4 +208,14 @@ void GPUFilterModel::addToScene(GPUFilterNode* pNode, GPUFilterScene* pScene)
     {
         addToScene(*iter, pScene);
     }
+}
+
+void GPUFilterModel::setModelMatrix(const QMatrix4x4& mat)
+{
+    m_modelMatrix = mat;
+}
+
+QMatrix4x4 GPUFilterModel::getModelMatrix(void)
+{
+    return m_modelMatrix;
 }
