@@ -6,6 +6,7 @@
 #include "OpenGLCore/GPUFilterMaterial.h"
 #include "OpenGLCore/GPUFilterScene.h"
 #include "3DExtras/GPUFilterGeometryCubeBox.h"
+#include "GPUFilterBoneMesh.h"
 
 GPUFilterModel::GPUFilterModel(QObject* parent)
     :QObject(parent)
@@ -92,6 +93,11 @@ void GPUFilterModel::processMesh(aiMesh* pMesh, const aiScene* pScene, GPUFilter
             textureCoord.setX(pMesh->mTextureCoords[0][i].x);
             textureCoord.setY(pMesh->mTextureCoords[0][i].y);
         }
+
+        // Add Bone Infos
+        GPUFilterBoneMesh* pBoneMesh = dynamic_cast<GPUFilterBoneMesh*>(pFilterMesh);
+        if (pBoneMesh)
+            pBoneMesh->addOneDefBoneInfo();
 
         pFilterMesh->addCoord(textureCoord);
     }
@@ -218,4 +224,38 @@ void GPUFilterModel::setModelMatrix(const QMatrix4x4& mat)
 QMatrix4x4 GPUFilterModel::getModelMatrix(void)
 {
     return m_modelMatrix;
+}
+
+void GPUFilterModel::extractBoneWeightForVertices(aiMesh* mesh, const aiScene* scene)
+{
+    for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+    {
+        int boneID = -1;
+        aiBone* pBone = mesh->mBones[boneIndex];
+        QString boneName = pBone->mName.C_Str();
+
+        if (m_boneMaps.find(boneName) == m_boneMaps.end())
+        {
+            BoneInfo newBoneInfo;
+            newBoneInfo.id = m_nBoneCount;
+            newBoneInfo.boneName = boneName;
+//            newBoneInfo.offsetMatrix = pBone->mOffsetMatrix;
+        }
+    }
+}
+
+QMatrix4x4 GPUFilterModel::converMatrixToQtFortmat(const aiMatrix4x4& from)
+{
+    QMatrix4x4 to;
+
+    float m11, m12, m13, m14;
+    float m21, m22, m23, m24;
+    float m31, m32, m33, m34;
+    float m41, m42, m43, m44;
+
+//    to[0][0] = from.a1; to[1][0] = from.a2; to[2][0] = from.a3; to[3][0] = from.a4;
+//    to[0][1] = from.b1; to[1][1] = from.b2; to[2][1] = from.b3; to[3][1] = from.b4;
+//    to[0][2] = from.c1; to[1][2] = from.c2; to[2][2] = from.c3; to[3][2] = from.c4;
+//    to[0][3] = from.d1; to[1][3] = from.d2; to[2][3] = from.d3; to[3][3] = from.d4;
+    return to;
 }

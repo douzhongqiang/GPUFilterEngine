@@ -81,15 +81,31 @@ bool GPUFilterMesh::create(void)
     return true;
 }
 
+void GPUFilterMesh::customVBODataCreate(int index)
+{
+    Q_UNUSED(index)
+}
+
+int GPUFilterMesh::customVBOSize(void)
+{
+    return 0;
+}
+
 bool GPUFilterMesh::hasCreated(void)
 {
     return m_hasCreated;
+}
+
+void GPUFilterMesh::customMapVBOData(char* ptr)
+{
+    Q_UNUSED(ptr)
 }
 
 void GPUFilterMesh::createVBO(void)
 {
     int nVBOSize = m_posVec.size() + m_colorVec.size() + m_normalVec.size() + m_coordVec.size();
     nVBOSize *= sizeof(QVector3D);
+    nVBOSize += customVBOSize();
 
     // Create VBO
     g_GPUFunc->glGenBuffers(1, &m_nVBO);
@@ -114,6 +130,8 @@ void GPUFilterMesh::createVBO(void)
     memcpy((char*)ptr + index, m_normalVec.data(), sizeof (QVector3D) * m_normalVec.size());
     index += m_normalVec.size() * sizeof (QVector3D);
     memcpy((char*)ptr + index, m_coordVec.data(), sizeof (QVector3D) * m_coordVec.size());
+    index += m_coordVec.size() * sizeof(QVector3D);
+    customMapVBOData((char*)ptr + index);
     g_GPUFunc->glUnmapBuffer(GL_ARRAY_BUFFER);
     g_GPUFunc->glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -139,6 +157,10 @@ void GPUFilterMesh::createVBO(void)
     index += sizeof(QVector3D) * m_normalVec.size();
     g_GPUFunc->glEnableVertexAttribArray((int)t_coord);
     g_GPUFunc->glVertexAttribPointer((int)t_coord, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (void*)index);
+
+    // Create Custom VBO Data
+    index += sizeof(QVector3D) * m_coordVec.size();
+    customVBODataCreate(index);
 
     g_GPUFunc->glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

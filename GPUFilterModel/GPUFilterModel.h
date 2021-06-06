@@ -16,6 +16,13 @@ class GPUFilterScene;
 class GPUFILTERMODEL_EXPORT GPUFilterModel : public QObject
 {
     Q_OBJECT
+public:
+    struct BoneInfo
+    {
+        int id;
+        QMatrix4x4 offsetMatrix;
+        QString boneName;
+    };
 
 public:
     GPUFilterModel(QObject* parent = nullptr);
@@ -40,5 +47,14 @@ private:
 
     QVector<QSharedPointer<GPUFilterTexture>> m_textures;
     QMatrix4x4 m_modelMatrix;
+
+    // ========================================================================
+private:
+    // Bone About
+    QMap<QString, BoneInfo> m_boneMaps;
+    int m_nBoneCount = 0;
+
+    void extractBoneWeightForVertices(aiMesh* mesh, const aiScene* scene);
+    QMatrix4x4 converMatrixToQtFortmat(const aiMatrix4x4& from);
 };
 #endif

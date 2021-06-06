@@ -19,7 +19,9 @@ public:
         t_postion = 0,          // postion
         t_color,                // color
         t_normal,               // normal
-        t_coord                 // texture coord
+        t_coord,                 // texture coord
+
+        t_customUser = 4
     };
 
 public:
@@ -49,6 +51,11 @@ public:
 
     // Create VBO, IBO, VAO
     virtual bool create(void);
+
+    virtual void customVBODataCreate(int index);
+    virtual int customVBOSize(void);
+    virtual void customMapVBOData(char* ptr);
+
     void release(void);
     bool hasCreated(void);
 
