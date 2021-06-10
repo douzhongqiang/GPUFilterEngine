@@ -36,6 +36,7 @@ public:
     ~GPUFilterBoneMesh();
 
     void addOneDefBoneInfo(void);
+    void updateBoneInfo(int index, int boneId, float weight);
 
 protected:
     QVector<GPUFilterIVector4D> m_boneIds;

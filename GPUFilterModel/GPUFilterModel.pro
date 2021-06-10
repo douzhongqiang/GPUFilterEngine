@@ -14,11 +14,13 @@ DESTDIR += $$PWD/../GPUFilterTestApp/bin
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    GPUFilterBone.cpp \
     GPUFilterBoneMesh.cpp \
     GPUFilterModel.cpp \
     GPUFilterNode.cpp
 
 HEADERS += \
+    GPUFilterBone.h \
     GPUFilterBoneMesh.h \
     GPUFilterModel.h \
     GPUFilterModel_global.h \

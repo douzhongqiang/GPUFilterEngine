@@ -109,3 +109,33 @@ void GPUFilterBoneMesh::addOneDefBoneInfo(void)
     QVector4D weightInfo(0.0f, 0.0f, 0.0f, 0.0f);
     m_weights.push_back(weightInfo);
 }
+
+void GPUFilterBoneMesh::updateBoneInfo(int index, int boneId, float weight)
+{
+    if (m_boneIds.size() <= index)
+        return;
+
+    if (m_boneIds[index].x() < 0)
+    {
+        m_boneIds[index].setX(boneId);
+        m_weights[index].setX(weight);
+    }
+
+    if (m_boneIds[index].y() < 0)
+    {
+        m_boneIds[index].setY(boneId);
+        m_weights[index].setY(weight);
+    }
+
+    if (m_boneIds[index].z() < 0)
+    {
+        m_boneIds[index].setZ(boneId);
+        m_weights[index].setZ(weight);
+    }
+
+    if (m_boneIds[index].w() < 0)
+    {
+        m_boneIds[index].setW(boneId);
+        m_weights[index].setW(weight);
+    }
+}

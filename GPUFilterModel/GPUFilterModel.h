@@ -13,6 +13,7 @@
 #include "GPUFilterModel_global.h"
 
 class GPUFilterScene;
+class GPUFilterBoneMesh;
 class GPUFILTERMODEL_EXPORT GPUFilterModel : public QObject
 {
     Q_OBJECT
@@ -28,7 +29,7 @@ public:
     GPUFilterModel(QObject* parent = nullptr);
     ~GPUFilterModel();
 
-    bool loadModel(const QString& path);
+    bool loadModel(const QString& path, bool isLoadAnimation = false);
     void processNode(aiNode* pAiNode, const aiScene* pScene, GPUFilterNode* pNode);
     void processMesh(aiMesh* pMesh, const aiScene* pScene, GPUFilterNode* pNode);
     void processMaterial(aiMaterial* pMaterial, aiTextureType type, GPUFilterMaterial* pFilterMaterial);
@@ -42,6 +43,7 @@ public:
     QMatrix4x4 getModelMatrix(void);
 
 private:
+    bool m_isLoadAnimation = false;
     QString m_dirPath;
     GPUFilterNode* m_pRootNode = nullptr;
 
@@ -54,7 +56,7 @@ private:
     QMap<QString, BoneInfo> m_boneMaps;
     int m_nBoneCount = 0;
 
-    void extractBoneWeightForVertices(aiMesh* mesh, const aiScene* scene);
+    void extractBoneWeightForVertices(aiMesh* mesh, const aiScene* scene, GPUFilterBoneMesh* pFilterMesh);
     QMatrix4x4 converMatrixToQtFortmat(const aiMatrix4x4& from);
 };
 #endif

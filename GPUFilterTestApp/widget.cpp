@@ -3,6 +3,7 @@
 #include <QPushButton>
 #include <QThread>
 #include <QFileDialog>
+#include <QMatrix4x4>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)

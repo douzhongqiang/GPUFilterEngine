@@ -7,6 +7,7 @@
 #include "OpenGLCore/GPUFilterScene.h"
 #include "3DExtras/GPUFilterGeometryCubeBox.h"
 #include "GPUFilterBoneMesh.h"
+#include "GPUFilterModel.h"
 
 GPUFilterModel::GPUFilterModel(QObject* parent)
     :QObject(parent)
@@ -19,12 +20,13 @@ GPUFilterModel::~GPUFilterModel()
 
 }
 
-bool GPUFilterModel::loadModel(const QString& path)
+bool GPUFilterModel::loadModel(const QString& path, bool isLoadAnimation)
 {
     QFile file(path);
     if (!file.exists())
         return false;
 
+    m_isLoadAnimation = isLoadAnimation;
     QFileInfo info(path);
     m_dirPath = info.absolutePath();
 
@@ -65,7 +67,11 @@ void GPUFilterModel::processNode(aiNode* pAiNode, const aiScene* pScene, GPUFilt
 
 void GPUFilterModel::processMesh(aiMesh* pMesh, const aiScene* pScene, GPUFilterNode* pNode)
 {
-    GPUFilterMesh* pFilterMesh = new GPUFilterMesh(pNode);
+    GPUFilterMesh* pFilterMesh = nullptr;
+    if (!m_isLoadAnimation)
+        pFilterMesh = new GPUFilterMesh(pNode);
+    else
+        pFilterMesh = new GPUFilterBoneMesh(pNode);
     pNode->addMesh(pFilterMesh);
 
     for (unsigned int i=0; i<pMesh->mNumVertices; ++i)
@@ -130,6 +136,11 @@ void GPUFilterModel::processMesh(aiMesh* pMesh, const aiScene* pScene, GPUFilter
         processMaterial(pMaterial, aiTextureType_SPECULAR, pFilterMaterial);
 
     }
+
+    // Init Bone
+    GPUFilterBoneMesh* pBoneMesh = dynamic_cast<GPUFilterBoneMesh*>(pFilterMesh);
+    if (pBoneMesh)
+        extractBoneWeightForVertices(pMesh, pScene, pBoneMesh);
 }
 
 void GPUFilterModel::processMaterial(aiMaterial* pMaterial, aiTextureType type, GPUFilterMaterial* pFilterMaterial)
@@ -226,7 +237,7 @@ QMatrix4x4 GPUFilterModel::getModelMatrix(void)
     return m_modelMatrix;
 }
 
-void GPUFilterModel::extractBoneWeightForVertices(aiMesh* mesh, const aiScene* scene)
+void GPUFilterModel::extractBoneWeightForVertices(aiMesh* mesh, const aiScene* scene, GPUFilterBoneMesh* pFilterMesh)
 {
     for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
     {
@@ -234,28 +245,41 @@ void GPUFilterModel::extractBoneWeightForVertices(aiMesh* mesh, const aiScene* s
         aiBone* pBone = mesh->mBones[boneIndex];
         QString boneName = pBone->mName.C_Str();
 
+        // get bone id
         if (m_boneMaps.find(boneName) == m_boneMaps.end())
         {
             BoneInfo newBoneInfo;
             newBoneInfo.id = m_nBoneCount;
             newBoneInfo.boneName = boneName;
-//            newBoneInfo.offsetMatrix = pBone->mOffsetMatrix;
+            newBoneInfo.offsetMatrix = converMatrixToQtFortmat(pBone->mOffsetMatrix);
+
+            m_boneMaps.insert(boneName, newBoneInfo);
+            boneID = m_nBoneCount++;
+        }
+        else
+            boneID = m_boneMaps[boneName].id;
+        assert(boneID != -1);
+
+        // set weight
+        aiVertexWeight* pWeight = pBone->mWeights;
+        int nWeightNumber = pBone->mNumWeights;
+
+        for (int weightIndex = 0; weightIndex < nWeightNumber; ++weightIndex)
+        {
+            int vertexId = pWeight[weightIndex].mVertexId;
+            float weight = pWeight[weightIndex].mWeight;
+
+            pFilterMesh->updateBoneInfo(vertexId, boneID, weight);
         }
     }
 }
 
 QMatrix4x4 GPUFilterModel::converMatrixToQtFortmat(const aiMatrix4x4& from)
 {
-    QMatrix4x4 to;
+    QMatrix4x4 to(from.a1, from.b1, from.c1, from.d1, \
+                  from.a2, from.b2, from.c2, from.d2, \
+                  from.a3, from.b3, from.c3, from.d3, \
+                  from.a4, from.b4, from.c4, from.d4);
 
-    float m11, m12, m13, m14;
-    float m21, m22, m23, m24;
-    float m31, m32, m33, m34;
-    float m41, m42, m43, m44;
-
-//    to[0][0] = from.a1; to[1][0] = from.a2; to[2][0] = from.a3; to[3][0] = from.a4;
-//    to[0][1] = from.b1; to[1][1] = from.b2; to[2][1] = from.b3; to[3][1] = from.b4;
-//    to[0][2] = from.c1; to[1][2] = from.c2; to[2][2] = from.c3; to[3][2] = from.c4;
-//    to[0][3] = from.d1; to[1][3] = from.d2; to[2][3] = from.d3; to[3][3] = from.d4;
     return to;
 }
