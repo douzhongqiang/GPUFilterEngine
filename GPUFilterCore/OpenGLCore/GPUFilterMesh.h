@@ -75,6 +75,10 @@ public:
     void setVisible(bool isVisible);
     bool isVisible(void);
 
+    // Animation
+    void setAnimationEnabled(bool isEnabled);
+    bool isAnimationEnabled(void);
+
     int getVertexCount(void);
 
 protected:
@@ -96,6 +100,7 @@ protected:
 
     QMatrix4x4 m_MMatrix;
     QSharedPointer<GPUFilterMaterial> m_pMaterial;
+    bool m_isAnimation = false;
 
 private:
     void createVBO(void);

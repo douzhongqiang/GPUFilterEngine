@@ -209,6 +209,7 @@ void GPUFilterMesh::draw(void)
     if (pScene)
         pShaderProgram = pScene->getShaderProgram();
     pShaderProgram->setUniformValue("M", this->getModelMatrix());
+    pShaderProgram->setUniformValue("M_isAnimation", m_hasSetedIndices);
 
     // Process Material
     processMaterial();
@@ -506,3 +507,15 @@ int GPUFilterMesh::getVertexCount(void)
 {
     return m_posVec.size();
 }
+
+// Animation
+void GPUFilterMesh::setAnimationEnabled(bool isEnabled)
+{
+    m_isAnimation = isEnabled;
+}
+
+bool GPUFilterMesh::isAnimationEnabled(void)
+{
+    return m_isAnimation;
+}
+

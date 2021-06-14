@@ -11,6 +11,13 @@ class GPUFilterBone : public QObject
     Q_OBJECT
 
 public:
+    struct BoneInfo
+    {
+        int id;
+        QMatrix4x4 offsetMatrix;
+        QString boneName;
+    };
+
     struct KeyPostion
     {
         QVector3D postion;
@@ -33,10 +40,11 @@ public:
     GPUFilterBone(QObject* parent = nullptr);
     ~GPUFilterBone();
 
-    void init(QString name, const aiNodeAnim* channel);
+    void init(QString name, int id, aiNodeAnim* channel);
     void update(float animationTime);
 
     QMatrix4x4 getLocalTransformMatrix(void);
+    QString getName(void);
 
 private:
     QVector<KeyPostion> m_postionKeyVec;
@@ -44,6 +52,7 @@ private:
     QVector<KeyScale> m_scaleKeyVec;
 
     QString m_name;
+    int m_id;
     QMatrix4x4 m_localTransfrom;
 
     // interpolate

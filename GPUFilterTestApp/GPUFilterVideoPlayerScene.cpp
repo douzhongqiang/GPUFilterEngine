@@ -24,6 +24,8 @@ GPUFilterVideoPlayerScene::~GPUFilterVideoPlayerScene()
 
 void GPUFilterVideoPlayerScene::render(void)
 {
+//    if (m_pModel)
+//        m_pModel->draw();
     return GPUFilterScene::render();
 
     g_GPUFunc->glEnable(GL_DEPTH_TEST);
@@ -315,7 +317,8 @@ void GPUFilterVideoPlayerScene::createModelObject(void)
     pos.setZ(m_floorPostion.z() + 4.5f);
 //    mat.rotate(-90.0f, 1.0f, 0.0f, 0.0f);
     mat.translate(pos);
-    mat.scale(4.0f, 4.0f, 4.0f);
+//    mat.scale(4.0f, 4.0f, 4.0f);
+    mat.scale(0.03f, 0.03f, 0.03f);
     m_pModel->setModelMatrix(mat);
 }
 
@@ -377,6 +380,7 @@ void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& 
 
 void GPUFilterVideoPlayerScene::loadModel(const QString& modelFilePath)
 {
-    m_pModel->loadModel(modelFilePath);
+    m_pModel->loadModel(modelFilePath, true);
+    m_pModel->loadAnimation(modelFilePath);
     m_pModel->addToScene(this);
 }

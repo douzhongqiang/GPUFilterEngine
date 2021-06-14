@@ -3,11 +3,15 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QVector3D>
+#include <QOpenGLShaderProgram>
 #include "OpenGLCore/GPUFilterMaterial.h"
 #include "OpenGLCore/GPUFilterScene.h"
 #include "3DExtras/GPUFilterGeometryCubeBox.h"
 #include "GPUFilterBoneMesh.h"
 #include "GPUFilterModel.h"
+#include "GPUFilterAnimation.h"
+#include "GPUFilterAnimator.h"
+#include "OpenGLCore/GPUFilterShaderProgram.h"
 
 GPUFilterModel::GPUFilterModel(QObject* parent)
     :QObject(parent)
@@ -30,7 +34,7 @@ bool GPUFilterModel::loadModel(const QString& path, bool isLoadAnimation)
     QFileInfo info(path);
     m_dirPath = info.absolutePath();
 
-    // 加载模型
+    // Load Model
     Assimp::Importer importer;
     const aiScene* pScene = importer.ReadFile(path.toStdString().c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
     if (pScene == nullptr || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
@@ -42,7 +46,24 @@ bool GPUFilterModel::loadModel(const QString& path, bool isLoadAnimation)
     m_pRootNode = new GPUFilterNode;
     m_pRootNode->setNodeName(QString(pScene->mRootNode->mName.data));
     this->processNode(pScene->mRootNode, pScene, m_pRootNode);
+
     return true;
+}
+
+bool GPUFilterModel::loadAnimation(const QString& path)
+{
+    // Load Animation
+    bool result = true;
+
+    if (m_isLoadAnimation)
+    {
+        initAnimation();
+        result = m_pAnimation->loadAnimation(path, this);
+        m_pAnimator->setCurrentAnimation(m_pAnimation);
+    }
+
+    m_isLoaded = true;
+    return result;
 }
 
 void GPUFilterModel::processNode(aiNode* pAiNode, const aiScene* pScene, GPUFilterNode* pNode)
@@ -193,8 +214,33 @@ void GPUFilterModel::processMaterial(aiMaterial* pMaterial, aiTextureType type, 
 
 void GPUFilterModel::draw(void)
 {
-    if (m_pRootNode)
-        m_pRootNode->draw();
+    if (m_pScene && m_isLoaded)
+    {
+        static bool isFirstRender = true;
+        if (isFirstRender)
+        {
+            isFirstRender = false;
+            m_time.start();
+        }
+        else
+        {
+            int timeInterval = m_time.elapsed();
+            m_pAnimator->update(timeInterval / 1000.0);
+            m_time.restart();
+        }
+
+        QOpenGLShaderProgram* pShaderProgram = m_pScene->getShaderProgram();
+        pShaderProgram->setUniformValue("M_isAnimation", m_isLoadAnimation);
+        QVector<QMatrix4x4>& mats = m_pAnimator->getFinalBondVec();
+        int nSize = m_pAnimator->getFinaBondSize();
+
+        for (int i=0; i<nSize; ++i)
+        {
+            QString matKey = "finalBonesMatrices[%1]";
+            matKey = matKey.arg(i);
+            pShaderProgram->setUniformValue(matKey.toStdString().c_str(), mats[i]);
+        }
+    }
 }
 
 void GPUFilterModel::addToScene(GPUFilterScene* pScene)
@@ -202,6 +248,7 @@ void GPUFilterModel::addToScene(GPUFilterScene* pScene)
     if (!m_pRootNode)
         return;
 
+    m_pScene = pScene;
     addToScene(m_pRootNode, pScene);
 }
 
@@ -216,6 +263,7 @@ void GPUFilterModel::addToScene(GPUFilterNode* pNode, GPUFilterScene* pScene)
     {
         GPUFilterMesh* pMesh = *iter;
         pMesh->setModelMartix(m_modelMatrix);
+        pMesh->setAnimationEnabled(m_isLoadAnimation);
 
         pScene->addMesh(pMesh);
     }
@@ -248,7 +296,7 @@ void GPUFilterModel::extractBoneWeightForVertices(aiMesh* mesh, const aiScene* s
         // get bone id
         if (m_boneMaps.find(boneName) == m_boneMaps.end())
         {
-            BoneInfo newBoneInfo;
+            GPUFilterBone::BoneInfo newBoneInfo;
             newBoneInfo.id = m_nBoneCount;
             newBoneInfo.boneName = boneName;
             newBoneInfo.offsetMatrix = converMatrixToQtFortmat(pBone->mOffsetMatrix);
@@ -282,4 +330,26 @@ QMatrix4x4 GPUFilterModel::converMatrixToQtFortmat(const aiMatrix4x4& from)
                   from.a4, from.b4, from.c4, from.d4);
 
     return to;
+}
+
+// Bone About
+QMap<QString, GPUFilterBone::BoneInfo>& GPUFilterModel::getBoneInfoMap(void)
+{
+    return m_boneMaps;
+}
+
+int GPUFilterModel::getBoneCount(void)
+{
+    return m_nBoneCount;
+}
+
+bool GPUFilterModel::isAnimationEnabled(void)
+{
+    return m_isLoadAnimation;
+}
+
+void GPUFilterModel::initAnimation(void)
+{
+    m_pAnimation = new GPUFilterAnimation(this);
+    m_pAnimator = new GPUFilterAnimator(this);
 }

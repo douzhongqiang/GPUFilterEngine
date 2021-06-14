@@ -15,9 +15,10 @@ GPUFilterBone::~GPUFilterBone()
 
 }
 
-void GPUFilterBone::init(QString name, const aiNodeAnim* channel)
+void GPUFilterBone::init(QString name, int id, aiNodeAnim* channel)
 {
     m_name = name;
+    m_id = id;
 
     // Add Key Postion
     int nPostionCount = channel->mNumPositionKeys;
@@ -70,6 +71,11 @@ void GPUFilterBone::update(float animationTime)
 QMatrix4x4 GPUFilterBone::getLocalTransformMatrix(void)
 {
     return m_localTransfrom;
+}
+
+QString GPUFilterBone::getName(void)
+{
+    return m_name;
 }
 
 int GPUFilterBone::getPostionIndex(float animationTime)
