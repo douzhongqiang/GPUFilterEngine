@@ -8,6 +8,8 @@
 #include "OpenGLCore/GPUFilterSpotLight.h"
 #include "OpenGLCore/GPUFilterFlashLight.h"
 #include "OpenGLCore/GPUFilterTool.h"
+#include "GPUFilterFloorMesh.h"
+#include "GPUFilterInvertedMesh.h"
 #include "GPUFilterModel.h"
 #include <QApplication>
 
@@ -99,10 +101,13 @@ void GPUFilterVideoPlayerScene::initScene(void)
     createTestCubeMesh();
     createTestLights();
 
+    // Create TV Mesh
     createTVMesh();
     createFloor();
     createTVMesh2();
 
+    // Create Object
+    createModelObject();
     createAnimationModelObject();
 }
 
@@ -252,7 +257,7 @@ void GPUFilterVideoPlayerScene::createTestLights(void)
 
 void GPUFilterVideoPlayerScene::createFloor(void)
 {
-    m_pFloorMesh = new GPUFilterGeometryRect;
+    m_pFloorMesh = new GPUFilterFloorMesh;
     this->addMesh(m_pFloorMesh);
 
     // Set Floor Material
@@ -302,7 +307,7 @@ void GPUFilterVideoPlayerScene::createTVMesh(void)
 
 void GPUFilterVideoPlayerScene::createTVMesh2(void)
 {
-    m_pTVMesh2 = new GPUFilterGeometryRect;
+    m_pTVMesh2 = new GPUFilterInvertedMesh;
     this->addMesh(m_pTVMesh2);
     m_pTVMesh2->setMaterial(QSharedPointer<GPUFilterMaterial>(m_pMaterial));
 
@@ -315,21 +320,32 @@ void GPUFilterVideoPlayerScene::createTVMesh2(void)
     m_pTVMesh2->setModelMartix(mat);
 }
 
+void GPUFilterVideoPlayerScene::createModelObject(void)
+{
+    m_pModel = new GPUFilterModel(this);
+
+    QMatrix4x4 mat;
+    QVector3D pos = m_floorPostion;
+    pos.setX(m_floorPostion.x() - 5.5f);
+    pos.setY(m_floorPostion.y() + 1.0f);
+    pos.setZ(m_floorPostion.z() + 4.5f);
+    mat.translate(pos);
+    mat.scale(4.0f, 4.0f, 4.0f);
+
+    m_pModel->setModelMatrix(mat);
+}
+
 void GPUFilterVideoPlayerScene::createAnimationModelObject(void)
 {
     m_pAnimationModel = new GPUFilterModel(this);
 
     QMatrix4x4 mat;
     QVector3D pos = m_floorPostion;
-    //pos.setX(m_floorPostion.x() - 5.5f);
-    pos.setX(m_floorPostion.x());
+    pos.setX(m_floorPostion.x() - 1.5f);
     pos.setY(m_floorPostion.y() + 1.0f);
-    //pos.setZ(m_floorPostion.z() + 4.5f);
      pos.setZ(m_floorPostion.z() + 10.0f);
-//    mat.rotate(-90.0f, 1.0f, 0.0f, 0.0f);
     mat.translate(pos);
     mat.scale(4.0f, 4.0f, 4.0f);
-    //mat.scale(0.01f, 0.01f, 0.01f);
     m_pAnimationModel->setModelMatrix(mat);
 }
 
@@ -394,4 +410,10 @@ void GPUFilterVideoPlayerScene::loadAnimationModel(const QString& modelFilePath)
     m_pAnimationModel->loadModel(modelFilePath, true);
     m_pAnimationModel->loadAnimation(modelFilePath);
     m_pAnimationModel->addToScene(this);
+}
+
+void GPUFilterVideoPlayerScene::loadModel(const QString& modelFilePath)
+{
+    m_pModel->loadModel(modelFilePath);
+    m_pModel->addToScene(this);
 }

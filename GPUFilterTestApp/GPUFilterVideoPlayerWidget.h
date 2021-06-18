@@ -16,6 +16,7 @@ public:
 
     void setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height);
     void loadAnimationModel(const QString& modelFilePath);
+    void loadModel(const QString& modelFilePath);
 
 protected:
     void initializeGL() override;

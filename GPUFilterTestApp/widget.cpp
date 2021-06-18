@@ -18,9 +18,13 @@ Widget::Widget(QWidget *parent)
     pLayout->addWidget(pButton);
     QObject::connect(pButton, &QPushButton::clicked, this, &Widget::onClickedButton);
 
-    QPushButton* pLoadModelButton = new QPushButton("Load Animation Model");
+    QPushButton* pLoadModelButton = new QPushButton("Load Model");
     pLayout->addWidget(pLoadModelButton);
     QObject::connect(pLoadModelButton, &QPushButton::clicked, this, &Widget::onClickedLoadModelButton);
+
+    QPushButton* pLoadAnimationModelButton = new QPushButton("Load Animation Model");
+    pLayout->addWidget(pLoadAnimationModelButton);
+    QObject::connect(pLoadAnimationModelButton, &QPushButton::clicked, this, &Widget::onClickedLoadAnimationModelButton);
 
     // Create Video Decodec
     m_pVideoDecodec = new GPUFilterVideoDecodec(this);
@@ -62,7 +66,16 @@ void Widget::onUpdateDisplay(void)
 
 void Widget::onClickedLoadModelButton(void)
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Open Video", "./");
+    QString filename = QFileDialog::getOpenFileName(this, "Open Model", "./");
+    if (filename.isEmpty())
+        return;
+
+    m_pRenderWidget->loadModel(filename);
+}
+
+void Widget::onClickedLoadAnimationModelButton(void)
+{
+    QString filename = QFileDialog::getOpenFileName(this, "Open Animation Model", "./");
     if (filename.isEmpty())
         return;
 

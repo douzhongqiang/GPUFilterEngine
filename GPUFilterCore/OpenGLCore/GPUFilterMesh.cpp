@@ -211,6 +211,9 @@ void GPUFilterMesh::draw(void)
     pShaderProgram->setUniformValue("M", this->getModelMatrix());
     pShaderProgram->setUniformValue("M_isAnimation", m_isAnimation);
 
+    // Draw Before Do Something
+    drawBefore();
+
     // Process Material
     processMaterial();
 
@@ -218,6 +221,19 @@ void GPUFilterMesh::draw(void)
     g_GPUFunc->glBindVertexArray(m_nVAO);
     g_GPUFunc->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
     g_GPUFunc->glBindVertexArray(0);
+
+    // Draw After Do Something
+    drawAfter();
+}
+
+void GPUFilterMesh::drawBefore(void)
+{
+
+}
+
+void GPUFilterMesh::drawAfter(void)
+{
+
 }
 
 // set/get Material

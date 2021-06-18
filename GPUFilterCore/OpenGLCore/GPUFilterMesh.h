@@ -62,6 +62,8 @@ public:
     void addTexture(QSharedPointer<GPUFilterTexture> pTexture);
 
     virtual void draw(void);
+    virtual void drawBefore(void);
+    virtual void drawAfter(void);
 
     // Get/Set Scene
     void setCurrentScene(GPUFilterScene* pScene);

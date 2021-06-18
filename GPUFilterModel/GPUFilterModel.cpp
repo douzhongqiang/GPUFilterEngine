@@ -213,7 +213,7 @@ void GPUFilterModel::processMaterial(aiMaterial* pMaterial, aiTextureType type, 
 
 void GPUFilterModel::draw(void)
 {
-    if (m_pScene && m_isLoaded)
+    if (m_pScene && m_isLoaded && m_isLoadAnimation)
     {
         static bool isFirstRender = true;
         if (isFirstRender)

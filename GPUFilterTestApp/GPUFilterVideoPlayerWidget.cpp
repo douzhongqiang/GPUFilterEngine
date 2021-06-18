@@ -32,6 +32,14 @@ void GPUFilterVideoPlayerWidget::loadAnimationModel(const QString& modelFilePath
     this->update();
 }
 
+void GPUFilterVideoPlayerWidget::loadModel(const QString& modelFilePath)
+{
+    this->makeCurrent();
+    m_pScene->loadModel(modelFilePath);
+
+    this->update();
+}
+
 void GPUFilterVideoPlayerWidget::initializeGL()
 {
     this->initializeOpenGLFunctions();
