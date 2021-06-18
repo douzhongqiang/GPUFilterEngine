@@ -17,9 +17,10 @@ public:
     ~GPUFilterVideoPlayerScene();
 
     void setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height);
-    void loadModel(const QString& modelFilePath);
+    void loadAnimationModel(const QString& modelFilePath);
 
     void render(void) override;
+    void customMeshRenderBefore(void) override;
 
 private:
     void initScene(void);
@@ -32,7 +33,7 @@ private:
     void createTVMesh(void);
     void createTVMesh2(void);
 
-    void createModelObject(void);
+    void createAnimationModelObject(void);
 
     GPUFilterGeometryRect* m_pRectMesh = nullptr;
     GPUFilterGeometryRect* m_pFloorMesh = nullptr;
@@ -40,7 +41,7 @@ private:
     GPUFilterGeometryRect* m_pTVMesh2 = nullptr;
     GPUFilterMaterial* m_pMaterial = nullptr;
 
-    GPUFilterModel* m_pModel = nullptr;
+    GPUFilterModel* m_pAnimationModel = nullptr;
 
     QVector3D m_floorPostion;
 };

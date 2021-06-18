@@ -41,6 +41,9 @@ public:
     void setFillStatus(bool isFill);
     bool isFill(void);
 
+    virtual void customMeshRenderBefore(void);
+    virtual void customMeshRenderAfter(void);
+
 protected:
     GPUFilterShaderProgram* m_pShaderProgram = nullptr;
     GPUFilterCamera* m_pCamera = nullptr;

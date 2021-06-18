@@ -29,7 +29,7 @@ void GPUFilterAnimator::update(float dt)
     if (m_pCurrentAnimation)
     {
         m_currentTime += m_pCurrentAnimation->getTicksPerSecond() * dt;
-        m_currentTime = fmod(m_currentTime, m_pCurrentAnimation->getTicksPerSecond());
+        m_currentTime = fmod(m_currentTime, m_pCurrentAnimation->getDuration());
         calcBoneTransform(m_pCurrentAnimation->getRootNode(), QMatrix4x4());
     }
 }
@@ -59,7 +59,7 @@ void GPUFilterAnimator::calcBoneTransform(GPUFilterAnimation::AssimpNodeData* pA
     QMatrix4x4 globalTransform = parentTransform * nodeTransform;
 
     QMap<QString, GPUFilterBone::BoneInfo> bondInfoMap = m_pCurrentAnimation->getBondIDMap();
-    if (bondInfoMap.find(nodeName) == bondInfoMap.end())
+    if (bondInfoMap.find(nodeName) != bondInfoMap.end())
     {
         int index = bondInfoMap[nodeName].id;
         QMatrix4x4 offset = bondInfoMap[nodeName].offsetMatrix;

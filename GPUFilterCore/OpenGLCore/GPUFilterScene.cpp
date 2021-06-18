@@ -71,6 +71,8 @@ void GPUFilterScene::render(void)
 
     effectLights();
 
+    customMeshRenderBefore();
+
     // Draw Mesh
     for (auto iter = m_meshVec.begin(); iter != m_meshVec.end(); ++iter)
     {
@@ -88,7 +90,19 @@ void GPUFilterScene::render(void)
         pMesh->draw();
     }
 
+    customMeshRenderAfter();
+
     m_pShaderProgram->unbind();
+}
+
+void GPUFilterScene::customMeshRenderBefore(void)
+{
+
+}
+
+void GPUFilterScene::customMeshRenderAfter(void)
+{
+
 }
 
 void GPUFilterScene::resize(int w, int h)

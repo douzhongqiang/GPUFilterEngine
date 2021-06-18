@@ -209,7 +209,7 @@ void GPUFilterMesh::draw(void)
     if (pScene)
         pShaderProgram = pScene->getShaderProgram();
     pShaderProgram->setUniformValue("M", this->getModelMatrix());
-    pShaderProgram->setUniformValue("M_isAnimation", m_hasSetedIndices);
+    pShaderProgram->setUniformValue("M_isAnimation", m_isAnimation);
 
     // Process Material
     processMaterial();

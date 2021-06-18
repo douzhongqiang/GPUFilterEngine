@@ -9,6 +9,7 @@
 #include "OpenGLCore/GPUFilterFlashLight.h"
 #include "OpenGLCore/GPUFilterTool.h"
 #include "GPUFilterModel.h"
+#include <QApplication>
 
 GPUFilterVideoPlayerScene::GPUFilterVideoPlayerScene(QObject* parent)
     :GPUFilterScene(parent)
@@ -24,8 +25,6 @@ GPUFilterVideoPlayerScene::~GPUFilterVideoPlayerScene()
 
 void GPUFilterVideoPlayerScene::render(void)
 {
-//    if (m_pModel)
-//        m_pModel->draw();
     return GPUFilterScene::render();
 
     g_GPUFunc->glEnable(GL_DEPTH_TEST);
@@ -88,6 +87,12 @@ void GPUFilterVideoPlayerScene::render(void)
     m_pShaderProgram->unbind();
 }
 
+void GPUFilterVideoPlayerScene::customMeshRenderBefore(void)
+{
+    if (m_pAnimationModel)
+        m_pAnimationModel->draw();
+}
+
 void GPUFilterVideoPlayerScene::initScene(void)
 {
     createTestRectMesh();
@@ -98,7 +103,7 @@ void GPUFilterVideoPlayerScene::initScene(void)
     createFloor();
     createTVMesh2();
 
-    createModelObject();
+    createAnimationModelObject();
 }
 
 void GPUFilterVideoPlayerScene::createTestRectMesh(void)
@@ -114,17 +119,19 @@ void GPUFilterVideoPlayerScene::createTestRectMesh(void)
     // Set Image
     m_pMaterial->setColorEnabled(false);
 
-    QImage image("./green-5919790_1280.jpg");
+    QString appDir = qApp->applicationDirPath() + "/";
+
+    QImage image(appDir + "./green-5919790_1280.jpg");
     QSharedPointer<GPUFilterTexture> pTexture(new GPUFilterTexture(this));
     pTexture->setImage(image);
     pTexture->setObjectName("Texture1");
 
-    QImage image2("./city-4478471_1280.jpg");
+    QImage image2(appDir + "./city-4478471_1280.jpg");
     QSharedPointer<GPUFilterTexture> pTexture2(new GPUFilterTexture(this));
     pTexture2->setImage(image2);
     pTexture2->setObjectName("Texture2");
 
-    QImage image3("./digital-paper-4906487_1280.jpg");
+    QImage image3(appDir + "./digital-paper-4906487_1280.jpg");
     QSharedPointer<GPUFilterTexture> pTexture3(new GPUFilterTexture(this));
     pTexture3->setImage(image3);
     pTexture3->setObjectName("Texture3");
@@ -141,13 +148,15 @@ void GPUFilterVideoPlayerScene::createTestCubeMesh(void)
     GPUFilterMaterial* pMaterial = new GPUFilterMaterial;
     pMaterial->setColorEnabled(false);
 
+    QString appDir = qApp->applicationDirPath() + "/";
+
     // Set Texture
     QSharedPointer<GPUFilterTexture> pTexture1(new GPUFilterTexture(this));
-    pTexture1->setImage(QImage("./container2.png"));
+    pTexture1->setImage(QImage(appDir + "./container2.png"));
     pMaterial->setAmbientTexture(pTexture1);
     pMaterial->setDiffuesTexture(pTexture1);
     QSharedPointer<GPUFilterTexture> pTexture2(new GPUFilterTexture(this));
-    pTexture2->setImage(QImage("./container2_specular.png"));
+    pTexture2->setImage(QImage(appDir + "./container2_specular.png"));
     pMaterial->setSpecularTexture(pTexture2);
 
     pMesh->setMaterial(QSharedPointer<GPUFilterMaterial>(pMaterial));
@@ -231,7 +240,7 @@ void GPUFilterVideoPlayerScene::createTestLights(void)
     mat.scale(0.05f, 0.05f, 0.05f);
     pMesh->setModelMartix(mat);
 
-#if 1
+#if 0
     // Add Flash Light
     GPUFilterFlashLight* pFlashLight = new GPUFilterFlashLight;
     pFlashLight->setDiffuesColor(QVector3D(200.0 / 255 * 0.5f, 87.0 / 255 * 0.5f, 217.0 / 255 * 0.5f));
@@ -306,20 +315,22 @@ void GPUFilterVideoPlayerScene::createTVMesh2(void)
     m_pTVMesh2->setModelMartix(mat);
 }
 
-void GPUFilterVideoPlayerScene::createModelObject(void)
+void GPUFilterVideoPlayerScene::createAnimationModelObject(void)
 {
-    m_pModel = new GPUFilterModel(this);
+    m_pAnimationModel = new GPUFilterModel(this);
 
     QMatrix4x4 mat;
     QVector3D pos = m_floorPostion;
-    pos.setX(m_floorPostion.x() - 5.5f);
+    //pos.setX(m_floorPostion.x() - 5.5f);
+    pos.setX(m_floorPostion.x());
     pos.setY(m_floorPostion.y() + 1.0f);
-    pos.setZ(m_floorPostion.z() + 4.5f);
+    //pos.setZ(m_floorPostion.z() + 4.5f);
+     pos.setZ(m_floorPostion.z() + 10.0f);
 //    mat.rotate(-90.0f, 1.0f, 0.0f, 0.0f);
     mat.translate(pos);
-//    mat.scale(4.0f, 4.0f, 4.0f);
-    mat.scale(0.03f, 0.03f, 0.03f);
-    m_pModel->setModelMatrix(mat);
+    mat.scale(4.0f, 4.0f, 4.0f);
+    //mat.scale(0.01f, 0.01f, 0.01f);
+    m_pAnimationModel->setModelMatrix(mat);
 }
 
 void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height)
@@ -378,9 +389,9 @@ void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& 
     m_pTVMesh2->setModelMartix(mat);
 }
 
-void GPUFilterVideoPlayerScene::loadModel(const QString& modelFilePath)
+void GPUFilterVideoPlayerScene::loadAnimationModel(const QString& modelFilePath)
 {
-    m_pModel->loadModel(modelFilePath, true);
-    m_pModel->loadAnimation(modelFilePath);
-    m_pModel->addToScene(this);
+    m_pAnimationModel->loadModel(modelFilePath, true);
+    m_pAnimationModel->loadAnimation(modelFilePath);
+    m_pAnimationModel->addToScene(this);
 }

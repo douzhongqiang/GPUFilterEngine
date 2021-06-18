@@ -120,13 +120,12 @@ void GPUFilterModel::processMesh(aiMesh* pMesh, const aiScene* pScene, GPUFilter
             textureCoord.setX(pMesh->mTextureCoords[0][i].x);
             textureCoord.setY(pMesh->mTextureCoords[0][i].y);
         }
+        pFilterMesh->addCoord(textureCoord);
 
         // Add Bone Infos
         GPUFilterBoneMesh* pBoneMesh = dynamic_cast<GPUFilterBoneMesh*>(pFilterMesh);
         if (pBoneMesh)
             pBoneMesh->addOneDefBoneInfo();
-
-        pFilterMesh->addCoord(textureCoord);
     }
 
     // Set indices
@@ -328,6 +327,8 @@ QMatrix4x4 GPUFilterModel::converMatrixToQtFortmat(const aiMatrix4x4& from)
                   from.a2, from.b2, from.c2, from.d2, \
                   from.a3, from.b3, from.c3, from.d3, \
                   from.a4, from.b4, from.c4, from.d4);
+
+    to = to.transposed();
 
     return to;
 }

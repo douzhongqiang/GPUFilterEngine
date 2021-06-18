@@ -18,7 +18,7 @@ Widget::Widget(QWidget *parent)
     pLayout->addWidget(pButton);
     QObject::connect(pButton, &QPushButton::clicked, this, &Widget::onClickedButton);
 
-    QPushButton* pLoadModelButton = new QPushButton("Load Model");
+    QPushButton* pLoadModelButton = new QPushButton("Load Animation Model");
     pLayout->addWidget(pLoadModelButton);
     QObject::connect(pLoadModelButton, &QPushButton::clicked, this, &Widget::onClickedLoadModelButton);
 
@@ -66,5 +66,5 @@ void Widget::onClickedLoadModelButton(void)
     if (filename.isEmpty())
         return;
 
-    m_pRenderWidget->loadModel(filename);
+    m_pRenderWidget->loadAnimationModel(filename);
 }

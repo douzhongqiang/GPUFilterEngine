@@ -60,7 +60,6 @@ void GPUFilterCamera::mouseMoveEvent(QMouseEvent* event)
     float xoffset = event->x() - m_startPos.x();
     float yoffset = m_startPos.y() - event->y();
     m_startPos = event->pos();
-    qDebug() << xoffset << ", " << yoffset;
 
     float sensitivity = 0.05f;
     xoffset *= sensitivity;

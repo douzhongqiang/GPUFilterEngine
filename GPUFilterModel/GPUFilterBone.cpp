@@ -56,6 +56,8 @@ void GPUFilterBone::init(QString name, int id, aiNodeAnim* channel)
         KeyScale data;
         data.scale = QVector3D(aiScale.x, aiScale.y, aiScale.z);
         data.timeStamp = timeStamp;
+
+        m_scaleKeyVec << data;
     }
 }
 
@@ -66,6 +68,8 @@ void GPUFilterBone::update(float animationTime)
     QMatrix4x4 scale = interploateScaling(animationTime);
 
     m_localTransfrom = translation * rotation * scale;
+
+    //qDebug() << translation << rotation << scale << m_localTransfrom;
 }
 
 QMatrix4x4 GPUFilterBone::getLocalTransformMatrix(void)

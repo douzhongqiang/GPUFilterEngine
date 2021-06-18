@@ -96,7 +96,7 @@ void GPUFilterBoneMesh::customVBODataCreate(int index)
     g_GPUFunc->glVertexAttribIPointer(m_boneLocalBoneId, 4, GL_INT, sizeof(GPUFilterIVector4D), (void*)index);
 
     // Set Weight Attribute
-    index += sizeof(GPUFilterIVector4D);
+    index += sizeof(GPUFilterIVector4D) * m_boneIds.size();
     g_GPUFunc->glEnableVertexAttribArray(m_weightLocaWeightId);
     g_GPUFunc->glVertexAttribPointer(m_weightLocaWeightId, 4, GL_FLOAT, GL_FALSE, sizeof(QVector4D), (void*)index);
 }

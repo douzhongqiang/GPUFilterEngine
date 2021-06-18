@@ -41,6 +41,9 @@ public:
     QMap<QString, GPUFilterBone::BoneInfo> getBondIDMap(void);
     AssimpNodeData* getRootNode(void);
 
+    void dumpInfo(void);
+    QStringList getRootNodeNames(AssimpNodeData* pNode);
+
 private:
     float m_duration = 0.0f;
     int m_nTicksPerSecond = 0;

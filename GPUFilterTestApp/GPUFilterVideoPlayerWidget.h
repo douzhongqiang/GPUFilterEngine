@@ -4,6 +4,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_3_Core>
 class GPUFilterVideoPlayerScene;
+class QTimer;
 
 class GPUFilterVideoPlayerWidget : public QOpenGLWidget , public QOpenGLFunctions_3_3_Core
 {
@@ -14,7 +15,7 @@ public:
     ~GPUFilterVideoPlayerWidget();
 
     void setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height);
-    void loadModel(const QString& modelFilePath);
+    void loadAnimationModel(const QString& modelFilePath);
 
 protected:
     void initializeGL() override;
@@ -29,6 +30,13 @@ protected:
 
 private:
     GPUFilterVideoPlayerScene* m_pScene = nullptr;
+
+    // Update About
+    QTimer* m_pTimer = nullptr;
+    void initTimer(void);
+
+private slots:
+    void onTimeout(void);
 };
 
 #endif

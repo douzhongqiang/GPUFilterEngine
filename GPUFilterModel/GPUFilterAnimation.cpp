@@ -29,6 +29,8 @@ bool GPUFilterAnimation::loadAnimation(const QString& animationPath, GPUFilterMo
     // Fill Miss Bond
     fillMissBones(animation, pModel);
 
+    dumpInfo();
+
     return true;
 }
 
@@ -104,4 +106,44 @@ QMap<QString, GPUFilterBone::BoneInfo> GPUFilterAnimation::getBondIDMap(void)
 GPUFilterAnimation::AssimpNodeData* GPUFilterAnimation::getRootNode(void)
 {
     return m_pRootNode;
+}
+
+void GPUFilterAnimation::dumpInfo(void)
+{
+    // Bone Info
+    qDebug() << "================================== Bone Info: ==================================";
+    QStringList boneNames;
+    for (auto iter = m_boneMaps.begin(); iter != m_boneMaps.end(); ++iter)
+        boneNames << iter.key();
+    qDebug() << boneNames.join(",");
+    qDebug() << "================================== Bone Info End ==================================";
+
+    // Bone Channels
+    qDebug() << "================================== Channel Names Info: ==================================";
+    boneNames.clear();
+    for (auto iter = m_bones.begin(); iter != m_bones.end(); ++iter)
+        boneNames << (*iter)->getName();
+    qDebug() << boneNames.join(",");
+    qDebug() << "================================== Channel Names Info End ==================================";
+
+    // Animation Node Info
+    qDebug() << "================================== Animation Node Info: ==================================";
+    boneNames.clear();
+    boneNames = getRootNodeNames(m_pRootNode);
+    qDebug() << boneNames.join(",");
+    qDebug() << "================================== Animation Node Info End ==================================";
+}
+
+QStringList GPUFilterAnimation::getRootNodeNames(AssimpNodeData* pNode)
+{
+    QStringList strList;
+    strList << pNode->nodeName;
+
+    for (auto iter = pNode->m_childs.begin(); iter != pNode->m_childs.end(); ++iter)
+    {
+        QStringList tempStrList = getRootNodeNames((*iter));
+        strList += tempStrList;
+    }
+
+    return strList;
 }
