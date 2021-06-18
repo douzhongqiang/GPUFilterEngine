@@ -15,11 +15,13 @@ DESTDIR += $$PWD/../GPUFilterTestApp/bin
 
 SOURCES += \
     GPUFilterVideoDecodec.cpp \
+    GPUFilterVideoEncodec.cpp \
     gpufiltervideocore.cpp
 
 HEADERS += \
     GPUFilterVideoCore_global.h \
     GPUFilterVideoDecodec.h \
+    GPUFilterVideoEncodec.h \
     gpufiltervideocore.h
 
 INCLUDEPATH += $$PWD/../3party/ffmpeg/include

@@ -343,7 +343,7 @@ void GPUFilterVideoPlayerScene::createAnimationModelObject(void)
     QVector3D pos = m_floorPostion;
     pos.setX(m_floorPostion.x() - 1.5f);
     pos.setY(m_floorPostion.y() + 1.0f);
-     pos.setZ(m_floorPostion.z() + 10.0f);
+    pos.setZ(m_floorPostion.z() + 10.0f);
     mat.translate(pos);
     mat.scale(4.0f, 4.0f, 4.0f);
     m_pAnimationModel->setModelMatrix(mat);
