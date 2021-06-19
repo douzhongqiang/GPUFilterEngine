@@ -21,5 +21,6 @@ void GPUFilterFloorMesh::drawBefore(void)
 
 void GPUFilterFloorMesh::drawAfter(void)
 {
+    g_GPUFunc->glDepthFunc(GL_LESS);
     g_GPUFunc->glDepthMask(GL_TRUE);
 }

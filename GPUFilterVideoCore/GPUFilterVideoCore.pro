@@ -1,4 +1,4 @@
-QT -= gui
+QT += core gui
 
 TEMPLATE = lib
 DEFINES += GPUFILTERVIDEOCORE_LIBRARY

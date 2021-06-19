@@ -2,8 +2,10 @@
 #define WIDGET_H
 
 #include <QWidget>
+#include <QTimer>
 #include "GPUConverCore/GPURenderWidget.h"
 #include "GPUFilterVideoDecodec.h"
+#include "GPUFilterVideoEncodec.h"
 #include "GPUFilterVideoPlayerWidget.h"
 
 class Widget : public QWidget
@@ -18,12 +20,28 @@ private:
     GPUFilterVideoPlayerWidget* m_pRenderWidget = nullptr;
     GPUFilterVideoDecodec* m_pVideoDecodec = nullptr;
 
+    // Record About
+    QPushButton* m_pRecordVideoButton = nullptr;
+    bool m_isRecording = false;
+    GPUFilterVideoEncodec* m_pVideoEncodec = nullptr;
+
+    QTimer* m_pTimer = nullptr;
+    void initRecordTimer(void);
+    int m_nWidth = 0;
+    int m_nHeight = 0;
+
+    QWidget* createVideoWidget(void);
+    QWidget* createModelWidget(void);
+
 private slots:
     void onClickedButton(void);
+    void onClickedRecordButton(void);
     void onUpdateDisplay(void);
 
     void onClickedLoadModelButton(void);
     void onClickedLoadAnimationModelButton(void);
+
+    void onRecordTimeout(void);
 };
 
 #endif // WIDGET_H
