@@ -34,7 +34,8 @@ bool GPUFilterVideoEncodec::startVideoEncodec(void)
     m_pVideoCodecContext->bit_rate = 400000;
     m_pVideoCodecContext->width = m_createInfo.width;
     m_pVideoCodecContext->height = m_createInfo.height;
-    m_pVideoCodecContext->time_base = (AVRational){1, m_createInfo.fts};
+    m_pVideoCodecContext->time_base.num = 1;
+    m_pVideoCodecContext->time_base.den = m_createInfo.fts;
     m_pVideoCodecContext->gop_size = 10;
     m_pVideoCodecContext->max_b_frames = 1;
     m_pVideoCodecContext->pix_fmt = AV_PIX_FMT_YUV420P;
