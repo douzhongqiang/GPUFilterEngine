@@ -1,5 +1,7 @@
 #include "GPUFilterVideoPlayerWidget.h"
 #include "GPUFilterVideoPlayerScene.h"
+#include "OpenGLCore/GPUFilterFBO.h"
+#include "OpenGLCore/GPUFilterPostProcessScene.h"
 #include <QTimer>
 
 GPUFilterVideoPlayerWidget::GPUFilterVideoPlayerWidget(QWidget* parent)
@@ -9,6 +11,9 @@ GPUFilterVideoPlayerWidget::GPUFilterVideoPlayerWidget(QWidget* parent)
     this->setMouseTracking(true);
 
     m_pScene = new GPUFilterVideoPlayerScene(this);
+    m_pPostProcessScene = new GPUFilterPostProcessScene(this);
+    m_pPostProcessScene->attachScene(m_pScene);
+
     initTimer();
 }
 
@@ -44,6 +49,7 @@ void GPUFilterVideoPlayerWidget::initializeGL()
 {
     this->initializeOpenGLFunctions();
     m_pScene->init();
+    m_pPostProcessScene->init();
 
     return QOpenGLWidget::initializeGL();
 }
@@ -51,12 +57,16 @@ void GPUFilterVideoPlayerWidget::initializeGL()
 void GPUFilterVideoPlayerWidget::resizeGL(int w, int h)
 {
     m_pScene->resize(w, h);
+    m_pPostProcessScene->resize(w, h);
+    this->update();
+
     return QOpenGLWidget::resizeGL(w, h);
 }
 
 void GPUFilterVideoPlayerWidget::paintGL()
 {
-    m_pScene->render();
+    //m_pScene->render();
+    m_pPostProcessScene->render();
 }
 
 void GPUFilterVideoPlayerWidget::keyPressEvent(QKeyEvent* event)
@@ -119,6 +129,8 @@ void GPUFilterVideoPlayerWidget::wheelEvent(QWheelEvent *event)
 
 void GPUFilterVideoPlayerWidget::onTimeout(void)
 {
+    this->makeCurrent();
+    m_pPostProcessScene->renderScene();
     this->update();
 }
 

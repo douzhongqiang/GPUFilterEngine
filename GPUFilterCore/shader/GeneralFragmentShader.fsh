@@ -93,10 +93,11 @@ vec3 rgbToyuv()
 // input 0: ambient; 1:diffuse; 2:specular
 vec4 getObjectMaterialColor(int type)
 {
+    // 不使用物体的材质
     if (!objectMaterial.enabled)
         return vec4(OutColor, 1.0);
 
-
+    // 使用材质
     if (objectMaterial.enabledColor)
     {
         if (type == 0)
@@ -107,12 +108,14 @@ vec4 getObjectMaterialColor(int type)
             return vec4(objectMaterial.specularColor, 1.0);
     }
 
+    // 使用扩展
     if (objectMaterial.isUsedExtraSample)
     {
         vec3 result = yuvTorgb();
         return vec4(result, 1.0);
     }
 
+    // 使用纹理贴图
     vec4 resultColor;
     if (type == 0)
         resultColor = texture(objectMaterial.ambient, OutCoord.xy);

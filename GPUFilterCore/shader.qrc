@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>shader/GeneralFragmentShader.fsh</file>
         <file>shader/GeneralVertexShader.vsh</file>
+        <file>shader/PostProcessVertexShader.fsh</file>
+        <file>shader/PostProcessVertexShader.vsh</file>
     </qresource>
 </RCC>

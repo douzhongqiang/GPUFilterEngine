@@ -5,6 +5,8 @@
 #include <QOpenGLFunctions_3_3_Core>
 class GPUFilterVideoPlayerScene;
 class QTimer;
+class GPUFilterFBO;
+class GPUFilterPostProcessScene;
 
 class GPUFilterVideoPlayerWidget : public QOpenGLWidget , public QOpenGLFunctions_3_3_Core
 {
@@ -31,6 +33,7 @@ protected:
 
 private:
     GPUFilterVideoPlayerScene* m_pScene = nullptr;
+    GPUFilterPostProcessScene* m_pPostProcessScene = nullptr;
 
     // Update About
     QTimer* m_pTimer = nullptr;

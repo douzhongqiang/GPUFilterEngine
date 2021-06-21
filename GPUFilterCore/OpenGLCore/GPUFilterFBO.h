@@ -7,8 +7,9 @@
 #include <QVector3D>
 #include <QVector2D>
 #include <QMatrix4x4>
+#include "GPUFilterCore_global.h"
 
-class GPUFilterFBO : public QObject
+class GPUFILTERCORE_EXPORT GPUFilterFBO : public QObject
 {
     Q_OBJECT
 
@@ -26,14 +27,16 @@ public:
     int width(void);
     int height(void);
 
+    void setFBOSize(int width, int height);
+
 private:
     GLuint m_frameBufferObjectId = 0;
     GLuint m_textureId = 0;
     GLuint m_rboId = 0;
     bool m_isSuccessed = false;
 
-    int m_nWidth = 0;
-    int m_nHeight = 0;
+    int m_nWidth = 800;
+    int m_nHeight = 600;
 };
 
 #endif

@@ -78,3 +78,23 @@ int GPUFilterFBO::height(void)
 {
     return m_nHeight;
 }
+
+void GPUFilterFBO::setFBOSize(int width, int height)
+{
+    m_nWidth = width;
+    m_nHeight = height;
+
+    if (m_isSuccessed)
+    {
+        g_GPUFunc->glBindTexture(GL_TEXTURE_2D, m_textureId);
+        g_GPUFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_nWidth, m_nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        g_GPUFunc->glBindTexture(GL_TEXTURE_2D, 0);
+
+        g_GPUFunc->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_textureId, 0);
+
+        g_GPUFunc->glBindRenderbuffer(GL_RENDERBUFFER, m_rboId);
+        g_GPUFunc->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_nWidth, m_nHeight);
+        // Attach To FBO
+        g_GPUFunc->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rboId);
+    }
+}

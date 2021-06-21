@@ -11,7 +11,7 @@ GPUFilterMesh::GPUFilterMesh(QObject* parent)
 
 GPUFilterMesh::~GPUFilterMesh()
 {
-    release();
+    //release();
 }
 
 // Add Postion
@@ -208,8 +208,11 @@ void GPUFilterMesh::draw(void)
     GPUFilterScene* pScene = getCurrentScene();
     if (pScene)
         pShaderProgram = pScene->getShaderProgram();
-    pShaderProgram->setUniformValue("M", this->getModelMatrix());
-    pShaderProgram->setUniformValue("M_isAnimation", m_isAnimation);
+    if (pShaderProgram)
+    {
+        pShaderProgram->setUniformValue("M", this->getModelMatrix());
+        pShaderProgram->setUniformValue("M_isAnimation", m_isAnimation);
+    }
 
     // Draw Before Do Something
     drawBefore();

@@ -26,6 +26,7 @@ SOURCES += \
     OpenGLCore/GPUFilterMesh.cpp \
     OpenGLCore/GPUFilterNodeBase.cpp \
     OpenGLCore/GPUFilterPointLight.cpp \
+    OpenGLCore/GPUFilterPostProcessScene.cpp \
     OpenGLCore/GPUFilterRectMesh.cpp \
     OpenGLCore/GPUFilterScene.cpp \
     OpenGLCore/GPUFilterShaderProgram.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     OpenGLCore/GPUFilterMesh.h \
     OpenGLCore/GPUFilterNodeBase.h \
     OpenGLCore/GPUFilterPointLight.h \
+    OpenGLCore/GPUFilterPostProcessScene.h \
     OpenGLCore/GPUFilterRectMesh.h \
     OpenGLCore/GPUFilterScene.h \
     OpenGLCore/GPUFilterShaderProgram.h \
