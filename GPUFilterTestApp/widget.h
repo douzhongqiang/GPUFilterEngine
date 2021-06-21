@@ -25,8 +25,6 @@ private:
     bool m_isRecording = false;
     GPUFilterVideoEncodec* m_pVideoEncodec = nullptr;
 
-    QTimer* m_pTimer = nullptr;
-    void initRecordTimer(void);
     int m_nWidth = 0;
     int m_nHeight = 0;
 

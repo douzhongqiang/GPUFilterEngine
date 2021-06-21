@@ -1,16 +1,28 @@
-#include "GPUFilterVideoEncodec.h"
+﻿#include "GPUFilterVideoEncodec.h"
 #include <QDebug>
 //#include <QImage>
 
 GPUFilterVideoEncodec::GPUFilterVideoEncodec(QObject* parent)
-    :QObject(parent)
+    :QThread(parent)
 {
     av_register_all();
     avcodec_register_all();
+
+    initTimer();
 }
 
 GPUFilterVideoEncodec::~GPUFilterVideoEncodec()
 {
+    stopTimer();
+
+    // Quit Thread
+    if (this->isRunning())
+    {
+        this->requestInterruption();
+        m_condition.wakeAll();
+        this->wait();
+    }
+
     releaseAll();
 }
 
@@ -35,17 +47,22 @@ bool GPUFilterVideoEncodec::startVideoEncodec(void)
     if (m_pVideoCodecContext == nullptr)
         return false;
 
-    m_pVideoCodecContext->bit_rate = 400000;
+    m_pVideoCodecContext->bit_rate = 4000000;
     m_pVideoCodecContext->width = m_createInfo.width;
     m_pVideoCodecContext->height = m_createInfo.height;
     m_pVideoCodecContext->time_base.num = 1;
     m_pVideoCodecContext->time_base.den = m_createInfo.fts;
-    m_pVideoCodecContext->gop_size = 10;
-    m_pVideoCodecContext->max_b_frames = 1;
-    m_pVideoCodecContext->pix_fmt = AV_PIX_FMT_YUV420P;
+    m_pVideoCodecContext->framerate.num = m_createInfo.fts;
+    m_pVideoCodecContext->framerate.den = 1;
+    m_pVideoCodecContext->gop_size = 12;
+    //m_pVideoCodecContext->max_b_frames = 1;
+    m_pVideoCodecContext->pix_fmt = (enum AVPixelFormat)AV_PIX_FMT_YUV420P;
 
     if (codecId == AV_CODEC_ID_H264)
+    {
         av_opt_set(m_pVideoCodecContext->priv_data, "preset", "slow", 0);
+        //av_opt_set(m_pVideoCodecContext->priv_data, "tune", "zerolatency", 0);
+    }
 
     // Open
     int result = avcodec_open2(m_pVideoCodecContext, m_pVideoCodec, nullptr);
@@ -60,6 +77,10 @@ bool GPUFilterVideoEncodec::startVideoEncodec(void)
     result = avformat_write_header(m_pFormatContext, nullptr);
     if (result < 0)
         return false;
+
+    this->start();
+    // Start Timer
+    startTimer(1000.0 / m_createInfo.fts);
 
     return true;
 }
@@ -82,15 +103,18 @@ bool GPUFilterVideoEncodec::createFormat(void)
         avformat_free_context(m_pFormatContext);
         return false;
     }
-    pVideoStream->id = m_pFormatContext->nb_streams - 1;
-    pVideoStream->time_base.num = 1;
-    pVideoStream->time_base.den = m_createInfo.fts;
+
     result = avcodec_parameters_from_context(pVideoStream->codecpar, m_pVideoCodecContext);
     if (result < 0)
     {
         avformat_free_context(m_pFormatContext);
         return false;
     }
+    pVideoStream->id = m_pFormatContext->nb_streams - 1;
+    pVideoStream->time_base.num = 1;
+    pVideoStream->time_base.den = m_createInfo.fts;
+    pVideoStream->r_frame_rate.num = m_createInfo.fts;
+    pVideoStream->r_frame_rate.den = m_createInfo.fts;
     av_dump_format(m_pFormatContext, 0, formatFileName.toStdString().c_str(), 1);
 
     if (m_pOutputFormat->flags & AVFMT_GLOBALHEADER)
@@ -112,9 +136,33 @@ bool GPUFilterVideoEncodec::createFormat(void)
 
 void GPUFilterVideoEncodec::endVideoEncodec(void)
 {
+    stopTimer();
+    
+    // Quit Thread
+    if (this->isRunning())
+    {
+        this->requestInterruption();
+        m_condition.wakeAll();
+        this->wait();
+    }
+
+    AVPacket* pkt = av_packet_alloc();
+    av_init_packet(pkt);
+
+    int result = avcodec_receive_packet(m_pVideoCodecContext, pkt);
+    while (result > 0)
+    {
+        av_packet_rescale_ts(pkt, m_pVideoCodecContext->time_base, m_pFormatContext->streams[0]->time_base);
+        pkt->stream_index = m_pFormatContext->streams[0]->index;
+        pkt->pos = -1;
+
+        result = av_interleaved_write_frame(m_pFormatContext, pkt);
+        result = avcodec_receive_packet(m_pVideoCodecContext, pkt);
+    }
+    av_packet_free(&pkt);
+
     av_write_trailer(m_pFormatContext);
     avio_closep(&m_pFormatContext->pb);
-
     releaseAll();
 }
 
@@ -146,6 +194,7 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
 
     // Create AVPacket
     m_pFrame->pts = m_nPtsIndex++;
+    
     int result = avcodec_send_frame(m_pVideoCodecContext, m_pFrame);
     if (result < 0)
         return;
@@ -161,16 +210,19 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
     av_packet_rescale_ts(pkt, m_pVideoCodecContext->time_base, m_pFormatContext->streams[0]->time_base);
     pkt->stream_index = m_pFormatContext->streams[0]->index;
     pkt->pos = -1;
-    pkt->duration = m_pFrame->pts;
-    pkt->dts = m_pFrame->pts;
-    pkt->pts = m_pFrame->pts;
-    
-    /*pkt.pts = av_rescale_q_rnd(pkt.pts, m_pVideoCodecContext->time_base, m_pFormatContext->streams[0]->time_base, AV_ROUND_INF);
-    pkt.dts = av_rescale_q_rnd(pkt.dts, m_pVideoCodecContext->time_base, m_pFormatContext->streams[0]->time_base, AV_ROUND_INF);
-    pkt.duration = av_rescale_q_rnd(pkt.duration, m_pVideoCodecContext->time_base, m_pFormatContext->streams[0]->time_base, AV_ROUND_INF);*/
 
     result = av_interleaved_write_frame(m_pFormatContext, pkt);
     av_packet_free(&pkt);
+}
+
+void GPUFilterVideoEncodec::addImage(const QImage& image)
+{
+    {
+        QMutexLocker locker(&m_mutex);
+        m_imageList.push_back(image);
+    }
+
+    m_condition.wakeAll();
 }
 
 bool GPUFilterVideoEncodec::rgbConverToYUV(void)
@@ -208,4 +260,49 @@ void GPUFilterVideoEncodec::releaseAll(void)
     m_pSwsContext = nullptr;
     m_pVideoCodecContext = nullptr;
     m_pFormatContext = nullptr;
+}
+
+void GPUFilterVideoEncodec::run(void)
+{
+    while (!this->isInterruptionRequested())
+    {
+        m_mutex.lock();
+        while (m_imageList.isEmpty() && !this->isInterruptionRequested())
+            m_condition.wait(&m_mutex);
+        QList<QImage> tempImageList = m_imageList;
+        m_imageList.clear();
+        m_mutex.unlock();
+
+        for (auto iter = tempImageList.begin(); iter != tempImageList.end(); ++iter)
+        {
+            QImage tempImage = *iter;
+            writeImage(tempImage);
+        }
+    }
+}
+
+void GPUFilterVideoEncodec::initTimer(void)
+{
+    m_pTimer = new QTimer;
+    m_pThread = new QThread(this);
+    m_pTimer->setTimerType(Qt::PreciseTimer);
+    m_pTimer->moveToThread(m_pThread);
+
+    QObject::connect(m_pTimer, &QTimer::timeout, this, &GPUFilterVideoEncodec::requestInputImage);
+    QObject::connect(m_pThread, SIGNAL(started()), m_pTimer, SLOT(start()));
+    QObject::connect(m_pThread, &QThread::destroyed, m_pTimer, &QTimer::deleteLater);
+}
+
+void GPUFilterVideoEncodec::startTimer(int interval)
+{
+    m_pTimer->setInterval(interval);
+
+    if (!m_pThread->isRunning())
+        m_pThread->start();
+}
+
+void GPUFilterVideoEncodec::stopTimer(void)
+{
+    m_pThread->quit();
+    m_pThread->wait();
 }

@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include <QImage>
+#include <QWaitCondition>
+#include <QMutex>
+#include <QThread>
+#include <QTimer>
 #include "GPUFilterVideoCore_global.h"
 extern "C"{
 #include <libavcodec/avcodec.h>
@@ -13,7 +17,7 @@ extern "C"{
 #include <libavutil/opt.h>
 }
 
-class GPUFILTERVIDEOCORE_EXPORT GPUFilterVideoEncodec : public QObject
+class GPUFILTERVIDEOCORE_EXPORT GPUFilterVideoEncodec : public QThread
 {
     Q_OBJECT
 
@@ -33,10 +37,11 @@ public:
 
     void setCreateVideoInfo(const QString& fileName, const VideoInfo& videoInfo);
 
+    void addImage(const QImage& image);
     bool startVideoEncodec(void);
     void endVideoEncodec(void);
 
-    void writeImage(const QImage& image);
+    void run(void) override;
 
 private:
     AVCodec *m_pVideoCodec = nullptr;
@@ -56,6 +61,22 @@ private:
     void releaseAll(void);
 
     bool rgbConverToYUV(void);
+
+private:
+    QWaitCondition m_condition;
+    QMutex m_mutex;
+    QList<QImage> m_imageList;
+
+    void writeImage(const QImage& image);
+
+    void initTimer(void);
+    void startTimer(int interval);
+    void stopTimer(void);
+    QTimer* m_pTimer = nullptr;
+    QThread* m_pThread = nullptr;
+
+signals:
+    void requestInputImage(void);
 };
 
 #endif

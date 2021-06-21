@@ -25,7 +25,7 @@ Widget::Widget(QWidget *parent)
 
     // Create Video Encodec
     m_pVideoEncodec = new GPUFilterVideoEncodec(this);
-    initRecordTimer();
+    QObject::connect(m_pVideoEncodec, &GPUFilterVideoEncodec::requestInputImage, this, &Widget::onRecordTimeout);
 }
 
 Widget::~Widget()
@@ -91,7 +91,6 @@ void Widget::onClickedRecordButton(void)
 
     if (m_isRecording)
     {
-        m_pTimer->stop();
         m_pVideoEncodec->endVideoEncodec();
     }
     else
@@ -109,7 +108,6 @@ void Widget::onClickedRecordButton(void)
     if (m_isRecording)
     {
         m_pRecordVideoButton->setText("Recording");
-        m_pTimer->start();
     }
     else
     {
@@ -150,18 +148,16 @@ void Widget::onClickedLoadAnimationModelButton(void)
     m_pRenderWidget->loadAnimationModel(filename);
 }
 
-void Widget::initRecordTimer(void)
-{
-    m_pTimer = new QTimer(this);
-    m_pTimer->setInterval(1000 / 30);
-    QObject::connect(m_pTimer, &QTimer::timeout, this, &Widget::onRecordTimeout);
-}
-
 void Widget::onRecordTimeout(void)
 {
+    QTime time;
+    time.start();
     QPixmap pixmap = m_pRenderWidget->grab(QRect(0, 0, m_nWidth, m_nHeight));
     QImage image = pixmap.toImage();
     image.convertTo(QImage::Format_RGB888);
 
-    m_pVideoEncodec->writeImage(image);
+    static int nFrame = 0;
+    //qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
+
+    m_pVideoEncodec->addImage(image);
 }
