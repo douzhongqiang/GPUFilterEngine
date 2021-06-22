@@ -28,6 +28,8 @@ public:
     int height(void);
 
     void setFBOSize(int width, int height);
+    int getFBOWidth(void);
+    int getFBOHeight(void);
 
 private:
     GLuint m_frameBufferObjectId = 0;

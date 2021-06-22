@@ -12,6 +12,13 @@ class GPUFilterScene;
 class GPUFILTERCORE_EXPORT GPUFilterPostProcessScene : public QObject
 {
     Q_OBJECT
+        
+public:
+    enum PostProcessType
+    {
+        t_normal,
+        t_toYUV
+    };
 
 public:
     GPUFilterPostProcessScene(QObject* parent = nullptr);
@@ -31,6 +38,8 @@ private:
     GPUFilterShaderProgram* m_pShaderProgram = nullptr;
     GPUFilterFBO* m_pFBO = nullptr;
     GPUFilterScene* m_pAttachedScene = nullptr;
+
+    PostProcessType m_type;
 };
 
 #endif

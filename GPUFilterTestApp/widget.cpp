@@ -158,14 +158,14 @@ void Widget::onRecordTimeout(void)
     QImage image = pixmap.toImage();
     image.convertTo(QImage::Format_RGB888);
 
-    qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
+    //qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
 #else
     QImage tempImage = m_pRenderWidget->grapImage(m_nWidth, m_nHeight);
     if (!tempImage.isNull())
     {
         tempImage = tempImage.mirrored();
     }
-    qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
+    //qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
 #endif
 
     m_pVideoEncodec->addImage(tempImage);

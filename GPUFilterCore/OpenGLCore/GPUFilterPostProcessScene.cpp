@@ -10,6 +10,7 @@
 
 GPUFilterPostProcessScene::GPUFilterPostProcessScene(QObject* parent)
     :QObject(parent)
+    , m_type(t_normal)
 {
     m_pMesh = new GPUFilterRectMesh(this);
     m_pFBO = new GPUFilterFBO(this);
@@ -46,6 +47,11 @@ void GPUFilterPostProcessScene::render(void)
     g_GPUFunc->glBindTexture(GL_TEXTURE_2D, m_pFBO->getTextureId());
     m_pShaderProgram->getShaderProgram()->setUniformValue("fboSample", 0);
 
+    // Set Other Infos
+    m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth());
+    m_pShaderProgram->getShaderProgram()->setUniformValue("height", m_pFBO->getFBOHeight());
+    m_pShaderProgram->getShaderProgram()->setUniformValue("m_PostProcessType", (int)m_type);
+    
     // Draw
     m_pMesh->draw();
 

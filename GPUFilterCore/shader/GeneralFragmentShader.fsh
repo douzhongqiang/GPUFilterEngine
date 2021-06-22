@@ -72,22 +72,6 @@ vec3 yuvTorgb()
     return rgb;
 }
 
-vec3 rgbToyuv()
-{
-    vec3 yuv;
-    vec3 rgb;
-
-    rgb = vec3(texture2D(objectMaterial.extraSample1, OutCoord.xy));
-
-
-    yuv = mat3(0.299,       -0.169,       0.5,
-               0.587,       -0.331,       -0.419,
-               0.114,       0.5,          -0.081) * rgb;
-
-    yuv = yuv + vec3(0.0, 0.5, 0.5);
-    return yuv;
-}
-
 // =========================================================================================
 // Get Object Material Color
 // input 0: ambient; 1:diffuse; 2:specular

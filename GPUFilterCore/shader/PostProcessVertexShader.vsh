@@ -18,5 +18,6 @@ void main(void)
     OutNormal = normal;
     OutColor = color;
     OutCoord = coord;
-    OutPostion = pos;
+
+    OutPostion = (pos + 1.0) * 0.5;     // 转换为[0, 1]
 }

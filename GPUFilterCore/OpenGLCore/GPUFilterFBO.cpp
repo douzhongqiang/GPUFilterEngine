@@ -98,3 +98,14 @@ void GPUFilterFBO::setFBOSize(int width, int height)
         g_GPUFunc->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rboId);
     }
 }
+
+int GPUFilterFBO::getFBOWidth(void)
+{
+    return m_nWidth;
+}
+
+int GPUFilterFBO::getFBOHeight(void)
+{
+    return m_nHeight;
+}
+
