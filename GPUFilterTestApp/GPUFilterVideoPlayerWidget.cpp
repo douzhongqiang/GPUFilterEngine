@@ -2,6 +2,7 @@
 #include "GPUFilterVideoPlayerScene.h"
 #include "OpenGLCore/GPUFilterFBO.h"
 #include "OpenGLCore/GPUFilterPostProcessScene.h"
+#include "OpenGLCore/GPUFilterPBO2.h"
 #include <QTimer>
 
 GPUFilterVideoPlayerWidget::GPUFilterVideoPlayerWidget(QWidget* parent)
@@ -13,6 +14,8 @@ GPUFilterVideoPlayerWidget::GPUFilterVideoPlayerWidget(QWidget* parent)
     m_pScene = new GPUFilterVideoPlayerScene(this);
     m_pPostProcessScene = new GPUFilterPostProcessScene(this);
     m_pPostProcessScene->attachScene(m_pScene);
+
+    m_pPackPBO = new GPUFilterPBO2(this);
 
     initTimer();
 }
@@ -45,11 +48,25 @@ void GPUFilterVideoPlayerWidget::loadModel(const QString& modelFilePath)
     this->update();
 }
 
+QImage GPUFilterVideoPlayerWidget::grapImage(int width, int height)
+{
+    this->makeCurrent();
+
+    QImage image;
+    m_pPostProcessScene->getCurrentFBO()->bind();
+    m_pPackPBO->resize(width, height);
+    m_pPackPBO->getImage(image);
+    m_pPostProcessScene->getCurrentFBO()->unbind();
+
+    return image;
+}
+
 void GPUFilterVideoPlayerWidget::initializeGL()
 {
     this->initializeOpenGLFunctions();
     m_pScene->init();
     m_pPostProcessScene->init();
+    m_pPackPBO->create(this->width(), this->height());
 
     return QOpenGLWidget::initializeGL();
 }
@@ -58,6 +75,7 @@ void GPUFilterVideoPlayerWidget::resizeGL(int w, int h)
 {
     m_pScene->resize(w, h);
     m_pPostProcessScene->resize(w, h);
+    m_pPackPBO->resize(w, h);
     this->update();
 
     return QOpenGLWidget::resizeGL(w, h);

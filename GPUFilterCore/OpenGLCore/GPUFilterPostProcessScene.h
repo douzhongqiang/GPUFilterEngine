@@ -24,6 +24,8 @@ public:
     void attachScene(GPUFilterScene* pScene);
     void renderScene(void);
 
+    GPUFilterFBO* getCurrentFBO(void);
+
 private:
     GPUFilterRectMesh* m_pMesh = nullptr;
     GPUFilterShaderProgram* m_pShaderProgram = nullptr;

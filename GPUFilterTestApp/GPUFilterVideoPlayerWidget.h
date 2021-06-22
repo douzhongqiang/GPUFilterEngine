@@ -7,6 +7,7 @@ class GPUFilterVideoPlayerScene;
 class QTimer;
 class GPUFilterFBO;
 class GPUFilterPostProcessScene;
+class GPUFilterPBO2;
 
 class GPUFilterVideoPlayerWidget : public QOpenGLWidget , public QOpenGLFunctions_3_3_Core
 {
@@ -19,6 +20,8 @@ public:
     void setYUVData(int type, const QVector<QByteArray>& yuvData, int width, int height);
     void loadAnimationModel(const QString& modelFilePath);
     void loadModel(const QString& modelFilePath);
+
+    QImage grapImage(int width, int height);
 
 protected:
     void initializeGL() override;
@@ -34,6 +37,7 @@ protected:
 private:
     GPUFilterVideoPlayerScene* m_pScene = nullptr;
     GPUFilterPostProcessScene* m_pPostProcessScene = nullptr;
+    GPUFilterPBO2* m_pPackPBO = nullptr;
 
     // Update About
     QTimer* m_pTimer = nullptr;

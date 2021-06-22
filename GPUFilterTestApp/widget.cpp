@@ -152,12 +152,21 @@ void Widget::onRecordTimeout(void)
 {
     QTime time;
     time.start();
+    static int nFrame = 0;
+#if 0
     QPixmap pixmap = m_pRenderWidget->grab(QRect(0, 0, m_nWidth, m_nHeight));
     QImage image = pixmap.toImage();
     image.convertTo(QImage::Format_RGB888);
 
-    static int nFrame = 0;
-    //qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
+    qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
+#else
+    QImage tempImage = m_pRenderWidget->grapImage(m_nWidth, m_nHeight);
+    if (!tempImage.isNull())
+    {
+        tempImage = tempImage.mirrored();
+    }
+    qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
+#endif
 
-    m_pVideoEncodec->addImage(image);
+    m_pVideoEncodec->addImage(tempImage);
 }

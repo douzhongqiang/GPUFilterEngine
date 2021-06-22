@@ -72,3 +72,8 @@ void GPUFilterPostProcessScene::resize(int w, int h)
     m_pFBO->setFBOSize(w, h);
     m_pFBO->unbind();
 }
+
+GPUFilterFBO* GPUFilterPostProcessScene::getCurrentFBO(void)
+{
+    return m_pFBO;
+}
