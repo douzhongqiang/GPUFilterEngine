@@ -37,6 +37,7 @@ protected:
 private:
     GPUFilterVideoPlayerScene* m_pScene = nullptr;
     GPUFilterPostProcessScene* m_pPostProcessScene = nullptr;
+    GPUFilterPostProcessScene* m_pYUVConvertScene = nullptr;
     GPUFilterPBO2* m_pPackPBO = nullptr;
 
     // Update About

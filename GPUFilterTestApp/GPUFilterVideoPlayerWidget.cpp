@@ -15,6 +15,10 @@ GPUFilterVideoPlayerWidget::GPUFilterVideoPlayerWidget(QWidget* parent)
     m_pPostProcessScene = new GPUFilterPostProcessScene(this);
     m_pPostProcessScene->attachScene(m_pScene);
 
+    // Used To RGB TO YUV
+    m_pYUVConvertScene = new GPUFilterPostProcessScene(m_pPostProcessScene->getCurrentFBO(), this);
+    m_pYUVConvertScene->attachScene(m_pScene);
+
     m_pPackPBO = new GPUFilterPBO2(this);
 
     initTimer();

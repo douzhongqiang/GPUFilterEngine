@@ -28,65 +28,6 @@ GPUFilterVideoPlayerScene::~GPUFilterVideoPlayerScene()
 void GPUFilterVideoPlayerScene::render(void)
 {
     return GPUFilterScene::render();
-
-    g_GPUFunc->glEnable(GL_DEPTH_TEST);
-    g_GPUFunc->glDepthFunc(GL_LESS);
-
-    g_GPUFunc->glEnable(GL_STENCIL_TEST);
-    g_GPUFunc->glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    g_GPUFunc->glStencilFunc(GL_ALWAYS, 1, 0xFF);
-
-    g_GPUFunc->glClearColor(m_bgColor.redF(), m_bgColor.greenF(), m_bgColor.blueF(), m_bgColor.alphaF());
-    g_GPUFunc->glClearStencil(0);
-    g_GPUFunc->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    m_pShaderProgram->bind();
-
-    effectLights();
-
-    g_GPUFunc->glStencilMask(0x00);
-
-    // Draw Mesh
-    for (auto iter = m_meshVec.begin(); iter != m_meshVec.end(); ++iter)
-    {
-        GPUFilterMesh* pMesh = *iter;
-        if (pMesh == nullptr)
-            continue;
-
-        // Set View And Projection Matrix
-        m_pShaderProgram->getShaderProgram()->setUniformValue("V", m_pCamera->getVMatrix());
-        m_pShaderProgram->getShaderProgram()->setUniformValue("P", m_pCamera->getPMatrix());
-        // Set Camera Postion
-        m_pShaderProgram->getShaderProgram()->setUniformValue("ViewPostion", m_pCamera->getCameraPostion());
-
-        if (pMesh == m_pFloorMesh)
-        {
-            g_GPUFunc->glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            g_GPUFunc->glStencilMask(0xFF);
-            g_GPUFunc->glDepthMask(GL_FALSE);
-        }
-        else if (pMesh == m_pTVMesh2)
-        {
-            g_GPUFunc->glStencilFunc(GL_EQUAL, 1, 0xFF);
-            g_GPUFunc->glStencilMask(0x00);
-
-            pMesh->getMaterial()->setFactor(QVector3D(0.4f, 0.4f, 0.4f));
-        }
-        // Draw
-        pMesh->draw();
-
-        if (pMesh == m_pFloorMesh)
-        {
-            g_GPUFunc->glDepthMask(GL_TRUE);
-        }
-        else if (pMesh == m_pTVMesh2)
-        {
-            g_GPUFunc->glStencilMask(0xFF);
-            pMesh->getMaterial()->setFactor(QVector3D(1.0f, 1.0f, 1.0f));
-        }
-    }
-
-    m_pShaderProgram->unbind();
 }
 
 void GPUFilterVideoPlayerScene::customMeshRenderBefore(void)

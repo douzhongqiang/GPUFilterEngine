@@ -22,9 +22,10 @@ public:
 
 public:
     GPUFilterPostProcessScene(QObject* parent = nullptr);
+    GPUFilterPostProcessScene(GPUFilterFBO* pFBO, QObject* parent = nullptr);
     ~GPUFilterPostProcessScene();
 
-    virtual void init(void);
+    virtual void init(bool needCreatePBO = true);
     virtual void render(void);
     virtual void resize(int w, int h);
 

@@ -16,12 +16,20 @@ GPUFilterPostProcessScene::GPUFilterPostProcessScene(QObject* parent)
     m_pFBO = new GPUFilterFBO(this);
 }
 
+GPUFilterPostProcessScene::GPUFilterPostProcessScene(GPUFilterFBO* pFBO, QObject* parent)
+    :QObject(parent)
+    , m_type(t_normal)
+    , m_pFBO(pFBO)
+{
+    m_pMesh = new GPUFilterRectMesh(this);
+}
+
 GPUFilterPostProcessScene::~GPUFilterPostProcessScene()
 {
 
 }
 
-void GPUFilterPostProcessScene::init(void)
+void GPUFilterPostProcessScene::init(bool needCreatePBO)
 {
     // Create Shader Program
     if (m_pShaderProgram == nullptr)
@@ -32,7 +40,9 @@ void GPUFilterPostProcessScene::init(void)
     }
 
     m_pMesh->init();
-    m_pFBO->create();
+
+    if (needCreatePBO)
+        m_pFBO->create();
 }
 
 void GPUFilterPostProcessScene::render(void)
