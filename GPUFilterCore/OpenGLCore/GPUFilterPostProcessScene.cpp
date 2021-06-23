@@ -58,8 +58,20 @@ void GPUFilterPostProcessScene::render(void)
     m_pShaderProgram->getShaderProgram()->setUniformValue("fboSample", 0);
 
     // Set Other Infos
-    m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth());
-    m_pShaderProgram->getShaderProgram()->setUniformValue("height", m_pFBO->getFBOHeight());
+    if (m_type == t_toYUV)
+    {
+        int nWidth = ((m_pFBO->width() >> 4) << 4) / 4;
+        int nHeight = (m_pFBO->height() >> 4) << 4;
+        nHeight = nHeight + nHeight / 2;
+
+        m_pShaderProgram->getShaderProgram()->setUniformValue("width", nWidth);
+        m_pShaderProgram->getShaderProgram()->setUniformValue("height", nHeight);
+    }
+    else
+    {
+        m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth());
+        m_pShaderProgram->getShaderProgram()->setUniformValue("height", m_pFBO->getFBOHeight());
+    }
     m_pShaderProgram->getShaderProgram()->setUniformValue("m_PostProcessType", (int)m_type);
     
     // Draw
@@ -92,4 +104,9 @@ void GPUFilterPostProcessScene::resize(int w, int h)
 GPUFilterFBO* GPUFilterPostProcessScene::getCurrentFBO(void)
 {
     return m_pFBO;
+}
+
+void GPUFilterPostProcessScene::setPostProcessType(PostProcessType type)
+{
+    m_type = type;
 }

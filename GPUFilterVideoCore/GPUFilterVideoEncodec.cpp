@@ -235,6 +235,17 @@ bool GPUFilterVideoEncodec::rgbConverToYUV(void)
 
     int result = sws_scale(m_pSwsContext, m_pTempFrame->data, m_pTempFrame->linesize, 0, m_createInfo.height, \
         m_pFrame->data, m_pFrame->linesize);
+
+    // For Test 
+    /*QByteArray byte;
+    byte.append((const char*)m_pFrame->data[0], m_pFrame->width * m_pFrame->height);
+    byte.append((const char*)m_pFrame->data[1], m_pFrame->width / 2 * m_pFrame->height / 2);
+    byte.append((const char*)m_pFrame->data[2], m_pFrame->width / 2 * m_pFrame->height / 2);
+    QImage image((const uchar *)byte.constData(), m_pFrame->width / 4, \
+        m_pFrame->height + m_pFrame->height / 2, QImage::Format_RGBA8888);
+    image.save("./bin/Test_png.png");
+    image.save("./bin/Test_bmp.bmp");*/
+
     return result > 0 ? true : false;
 }
 

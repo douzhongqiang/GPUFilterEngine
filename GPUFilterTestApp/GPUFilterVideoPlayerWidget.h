@@ -22,6 +22,7 @@ public:
     void loadModel(const QString& modelFilePath);
 
     QImage grapImage(int width, int height);
+    QImage grapImage2(int width, int height);
 
 protected:
     void initializeGL() override;
@@ -37,8 +38,12 @@ protected:
 private:
     GPUFilterVideoPlayerScene* m_pScene = nullptr;
     GPUFilterPostProcessScene* m_pPostProcessScene = nullptr;
-    GPUFilterPostProcessScene* m_pYUVConvertScene = nullptr;
     GPUFilterPBO2* m_pPackPBO = nullptr;
+
+    // For YUV PostProcess
+    GPUFilterPostProcessScene* m_pYUVConvertScene = nullptr;
+    GPUFilterFBO* m_pYUVFBO = nullptr;
+    GPUFilterPBO2* m_pYUVPackPBO = nullptr;
 
     // Update About
     QTimer* m_pTimer = nullptr;

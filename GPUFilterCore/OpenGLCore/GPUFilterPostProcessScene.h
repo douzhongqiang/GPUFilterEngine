@@ -29,6 +29,10 @@ public:
     virtual void render(void);
     virtual void resize(int w, int h);
 
+    int setRenderSize(int width, int height);
+
+    void setPostProcessType(PostProcessType type);
+
     void attachScene(GPUFilterScene* pScene);
     void renderScene(void);
 

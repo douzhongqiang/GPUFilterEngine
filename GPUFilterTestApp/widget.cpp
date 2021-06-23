@@ -49,6 +49,10 @@ QWidget* Widget::createVideoWidget(void)
     pLayout->addWidget(m_pRecordVideoButton);
     QObject::connect(m_pRecordVideoButton, &QPushButton::clicked, this, &Widget::onClickedRecordButton);
 
+    QPushButton* pYUVTestButton = new QPushButton("Test YUV Image");
+    pLayout->addWidget(pYUVTestButton);
+    QObject::connect(pYUVTestButton, &QPushButton::clicked, this, &Widget::onClickedYUVTestButton);
+
     return pVideoControlWidget;
 }
 
@@ -169,4 +173,17 @@ void Widget::onRecordTimeout(void)
 #endif
 
     m_pVideoEncodec->addImage(tempImage);
+}
+
+void Widget::onClickedYUVTestButton(void)
+{
+    m_nWidth = (m_pRenderWidget->width() >> 4) << 4;
+    m_nHeight = (m_pRenderWidget->height() >> 4) << 4;
+
+    QImage tempImage = m_pRenderWidget->grapImage2(m_nWidth, m_nHeight);
+    if (!tempImage.isNull())
+    {
+        tempImage = tempImage.mirrored();
+        tempImage.save("./bin/TestImage.bmp");
+    }
 }

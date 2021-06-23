@@ -12,14 +12,17 @@ GPUFilterVideoPlayerWidget::GPUFilterVideoPlayerWidget(QWidget* parent)
     this->setMouseTracking(true);
 
     m_pScene = new GPUFilterVideoPlayerScene(this);
+
+    // Used For Scene Render To FBO, And Current Widget Render This
     m_pPostProcessScene = new GPUFilterPostProcessScene(this);
     m_pPostProcessScene->attachScene(m_pScene);
+    m_pPackPBO = new GPUFilterPBO2(this);
 
     // Used To RGB TO YUV
+    m_pYUVFBO = new GPUFilterFBO(this);
     m_pYUVConvertScene = new GPUFilterPostProcessScene(m_pPostProcessScene->getCurrentFBO(), this);
-    m_pYUVConvertScene->attachScene(m_pScene);
-
-    m_pPackPBO = new GPUFilterPBO2(this);
+    m_pYUVConvertScene->setPostProcessType(GPUFilterPostProcessScene::t_normal);
+    m_pYUVPackPBO = new GPUFilterPBO2(this);
 
     initTimer();
 }
@@ -65,12 +68,30 @@ QImage GPUFilterVideoPlayerWidget::grapImage(int width, int height)
     return image;
 }
 
+QImage GPUFilterVideoPlayerWidget::grapImage2(int width, int height)
+{
+    this->makeCurrent();
+
+    QImage image;
+    m_pYUVFBO->bind();
+    m_pYUVPackPBO->resize(width / 4, height + height / 2);
+    m_pYUVPackPBO->getImage(image);
+    m_pYUVFBO->unbind();
+
+    return image;
+}
+
 void GPUFilterVideoPlayerWidget::initializeGL()
 {
     this->initializeOpenGLFunctions();
     m_pScene->init();
     m_pPostProcessScene->init();
     m_pPackPBO->create(this->width(), this->height());
+
+    // For YUV Test
+    m_pYUVConvertScene->init(false);
+    m_pYUVFBO->create();
+    m_pYUVPackPBO->create(this->width(), this->height());
 
     return QOpenGLWidget::initializeGL();
 }
@@ -80,6 +101,18 @@ void GPUFilterVideoPlayerWidget::resizeGL(int w, int h)
     m_pScene->resize(w, h);
     m_pPostProcessScene->resize(w, h);
     m_pPackPBO->resize(w, h);
+
+    int nWidth = ((w >> 4) << 4) / 4;
+    int nHeight = (h >> 4) << 4;
+    nHeight = nHeight + nHeight / 2;
+
+    // For YUV Test
+    m_pYUVFBO->bind();
+    this->glViewport(0, 0, w, h);
+    m_pYUVFBO->setFBOSize(w, h);
+    m_pYUVFBO->unbind();
+    m_pYUVPackPBO->resize(w, h);
+
     this->update();
 
     return QOpenGLWidget::resizeGL(w, h);
@@ -153,6 +186,11 @@ void GPUFilterVideoPlayerWidget::onTimeout(void)
 {
     this->makeCurrent();
     m_pPostProcessScene->renderScene();
+
+    // For YUV Test
+    m_pYUVFBO->bind();
+    m_pYUVConvertScene->render();
+    m_pYUVFBO->unbind();
     this->update();
 }
 

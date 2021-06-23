@@ -39,6 +39,8 @@ private slots:
     void onClickedLoadModelButton(void);
     void onClickedLoadAnimationModelButton(void);
 
+    void onClickedYUVTestButton(void);
+
     void onRecordTimeout(void);
 };
 
