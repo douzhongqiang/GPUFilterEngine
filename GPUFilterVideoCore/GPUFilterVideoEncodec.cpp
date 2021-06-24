@@ -4,6 +4,7 @@
 
 GPUFilterVideoEncodec::GPUFilterVideoEncodec(QObject* parent)
     :QThread(parent)
+    , m_inputImageType(t_rgb)
 {
     av_register_all();
     avcodec_register_all();
@@ -30,6 +31,16 @@ void GPUFilterVideoEncodec::setCreateVideoInfo(const QString& fileName, const Vi
 {
     m_fileName = fileName;
     m_createInfo = videoInfo;
+}
+
+void GPUFilterVideoEncodec::setInputImageType(InputImageType type)
+{
+    m_inputImageType = type;
+}
+
+GPUFilterVideoEncodec::InputImageType GPUFilterVideoEncodec::getInputImageType(void)
+{
+    return m_inputImageType;
 }
 
 bool GPUFilterVideoEncodec::startVideoEncodec(void)
@@ -186,8 +197,21 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
     avpicture_fill((AVPicture*)m_pTempFrame, (const uint8_t*)image.constBits(), AV_PIX_FMT_RGB24, \
         image.width(), image.height());
 
-    if (!rgbConverToYUV())
-        return;
+    if (m_inputImageType == t_rgb)
+    {
+        bool result = rgbConverToYUV();
+        if (!result)
+            return;
+    }
+    else if (m_inputImageType == t_yuv420p)
+    {
+        int index = 0;
+        memcpy(m_pFrame->data[0], image.constBits() + index, m_pFrame->width * m_pFrame->height);
+        index += m_pFrame->width * m_pFrame->height;
+        memcpy(m_pFrame->data[1], image.constBits() + index, m_pFrame->width / 2 * m_pFrame->height / 2);
+        index += m_pFrame->width / 2 * m_pFrame->height / 2;
+        memcpy(m_pFrame->data[2], image.constBits() + index, m_pFrame->width / 2 * m_pFrame->height / 2);
+    }
 
     AVPacket *pkt = av_packet_alloc();
     av_init_packet(pkt);

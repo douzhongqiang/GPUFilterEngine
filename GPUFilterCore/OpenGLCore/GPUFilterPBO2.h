@@ -19,7 +19,7 @@ public:
     GPUFilterPBO2(QObject* parent = nullptr);
     ~GPUFilterPBO2();
 
-    void create(int width, int height);
+    void create(int width, int height, bool isRGB = true);
     void getImage(QImage& image);
 
     void resize(int w, int h);

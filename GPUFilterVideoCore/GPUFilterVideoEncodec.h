@@ -31,11 +31,21 @@ public:
         int coverType = 0;      // YUV420P
     };
 
+    enum InputImageType
+    {
+        t_rgb,
+        t_yuv420p
+    };
+
 public:
     GPUFilterVideoEncodec(QObject* parent = nullptr);
     ~GPUFilterVideoEncodec();
 
     void setCreateVideoInfo(const QString& fileName, const VideoInfo& videoInfo);
+
+    // Set/Get Input Image Type
+    void setInputImageType(InputImageType type);
+    InputImageType getInputImageType(void);
 
     void addImage(const QImage& image);
     bool startVideoEncodec(void);
@@ -74,6 +84,8 @@ private:
     void stopTimer(void);
     QTimer* m_pTimer = nullptr;
     QThread* m_pThread = nullptr;
+
+    InputImageType m_inputImageType;
 
 signals:
     void requestInputImage(void);

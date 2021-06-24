@@ -21,7 +21,7 @@ GPUFilterVideoPlayerWidget::GPUFilterVideoPlayerWidget(QWidget* parent)
     // Used To RGB TO YUV
     m_pYUVFBO = new GPUFilterFBO(this);
     m_pYUVConvertScene = new GPUFilterPostProcessScene(m_pPostProcessScene->getCurrentFBO(), this);
-    m_pYUVConvertScene->setPostProcessType(GPUFilterPostProcessScene::t_normal);
+    m_pYUVConvertScene->setPostProcessType(GPUFilterPostProcessScene::t_toYUV);
     m_pYUVPackPBO = new GPUFilterPBO2(this);
 
     initTimer();
@@ -108,10 +108,10 @@ void GPUFilterVideoPlayerWidget::resizeGL(int w, int h)
 
     // For YUV Test
     m_pYUVFBO->bind();
-    this->glViewport(0, 0, w, h);
-    m_pYUVFBO->setFBOSize(w, h);
+    m_pYUVFBO->setFBOSize(nWidth, nHeight);
+    this->glViewport(0, 0, nWidth, nHeight);
     m_pYUVFBO->unbind();
-    m_pYUVPackPBO->resize(w, h);
+    m_pYUVPackPBO->resize(nWidth, nHeight);
 
     this->update();
 
@@ -189,8 +189,11 @@ void GPUFilterVideoPlayerWidget::onTimeout(void)
 
     // For YUV Test
     m_pYUVFBO->bind();
+    this->glViewport(0, 0, m_pYUVFBO->width(), m_pYUVFBO->height());
     m_pYUVConvertScene->render();
     m_pYUVFBO->unbind();
+
+    this->glViewport(0, 0, this->width(), this->height());
     this->update();
 }
 

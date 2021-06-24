@@ -58,7 +58,7 @@ void GPUFilterPostProcessScene::render(void)
     m_pShaderProgram->getShaderProgram()->setUniformValue("fboSample", 0);
 
     // Set Other Infos
-    if (m_type == t_toYUV)
+    if (/*m_type == t_toYUV*/1)
     {
         int nWidth = ((m_pFBO->width() >> 4) << 4) / 4;
         int nHeight = (m_pFBO->height() >> 4) << 4;

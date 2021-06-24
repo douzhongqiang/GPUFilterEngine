@@ -36,12 +36,12 @@ vec4 converToYUV()
     float interval = 1.0 / width;
     vec4 resultVec;
 
-    bool isY = OutPostion.y > (1.0 / 3 * 2);
+    bool isY = OutPostion.y > (1.0 / 3);
     bool isU = !isY && (OutPostion.x < 0.5);
 
     if (isY)
     {
-        float yCoord = converToRangeNormal(0.0, (1.0 / 3 * 2), OutPostion.y);
+        float yCoord = converToRangeNormal(1.0 / 3, 1.0, OutPostion.y);
 //        yCoord = 1.0 - yCoord;
 
         float r = rgbToyuv(vec2(OutCoord.x, yCoord)).x;
@@ -53,7 +53,7 @@ vec4 converToYUV()
     }
     else if (isU)
     {
-        float yCoord = converToRangeNormal((1.0 / 3 * 2), 1.0, OutPostion.y);
+        float yCoord = converToRangeNormal(0.0, 1.0 / 3, OutPostion.y);
 //        yCoord = 1.0 - yCoord;
 
         float r = rgbToyuv(vec2(OutCoord.x * 2, yCoord)).y;
@@ -65,7 +65,7 @@ vec4 converToYUV()
     }
     else 
     {
-        float yCoord = converToRangeNormal(0.0, (1.0 / 3 * 2), OutPostion.y);
+        float yCoord = converToRangeNormal(0.0, 1.0 / 3, OutPostion.y);
 //        yCoord = 1.0 - yCoord;
 
         float r = rgbToyuv(vec2((OutCoord.x - 0.5) * 2, yCoord)).y;

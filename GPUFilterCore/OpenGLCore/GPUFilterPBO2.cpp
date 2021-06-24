@@ -17,7 +17,10 @@ void GPUFilterPBO2::getImage(QImage& image)
 {
     // Read Pixel Data To PBO
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[m_nCurrentIndex]);
-    g_GPUFunc->glReadPixels(0, 0, m_nWidth, m_nHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    if (m_nChannelCount == 3)
+        g_GPUFunc->glReadPixels(0, 0, m_nWidth, m_nHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    else if (m_nChannelCount == 4)
+        g_GPUFunc->glReadPixels(0, 0, m_nWidth, m_nHeight, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     swapPBOBuffer();
 
@@ -26,15 +29,24 @@ void GPUFilterPBO2::getImage(QImage& image)
     GLubyte* src = (GLubyte*)g_GPUFunc->glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
     if (src)
     {
-        image = QImage(src, m_nWidth, m_nHeight, QImage::Format_RGB888);
+        if (m_nChannelCount == 3)
+            image = QImage(src, m_nWidth, m_nHeight, QImage::Format_RGB888);
+        else if (m_nChannelCount == 4)
+            image = QImage(src, m_nWidth, m_nHeight, QImage::Format_RGBA8888);
+
         g_GPUFunc->glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
     }
 
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 }
 
-void GPUFilterPBO2::create(int width, int height)
+void GPUFilterPBO2::create(int width, int height, bool isRGB)
 {
+    if (isRGB)
+        m_nChannelCount = 3;
+    else
+        m_nChannelCount = 4;
+
     int bufferSize = width * height * m_nChannelCount;
 
     g_GPUFunc->glGenBuffers(2, m_nPBO);
