@@ -91,7 +91,7 @@ void GPUFilterVideoPlayerWidget::initializeGL()
     // For YUV Test
     m_pYUVConvertScene->init(false);
     m_pYUVFBO->create();
-    m_pYUVPackPBO->create(this->width(), this->height());
+    m_pYUVPackPBO->create(this->width(), this->height(), false);
 
     return QOpenGLWidget::initializeGL();
 }

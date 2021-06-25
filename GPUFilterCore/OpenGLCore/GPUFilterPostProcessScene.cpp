@@ -47,31 +47,21 @@ void GPUFilterPostProcessScene::init(bool needCreatePBO)
 
 void GPUFilterPostProcessScene::render(void)
 {
-    g_GPUFunc->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    g_GPUFunc->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     g_GPUFunc->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    g_GPUFunc->glEnable(GL_BLEND);
+    g_GPUFunc->glBlendFunc(GL_ONE, GL_ZERO);
 
     m_pShaderProgram->bind();
 
     // Set Texture
     g_GPUFunc->glActiveTexture(GL_TEXTURE0);
     g_GPUFunc->glBindTexture(GL_TEXTURE_2D, m_pFBO->getTextureId());
+
     m_pShaderProgram->getShaderProgram()->setUniformValue("fboSample", 0);
-
-    // Set Other Infos
-    if (/*m_type == t_toYUV*/1)
-    {
-        int nWidth = ((m_pFBO->width() >> 4) << 4) / 4;
-        int nHeight = (m_pFBO->height() >> 4) << 4;
-        nHeight = nHeight + nHeight / 2;
-
-        m_pShaderProgram->getShaderProgram()->setUniformValue("width", nWidth);
-        m_pShaderProgram->getShaderProgram()->setUniformValue("height", nHeight);
-    }
-    else
-    {
-        m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth());
-        m_pShaderProgram->getShaderProgram()->setUniformValue("height", m_pFBO->getFBOHeight());
-    }
+    m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth());
+    m_pShaderProgram->getShaderProgram()->setUniformValue("height", m_pFBO->getFBOHeight());
     m_pShaderProgram->getShaderProgram()->setUniformValue("m_PostProcessType", (int)m_type);
     
     // Draw

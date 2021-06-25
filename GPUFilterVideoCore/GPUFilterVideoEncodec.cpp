@@ -206,11 +206,35 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
     else if (m_inputImageType == t_yuv420p)
     {
         int index = 0;
-        memcpy(m_pFrame->data[0], image.constBits() + index, m_pFrame->width * m_pFrame->height);
+        // Copy Y Data
+        for (int i = 0; i < m_pFrame->height; ++i)
+        {
+            int interval = i * m_pFrame->linesize[0];
+            int srcInterval = i * m_pFrame->width;
+            memset(m_pFrame->data[0] + interval, 0, m_pFrame->linesize[0]);
+            memcpy(m_pFrame->data[0] + interval, image.constBits() + srcInterval, m_pFrame->width);
+        }
+
+        // Copy U Data
         index += m_pFrame->width * m_pFrame->height;
-        memcpy(m_pFrame->data[1], image.constBits() + index, m_pFrame->width / 2 * m_pFrame->height / 2);
-        index += m_pFrame->width / 2 * m_pFrame->height / 2;
-        memcpy(m_pFrame->data[2], image.constBits() + index, m_pFrame->width / 2 * m_pFrame->height / 2);
+        for (int i = 0; i < m_pFrame->height / 2; ++i)
+        {
+            int interval = i * m_pFrame->linesize[1];
+            int srcInterval = index + m_pFrame->width / 4 * i;
+
+            memset(m_pFrame->data[1] + interval, 255 / 2, m_pFrame->linesize[1]);
+            memcpy(m_pFrame->data[1], image.constBits() + srcInterval, m_pFrame->width / 2);
+        }
+
+        // Copy V Data
+        //index += m_pFrame->width / 2 * m_pFrame->height / 2;
+        for (int i = 0; i < m_pFrame->height / 2; ++i)
+        {
+            int interval = i * m_pFrame->linesize[2];
+            memset(m_pFrame->data[2] + interval, 255 / 2, m_pFrame->linesize[2]);
+
+            //memcpy(m_pFrame->data[2], image.constBits() + index, m_pFrame->width / 2 * m_pFrame->height / 2);
+        }
     }
 
     AVPacket *pkt = av_packet_alloc();

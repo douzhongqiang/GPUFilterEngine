@@ -50,16 +50,17 @@ vec4 converToYUV()
         float a = rgbToyuv(vec2(OutCoord.x + interval * 3.0f, yCoord)).x;
 
         resultVec = vec4(r, g, b, a);
+        //resultVec = vec4(0.0, 0.0, 0.0, a);
     }
     else if (isU)
     {
         float yCoord = converToRangeNormal(0.0, 1.0 / 3, OutPostion.y);
 //        yCoord = 1.0 - yCoord;
 
-        float r = rgbToyuv(vec2(OutCoord.x * 2, yCoord)).y;
-        float g = rgbToyuv(vec2(OutCoord.x * 2 + interval, yCoord)).y;
-        float b = rgbToyuv(vec2(OutCoord.x * 2 + interval * 2.0f, yCoord)).y;
-        float a = rgbToyuv(vec2(OutCoord.x * 2 + interval * 3.0f, yCoord)).y;
+        float r = rgbToyuv(vec2(OutCoord.x * 2.0, yCoord)).y;
+        float g = rgbToyuv(vec2(OutCoord.x * 2.0 + interval, yCoord)).y;
+        float b = rgbToyuv(vec2(OutCoord.x * 2.0 + interval * 2.0f, yCoord)).y;
+        float a = rgbToyuv(vec2(OutCoord.x * 2.0 + interval * 3.0f, yCoord)).y;
 
         resultVec = vec4(r, g, b, a);
     }
@@ -68,10 +69,10 @@ vec4 converToYUV()
         float yCoord = converToRangeNormal(0.0, 1.0 / 3, OutPostion.y);
 //        yCoord = 1.0 - yCoord;
 
-        float r = rgbToyuv(vec2((OutCoord.x - 0.5) * 2, yCoord)).y;
-        float g = rgbToyuv(vec2((OutCoord.x - 0.5) * 2 + interval, yCoord)).y;
-        float b = rgbToyuv(vec2((OutCoord.x - 0.5) * 2 + interval * 2.0f, yCoord)).y;
-        float a = rgbToyuv(vec2((OutCoord.x - 0.5) * 2 + interval * 3.0f, yCoord)).y;
+        float r = rgbToyuv(vec2((OutCoord.x - 0.5) * 2, yCoord)).z;
+        float g = rgbToyuv(vec2((OutCoord.x - 0.5) * 2 + interval, yCoord)).z;
+        float b = rgbToyuv(vec2((OutCoord.x - 0.5) * 2 + interval * 2.0f, yCoord)).z;
+        float a = rgbToyuv(vec2((OutCoord.x - 0.5) * 2 + interval * 3.0f, yCoord)).z;
 
         resultVec = vec4(r, g, b, a);
     }

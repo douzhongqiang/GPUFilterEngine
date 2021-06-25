@@ -25,6 +25,7 @@ Widget::Widget(QWidget *parent)
 
     // Create Video Encodec
     m_pVideoEncodec = new GPUFilterVideoEncodec(this);
+    m_pVideoEncodec->setInputImageType(GPUFilterVideoEncodec::t_yuv420p);
     QObject::connect(m_pVideoEncodec, &GPUFilterVideoEncodec::requestInputImage, this, &Widget::onRecordTimeout);
 }
 
@@ -164,7 +165,12 @@ void Widget::onRecordTimeout(void)
 
     //qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
 #else
-    QImage tempImage = m_pRenderWidget->grapImage(m_nWidth, m_nHeight);
+    QImage tempImage;
+    if (m_pVideoEncodec->getInputImageType() == GPUFilterVideoEncodec::t_rgb)
+        tempImage = m_pRenderWidget->grapImage(m_nWidth, m_nHeight);
+    else if (m_pVideoEncodec->getInputImageType() == GPUFilterVideoEncodec::t_yuv420p)
+        tempImage = m_pRenderWidget->grapImage2(m_nWidth, m_nHeight);
+
     if (!tempImage.isNull())
     {
         tempImage = tempImage.mirrored();
@@ -185,5 +191,6 @@ void Widget::onClickedYUVTestButton(void)
     {
         tempImage = tempImage.mirrored();
         tempImage.save("./bin/TestImage.bmp");
+        tempImage.save("./bin/TestImage.png");
     }
 }
