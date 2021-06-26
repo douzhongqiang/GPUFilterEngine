@@ -63,6 +63,7 @@ vec4 converToYUV()
         float a = rgbToyuv(vec2(OutCoord.x * 2.0 + interval * 3.0f, yCoord)).y;
 
         resultVec = vec4(r, g, b, a);
+        //resultVec = vec4(1.0, 1.0, 1.0, 1.0);
     }
     else 
     {

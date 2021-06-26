@@ -1,6 +1,8 @@
 #include "GPUFilterVideoDecodec.h"
 #include <QTimer>
 #include <QDebug>
+#include <QByteArray>
+#include <QImage>
 
 GPUFilterVideoDecodec::GPUFilterVideoDecodec(QObject* parent)
     :QThread(parent)

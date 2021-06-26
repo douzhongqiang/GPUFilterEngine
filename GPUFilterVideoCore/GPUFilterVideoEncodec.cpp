@@ -220,10 +220,10 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
         for (int i = 0; i < m_pFrame->height / 2; ++i)
         {
             int interval = i * m_pFrame->linesize[1];
-            int srcInterval = index + m_pFrame->width / 4 * i;
+            int srcInterval = index + m_pFrame->width / 4 * 4 * i;
 
             memset(m_pFrame->data[1] + interval, 255 / 2, m_pFrame->linesize[1]);
-            memcpy(m_pFrame->data[1], image.constBits() + srcInterval, m_pFrame->width / 2);
+            memcpy(m_pFrame->data[1] + interval, image.constBits() + srcInterval, m_pFrame->width / 2);
         }
 
         // Copy V Data
@@ -231,9 +231,10 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
         for (int i = 0; i < m_pFrame->height / 2; ++i)
         {
             int interval = i * m_pFrame->linesize[2];
-            memset(m_pFrame->data[2] + interval, 255 / 2, m_pFrame->linesize[2]);
+            int srcInterval = index + m_pFrame->width / 4 * 4 * i + m_pFrame->width / 4 * 4 / 2;
 
-            //memcpy(m_pFrame->data[2], image.constBits() + index, m_pFrame->width / 2 * m_pFrame->height / 2);
+            memset(m_pFrame->data[2] + interval, 255 / 2, m_pFrame->linesize[2]);
+            memcpy(m_pFrame->data[2] + interval, image.constBits() + srcInterval, m_pFrame->width / 2);
         }
     }
 
