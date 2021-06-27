@@ -57,8 +57,12 @@ void GPUFilterPostProcessScene::render(void)
 
     // Set Texture
     g_GPUFunc->glActiveTexture(GL_TEXTURE0);
-    g_GPUFunc->glBindTexture(GL_TEXTURE_2D, m_pFBO->getTextureId());
+    if (m_textureId == 0)
+        g_GPUFunc->glBindTexture(GL_TEXTURE_2D, m_pFBO->getTextureId());
+    else
+        g_GPUFunc->glBindTexture(GL_TEXTURE_2D, m_textureId);
 
+    m_pShaderProgram->getShaderProgram()->setUniformValue("m", m_pMesh->getModelMatrix());
     m_pShaderProgram->getShaderProgram()->setUniformValue("fboSample", 0);
     m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth());
     m_pShaderProgram->getShaderProgram()->setUniformValue("height", m_pFBO->getFBOHeight());
@@ -89,6 +93,16 @@ void GPUFilterPostProcessScene::resize(int w, int h)
     g_GPUFunc->glViewport(0, 0, w, h);
     m_pFBO->setFBOSize(w, h);
     m_pFBO->unbind();
+}
+
+void GPUFilterPostProcessScene::setRenderTextureID(GLuint id)
+{
+    m_textureId = id;
+}
+
+GPUFilterRectMesh* GPUFilterPostProcessScene::getCurrentMesh(void)
+{
+    return m_pMesh;
 }
 
 GPUFilterFBO* GPUFilterPostProcessScene::getCurrentFBO(void)

@@ -9,15 +9,17 @@ out vec3 OutColor;
 out vec3 OutNormal;
 out vec3 OutCoord;
 out vec3 OutPostion;
+uniform mat4 m;
 
 void main(void)
 {
-    gl_Position = vec4(pos, 1.0);
+    gl_Position = m * vec4(pos, 1.0);
 
     // 颜色、纹理坐标、点的位置等信息
     OutNormal = normal;
     OutColor = color;
     OutCoord = coord;
 
-    OutPostion = (pos + 1.0) * 0.5;     // 转换为[0, 1]
+    vec3 tempPos = vec3(m * vec4(pos, 1.0));
+    OutPostion = (tempPos + 1.0) * 0.5;     // 转换为[0, 1]
 }

@@ -15,6 +15,7 @@ Widget::Widget(QWidget *parent)
     QObject::connect(m_pVideoDecodec, &GPUFilterVideoDecodec::updateDisplay, this, &Widget::onUpdateDisplay);
 
     m_pYUVToRGBProcesser = new YUVToRGBProcesser(this);
+    m_pRGBToYUVProcesser = new RGBToYUVProcesser(this);
 }
 
 Widget::~Widget()
@@ -66,6 +67,8 @@ void Widget::init(void)
     // Begin Button
     QPushButton* pBeginButton = new QPushButton(tr("ConverToYUVImage"));
     pBottomLaout->addWidget(pBeginButton);
+    m_RGBToYUVButton = pBeginButton;
+    m_RGBToYUVButton->setEnabled(false);
     QObject::connect(pBeginButton, &QPushButton::clicked, this, &Widget::onClickedConverRGBToYUVButton);
 }
 
@@ -96,12 +99,42 @@ void Widget::onClickedConverYUVToRGBButton(void)
 
 void Widget::onClickedBroseImageButton(void)
 {
+    QString fileName = QFileDialog::getOpenFileName(this, "Open Video", "./");
+    if (fileName.isEmpty())
+        return;
 
+    m_pImagePathLineEdit->setText(fileName);
+    m_RGBToYUVButton->setEnabled(true);
 }
 
 void Widget::onClickedConverRGBToYUVButton(void)
 {
+    // Init
+    if (!m_isRGBToYUVInited)
+    {
+        m_pRGBToYUVProcesser->init();
+        m_isRGBToYUVInited = true;
+    }
 
+    // Resize
+    QImage image(m_pImagePathLineEdit->text());
+    int nWidth = image.width() / 4;
+    int nHeight = image.height() + image.height() / 2;
+    m_pRGBToYUVProcesser->resize(nWidth, nHeight);
+
+    // Set Image
+    image = image.mirrored();
+    m_pRGBToYUVProcesser->setImage(image);
+
+    // Render
+    m_pRGBToYUVProcesser->render();
+
+    // Pack Image
+    m_pRGBToYUVProcesser->packImage();
+    QImage tempImage = m_pRGBToYUVProcesser->packImage();
+    QString imageName = "%1/%2.bmp";
+    imageName = imageName.arg(qApp->applicationDirPath() + "/ConverImage/").arg("TestYUV");
+    tempImage.save(imageName);
 }
 
 void Widget::onUpdateDisplay(void)
