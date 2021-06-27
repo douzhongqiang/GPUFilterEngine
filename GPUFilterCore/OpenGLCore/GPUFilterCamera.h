@@ -51,6 +51,9 @@ public:
     QMatrix4x4 getVMatrix(void);
     QMatrix4x4 getPMatrix(void);
 
+    void setCameraEnabled(bool isEnabled);
+    bool isCameraEnabled(void);
+
 private:
     QVector3D m_cameraPos;
     QVector3D m_cameraFront;
@@ -74,6 +77,8 @@ private:
 
     void reSetProjectMatrix(void);
     void reSetViewMatrix(void);
+
+    bool m_isEnabled = true;
 
 signals:
     void cameraPostionChanged(const QVector3D& cameraPos);

@@ -63,7 +63,6 @@ void GPUFilterScene::render(void)
     g_GPUFunc->glEnable(GL_STENCIL_TEST);
     g_GPUFunc->glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     g_GPUFunc->glStencilFunc(GL_ALWAYS, 1, 0xFF);
-
     g_GPUFunc->glClearColor(m_bgColor.redF(), m_bgColor.greenF(), m_bgColor.blueF(), m_bgColor.alphaF());
     g_GPUFunc->glClearStencil(0);
     g_GPUFunc->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

@@ -93,6 +93,7 @@ void GPUFilterVideoPlayerWidget::initializeGL()
     m_pYUVFBO->create();
     m_pYUVPackPBO->create(this->width(), this->height(), false);
 
+//    qDebug() << this->context()->format();
     return QOpenGLWidget::initializeGL();
 }
 

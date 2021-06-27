@@ -161,13 +161,15 @@ void GPUFilterCamera::getViewRange(float& nNear, float& nFar)
 void GPUFilterCamera::reSetProjectMatrix(void)
 {
     m_PMat.setToIdentity();
-    m_PMat.perspective(m_persAngle, m_nViewportWidth * 1.0 / m_nViewportHeight, m_nNear, m_nFar);
+    if (m_isEnabled)
+        m_PMat.perspective(m_persAngle, m_nViewportWidth * 1.0 / m_nViewportHeight, m_nNear, m_nFar);
 }
 
 void GPUFilterCamera::reSetViewMatrix(void)
 {
     m_VMat.setToIdentity();
-    m_VMat.lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
+    if (m_isEnabled)
+        m_VMat.lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
 }
 
 QMatrix4x4 GPUFilterCamera::getVMatrix(void)
@@ -178,6 +180,16 @@ QMatrix4x4 GPUFilterCamera::getVMatrix(void)
 QMatrix4x4 GPUFilterCamera::getPMatrix(void)
 {
     return m_PMat;
+}
+
+void GPUFilterCamera::setCameraEnabled(bool isEnabled)
+{
+    m_isEnabled = isEnabled;
+}
+
+bool GPUFilterCamera::isCameraEnabled(void)
+{
+    return m_isEnabled;
 }
 
 void GPUFilterCamera::activeCamera(void)

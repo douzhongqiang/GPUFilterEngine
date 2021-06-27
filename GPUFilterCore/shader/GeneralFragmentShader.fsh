@@ -5,6 +5,8 @@ in vec3 OutNormal;
 in vec3 OutCoord;
 in vec3 OutPostion;
 
+out vec4 fragColor;
+
 // 物体的材质结构
 struct Material
 {
@@ -61,14 +63,15 @@ vec3 yuvTorgb()
     vec3 yuv;
     vec3 rgb;
 
-    yuv.x = texture2D(objectMaterial.extraSample1, OutCoord.xy).r;
-    yuv.y = texture2D(objectMaterial.extraSample2, OutCoord.xy).r - 0.5;
-    yuv.z = texture2D(objectMaterial.extraSample3, OutCoord.xy).r - 0.5;
+    yuv.x = texture(objectMaterial.extraSample1, OutCoord.xy).r;
+    yuv.y = texture(objectMaterial.extraSample2, OutCoord.xy).r - 0.5;
+    yuv.z = texture(objectMaterial.extraSample3, OutCoord.xy).r - 0.5;
 
     rgb = mat3(1,       1,         1,
                0,       -0.39465,  2.03211,
                1.13983, -0.58060,  0) * yuv;
 
+//    rgb = vec3(yuv.x, yuv.x, yuv.x);
     return rgb;
 }
 
@@ -196,7 +199,7 @@ void main(void)
     {
         // 使用漫反射的图片或者颜色
         vec3 tempVecColor = vec3(getObjectMaterialColor(1));
-        gl_FragColor = vec4(M_factor * tempVecColor, 1.0);
+        fragColor = vec4(M_factor * tempVecColor, 1.0);
         return;
     }
 
@@ -219,5 +222,5 @@ void main(void)
     }
 
     vec4 destColor = vec4(M_factor * resultColor, 1.0);
-    gl_FragColor = destColor;
+    fragColor = destColor;
 }

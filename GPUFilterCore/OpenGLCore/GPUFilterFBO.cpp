@@ -81,10 +81,14 @@ int GPUFilterFBO::height(void)
 
 void GPUFilterFBO::setFBOSize(int width, int height)
 {
+    bool isNeedResize = true;
+    if (m_nWidth == width && m_nHeight == height)
+        isNeedResize = false;
+
     m_nWidth = width;
     m_nHeight = height;
 
-    if (m_isSuccessed)
+    if (m_isSuccessed && isNeedResize)
     {
         g_GPUFunc->glBindTexture(GL_TEXTURE_2D, m_textureId);
         g_GPUFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_nWidth, m_nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
