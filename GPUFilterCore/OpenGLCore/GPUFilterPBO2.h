@@ -21,8 +21,13 @@ public:
 
     void create(int width, int height, bool isRGB = true);
     void getImage(QImage& image);
+    void setImage(QImage& image);
 
     void resize(int w, int h);
+
+    void bind(void);
+    void unbind(void);
+    void swapPBOBuffer(void);
 
 private:
     PBOType m_pboType;
@@ -33,7 +38,11 @@ private:
     int m_nChannelCount = 3;
 
     int m_nCurrentIndex = 0;
-    void swapPBOBuffer(void);
+
+    void createPack(int width, int height);
+    void createUnpack(int width, int height);
+    void resizePack(int width, int height);
+    void resizeUnpack(int width, int height);
     //uchar* m_pTempBufferData = nullptr;
 };
 

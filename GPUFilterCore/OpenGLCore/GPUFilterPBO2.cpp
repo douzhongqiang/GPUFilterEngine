@@ -40,6 +40,26 @@ void GPUFilterPBO2::getImage(QImage& image)
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 }
 
+void GPUFilterPBO2::setImage(QImage& image)
+{
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_nPBO[m_nCurrentIndex]);
+    if (m_nChannelCount == 3)
+        g_GPUFunc->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_nWidth, m_nHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    else if (m_nChannelCount == 4)
+        g_GPUFunc->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_nWidth, m_nHeight, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+    swapPBOBuffer();
+
+    GLubyte* ptr = (GLubyte*)g_GPUFunc->glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+    if (ptr)
+    {
+        memcpy(ptr, image.constBits(), m_nWidth * m_nHeight * m_nChannelCount);
+        g_GPUFunc->glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+    }
+
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+}
+
 void GPUFilterPBO2::create(int width, int height, bool isRGB)
 {
     if (isRGB)
@@ -47,6 +67,17 @@ void GPUFilterPBO2::create(int width, int height, bool isRGB)
     else
         m_nChannelCount = 4;
 
+    if (m_pboType == t_Pack)
+        createPack(width, height);
+    else
+        createUnpack(width, height);
+
+    /*if (m_pTempBufferData == nullptr)
+        m_pTempBufferData = new uchar[bufferSize];*/
+}
+
+void GPUFilterPBO2::createPack(int width, int height)
+{
     int bufferSize = width * height * m_nChannelCount;
 
     g_GPUFunc->glGenBuffers(2, m_nPBO);
@@ -57,9 +88,20 @@ void GPUFilterPBO2::create(int width, int height, bool isRGB)
     g_GPUFunc->glBufferData(GL_PIXEL_PACK_BUFFER, bufferSize, 0, GL_STREAM_READ);
 
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+}
 
-    /*if (m_pTempBufferData == nullptr)
-        m_pTempBufferData = new uchar[bufferSize];*/
+void GPUFilterPBO2::createUnpack(int width, int height)
+{
+    int bufferSize = width * height * m_nChannelCount;
+
+    g_GPUFunc->glGenBuffers(2, m_nPBO);
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_nPBO[0]);
+    g_GPUFunc->glBufferData(GL_PIXEL_UNPACK_BUFFER, bufferSize, 0, GL_STREAM_DRAW);
+
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_nPBO[1]);
+    g_GPUFunc->glBufferData(GL_PIXEL_UNPACK_BUFFER, bufferSize, 0, GL_STREAM_DRAW);
+
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
 void GPUFilterPBO2::swapPBOBuffer(void)
@@ -70,6 +112,19 @@ void GPUFilterPBO2::swapPBOBuffer(void)
         m_nCurrentIndex = 0;
 }
 
+void GPUFilterPBO2::bind(void)
+{
+    if (m_pboType == t_Pack)
+        g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[m_nCurrentIndex]);
+    else
+        g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_nPBO[m_nCurrentIndex]);
+}
+
+void GPUFilterPBO2::unbind(void)
+{
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+}
+
 void GPUFilterPBO2::resize(int w, int h)
 {
     if (w == m_nWidth && h == m_nHeight)
@@ -77,6 +132,19 @@ void GPUFilterPBO2::resize(int w, int h)
 
     m_nWidth = w;
     m_nHeight = h;
+
+    if (m_pboType == t_Pack)
+        resizePack(w, h);
+    else
+        resizeUnpack(w, h);
+
+    /*if (m_pTempBufferData != nullptr)
+        delete[] m_pTempBufferData;
+    m_pTempBufferData = new uchar[bufferSize];*/
+}
+
+void GPUFilterPBO2::resizePack(int w, int h)
+{
     int bufferSize = m_nWidth * m_nHeight * m_nChannelCount;
 
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[0]);
@@ -86,8 +154,17 @@ void GPUFilterPBO2::resize(int w, int h)
     g_GPUFunc->glBufferData(GL_PIXEL_PACK_BUFFER, bufferSize, 0, GL_STREAM_READ);
 
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+}
 
-    /*if (m_pTempBufferData != nullptr)
-        delete[] m_pTempBufferData;
-    m_pTempBufferData = new uchar[bufferSize];*/
+void GPUFilterPBO2::resizeUnpack(int w, int h)
+{
+    int bufferSize = m_nWidth * m_nHeight * m_nChannelCount;
+
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_nPBO[0]);
+    g_GPUFunc->glBufferData(GL_PIXEL_UNPACK_BUFFER, bufferSize, 0, GL_STREAM_DRAW);
+
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_nPBO[1]);
+    g_GPUFunc->glBufferData(GL_PIXEL_UNPACK_BUFFER, bufferSize, 0, GL_STREAM_DRAW);
+
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
