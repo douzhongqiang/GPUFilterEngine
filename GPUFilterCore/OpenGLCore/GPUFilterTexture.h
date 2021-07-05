@@ -5,6 +5,7 @@
 #include <QtOpenGL>
 #include "GPUFilterCore_global.h"
 
+class GPUFilterPBO2;
 class GPUFILTERCORE_EXPORT GPUFilterTexture : public QObject
 {
     Q_OBJECT
@@ -56,6 +57,11 @@ public:
     // Active
     void activeTexture(int textureID);
 
+    // PBO About
+    void setPBOEnabled(bool isUsedPBO);
+    bool isPBOEnabled(void);
+
+
 private:
     GLuint m_nTextureID = 0;
     FilterType m_filterType;
@@ -70,6 +76,10 @@ private:
     int m_nHeight = 0;
     void setImageDataToTexture(void);
     void updateImageDataToTexture(void);
+
+    // PBO About
+    bool m_isUsedPBO = false;
+    GPUFilterPBO2* m_pPBO = nullptr;
 };
 
 #endif

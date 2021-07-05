@@ -40,7 +40,7 @@ void GPUFilterPBO2::getImage(QImage& image)
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 }
 
-void GPUFilterPBO2::setImage(QImage& image)
+void GPUFilterPBO2::setImage(uchar* pImageData)
 {
     g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_nPBO[m_nCurrentIndex]);
     if (m_nChannelCount == 3)
@@ -53,7 +53,7 @@ void GPUFilterPBO2::setImage(QImage& image)
     GLubyte* ptr = (GLubyte*)g_GPUFunc->glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
     if (ptr)
     {
-        memcpy(ptr, image.constBits(), m_nWidth * m_nHeight * m_nChannelCount);
+        memcpy(ptr, pImageData, m_nWidth * m_nHeight * m_nChannelCount);
         g_GPUFunc->glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
     }
 
@@ -167,4 +167,9 @@ void GPUFilterPBO2::resizeUnpack(int w, int h)
     g_GPUFunc->glBufferData(GL_PIXEL_UNPACK_BUFFER, bufferSize, 0, GL_STREAM_DRAW);
 
     g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+}
+
+void GPUFilterPBO2::setPBOType(PBOType type)
+{
+    m_pboType = type;
 }

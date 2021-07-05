@@ -1,5 +1,6 @@
 #include "GPUFilterTexture.h"
 #include "GPUFilterTool.h"
+#include "GPUFilterPBO2.h"
 
 GPUFilterTexture::GPUFilterTexture(QObject* parent)
     :QObject(parent)
@@ -134,8 +135,22 @@ void GPUFilterTexture::updateImageDataToTexture(void)
     this->bind();
 
     GLint type = coverToGLType(m_imageFormat);
-    g_GPUFunc->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_nWidth, m_nHeight, \
-                            type, GL_UNSIGNED_BYTE, m_imageData.data());
+    if (!m_isUsedPBO)
+    {
+        g_GPUFunc->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_nWidth, m_nHeight, \
+                                type, GL_UNSIGNED_BYTE, m_imageData.data());
+    }
+    else
+    {
+        if (m_pPBO == nullptr)
+        {
+            m_pPBO = new GPUFilterPBO2(this);
+            m_pPBO->setPBOType(GPUFilterPBO2::t_UnPack);
+            m_pPBO->create(m_nWidth, m_nHeight);
+        }
+
+        m_pPBO->setImage((uchar*)m_imageData.data());
+    }
 
     this->unbind();
     m_imageData.clear();
@@ -192,6 +207,16 @@ void GPUFilterTexture::activeTexture(int textureID)
 {
     g_GPUFunc->glActiveTexture(GL_TEXTURE0 + textureID);
     this->bind();
+}
+
+void GPUFilterTexture::setPBOEnabled(bool isUsedPBO)
+{
+    m_isUsedPBO = isUsedPBO;
+}
+
+bool GPUFilterTexture::isPBOEnabled(void)
+{
+    return m_isUsedPBO;
 }
 
 // set/get texture format
