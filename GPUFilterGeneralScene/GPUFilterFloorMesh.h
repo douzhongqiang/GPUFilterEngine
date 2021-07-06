@@ -2,8 +2,9 @@
 #define GPUFILTERFLOORMESH_H
 
 #include "3DExtras/GPUFilterGeometryRect.h"
+#include "GPUFilterGeneralScene_global.h"
 
-class GPUFilterFloorMesh : public GPUFilterGeometryRect
+class GPUFILTERGENERALSCENE_EXPORT GPUFilterFloorMesh : public GPUFilterGeometryRect
 {
     Q_OBJECT
 

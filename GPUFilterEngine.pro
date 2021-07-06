@@ -3,7 +3,9 @@ SUBDIRS += \
     GPUFilterCore \
     GPUFilterModel \
     GPUFilterVideoCore \
+    GPUFilterGeneralScene \
     GPUFilterTestApp \
-    GPUFilterRGBToYUVTestApp
+    GPUFilterRGBToYUVTestApp \
+    GPUFilterPerformanceTestApp
 
 CONFIG += ordered

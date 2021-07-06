@@ -130,6 +130,7 @@ void YUVToRGBProcesser::setYData(const QByteArray& yData, int width, int height)
     {
         QSharedPointer<GPUFilterTexture> pYTexture(new GPUFilterTexture);
         pYTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+        pYTexture->setPBOEnabled(true);
         pMaterial->setExtraTexture1(pYTexture);
     }
     pMaterial->getExtraTexture1()->setImageData(yData.data(), width, height);
@@ -147,6 +148,7 @@ void YUVToRGBProcesser::setUData(const QByteArray& uData, int width, int height)
     {
         QSharedPointer<GPUFilterTexture> pUTexture(new GPUFilterTexture);
         pUTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+        pUTexture->setPBOEnabled(true);
 //        pUTexture->setImageData(yuvData[1].data(), width / 2, height / 2);
         pMaterial->setExtraTexture2(pUTexture);
     }
@@ -164,6 +166,7 @@ void YUVToRGBProcesser::setVData(const QByteArray& vData, int width, int height)
     {
         QSharedPointer<GPUFilterTexture> pVTexture(new GPUFilterTexture);
         pVTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+        pVTexture->setPBOEnabled(true);
 //        pVTexture->setImageData(yuvData[2].data(), width / 2, height / 2);
         pMaterial->setExtraTexture3(pVTexture);
     }

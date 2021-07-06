@@ -1,36 +1,26 @@
 QT       += core gui opengl
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+TEMPLATE = lib
+DEFINES += GPUFILTERGENERALSCENE_LIBRARY
 
 CONFIG += c++11
 
 MOC_DIR += $$PWD/temp
 OBJECTS_DIR += $$PWD/temp
-DESTDIR += $$PWD/bin
+DESTDIR += $$PWD/../GPUFilterTestApp/bin
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += \
-    GPUFilterVideoPlayerWidget.cpp \
-    main.cpp \
-    widget.cpp
-
-HEADERS += \
-    GPUFilterVideoPlayerWidget.h \
-    widget.h
-
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../GPUFilterCore
 INCLUDEPATH += $$PWD/../GPUFilterVideoCore
 INCLUDEPATH += $$PWD/../GPUFilterModel
-INCLUDEPATH += $$PWD/../GPUFilterGeneralScene
 
-LIBS += -L$$PWD/bin -lGPUFilterCore
-LIBS += -L$$PWD/bin -lGPUFilterVideoCore
-LIBS += -L$$PWD/bin -lGPUFilterModel
-LIBS += -L$$PWD/bin -lGPUFilterGeneralScene
+LIBS += -L$$DESTDIR -lGPUFilterCore
+LIBS += -L$$DESTDIR -lGPUFilterVideoCore
+LIBS += -L$$DESTDIR -lGPUFilterModel
 
 INCLUDEPATH += $$PWD/../3party/ffmpeg/include
 LIBS += -L$$PWD/../3party/ffmpeg/libs -lavcodec -lavformat -lavutil -lswscale -lswresample
@@ -44,7 +34,19 @@ else{
     LIBS += -L$$PWD/../3party/assimp/lib/Release -lassimp-vc140-mt
 }
 
+SOURCES += \
+    GPUFilterFloorMesh.cpp \
+    GPUFilterInvertedMesh.cpp \
+    GPUFilterVideoPlayerScene.cpp
+
+HEADERS += \
+    GPUFilterFloorMesh.h \
+    GPUFilterGeneralScene_global.h \
+    GPUFilterInvertedMesh.h \
+    GPUFilterVideoPlayerScene.h
+
 # Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
+unix {
+    target.path = /usr/lib
+}
 !isEmpty(target.path): INSTALLS += target

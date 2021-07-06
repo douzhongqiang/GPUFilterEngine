@@ -2,8 +2,9 @@
 #define GPUFILTERINVERTEDMESH
 
 #include "3DExtras/GPUFilterGeometryRect.h"
+#include "GPUFilterGeneralScene_global.h"
 
-class GPUFilterInvertedMesh : public GPUFilterGeometryRect
+class GPUFILTERGENERALSCENE_EXPORT GPUFilterInvertedMesh : public GPUFilterGeometryRect
 {
     Q_OBJECT
 

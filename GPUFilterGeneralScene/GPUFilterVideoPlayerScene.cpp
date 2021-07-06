@@ -303,6 +303,7 @@ void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& 
     {
         QSharedPointer<GPUFilterTexture> pYTexture(new GPUFilterTexture);
         pYTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+        pYTexture->setPBOEnabled(true);
         m_pMaterial->setExtraTexture1(pYTexture);
     }
     m_pMaterial->getExtraTexture1()->setImageData(yuvData[0].data(), width, height);
@@ -312,6 +313,7 @@ void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& 
     {
         QSharedPointer<GPUFilterTexture> pUTexture(new GPUFilterTexture);
         pUTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+        pUTexture->setPBOEnabled(true);
 //        pUTexture->setImageData(yuvData[1].data(), width / 2, height / 2);
         m_pMaterial->setExtraTexture2(pUTexture);
     }
@@ -322,6 +324,7 @@ void GPUFilterVideoPlayerScene::setYUVData(int type, const QVector<QByteArray>& 
     {
         QSharedPointer<GPUFilterTexture> pVTexture(new GPUFilterTexture);
         pVTexture->setImageFormat(GPUFilterTexture::t_LUMINANCE);
+        pVTexture->setPBOEnabled(true);
 //        pVTexture->setImageData(yuvData[2].data(), width / 2, height / 2);
         m_pMaterial->setExtraTexture3(pVTexture);
     }

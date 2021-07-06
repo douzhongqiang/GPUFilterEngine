@@ -2,13 +2,14 @@
 #define GPUFILTERVIDEOPLAYERSCENE_H
 
 #include "OpenGLCore/GPUFilterScene.h"
+#include "GPUFilterGeneralScene_global.h"
 #include <QObject>
 #include <QtOpenGL>
 
 class GPUFilterGeometryRect;
 class GPUFilterMaterial;
 class GPUFilterModel;
-class GPUFilterVideoPlayerScene : public GPUFilterScene
+class GPUFILTERGENERALSCENE_EXPORT GPUFilterVideoPlayerScene : public GPUFilterScene
 {
     Q_OBJECT
 

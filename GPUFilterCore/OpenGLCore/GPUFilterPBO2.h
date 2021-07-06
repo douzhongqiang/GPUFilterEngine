@@ -15,6 +15,13 @@ public:
         t_Pack
     };
 
+    enum POBImageType
+    {
+        t_RGB,
+        t_RGBA,
+        t_LUMINANCE
+    };
+
 public:
     GPUFilterPBO2(QObject* parent = nullptr);
     ~GPUFilterPBO2();
@@ -22,6 +29,7 @@ public:
     void setPBOType(PBOType type);
 
     void create(int width, int height, bool isRGB = true);
+    void create(int width, int height, POBImageType imageType);
     void getImage(QImage& image);
     void setImage(uchar* pImageData);
 

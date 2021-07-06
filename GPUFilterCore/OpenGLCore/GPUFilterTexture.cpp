@@ -125,6 +125,10 @@ void GPUFilterTexture::setImageDataToTexture(void)
 
     this->unbind();
     m_imageData.clear();
+
+    // Reset PBO
+    delete m_pPBO;
+    m_pPBO = nullptr;
 }
 
 void GPUFilterTexture::updateImageDataToTexture(void)
@@ -146,7 +150,7 @@ void GPUFilterTexture::updateImageDataToTexture(void)
         {
             m_pPBO = new GPUFilterPBO2(this);
             m_pPBO->setPBOType(GPUFilterPBO2::t_UnPack);
-            m_pPBO->create(m_nWidth, m_nHeight);
+            m_pPBO->create(m_nWidth, m_nHeight, (GPUFilterPBO2::POBImageType)m_imageFormat);
         }
 
         m_pPBO->setImage((uchar*)m_imageData.data());

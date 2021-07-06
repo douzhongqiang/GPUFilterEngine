@@ -47,6 +47,8 @@ void GPUFilterPBO2::setImage(uchar* pImageData)
         g_GPUFunc->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_nWidth, m_nHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
     else if (m_nChannelCount == 4)
         g_GPUFunc->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_nWidth, m_nHeight, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    else if (m_nChannelCount == 1)
+        g_GPUFunc->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_nWidth, m_nHeight, GL_LUMINANCE, GL_UNSIGNED_BYTE, 0);
 
     swapPBOBuffer();
 
@@ -62,6 +64,9 @@ void GPUFilterPBO2::setImage(uchar* pImageData)
 
 void GPUFilterPBO2::create(int width, int height, bool isRGB)
 {
+    m_nWidth = width;
+    m_nHeight = height;
+
     if (isRGB)
         m_nChannelCount = 3;
     else
@@ -74,6 +79,24 @@ void GPUFilterPBO2::create(int width, int height, bool isRGB)
 
     /*if (m_pTempBufferData == nullptr)
         m_pTempBufferData = new uchar[bufferSize];*/
+}
+
+void GPUFilterPBO2::create(int width, int height, POBImageType imageType)
+{
+    m_nWidth = width;
+    m_nHeight = height;
+
+    if (imageType == t_RGB)
+        m_nChannelCount = 3;
+    else if (imageType == t_RGBA)
+        m_nChannelCount = 4;
+    else if (imageType == t_LUMINANCE)
+        m_nChannelCount = 1;
+
+    if (m_pboType == t_Pack)
+        createPack(width, height);
+    else
+        createUnpack(width, height);
 }
 
 void GPUFilterPBO2::createPack(int width, int height)
