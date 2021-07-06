@@ -14,8 +14,9 @@
 #include "OpenGLCore/GPUFilterPBO2.h"
 #include "OpenGLCore/GPUFilterCamera.h"
 #include "OpenGLCore/GPUFilterPostProcessScene.h"
+#include "GPUFilterGeneralScene_global.h"
 
-class RGBToYUVProcesser : public QObject
+class GPUFILTERGENERALSCENE_EXPORT RGBToYUVProcesser : public QObject
 {
     Q_OBJECT
 

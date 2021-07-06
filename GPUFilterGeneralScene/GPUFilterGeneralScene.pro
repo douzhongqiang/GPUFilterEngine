@@ -37,13 +37,17 @@ else{
 SOURCES += \
     GPUFilterFloorMesh.cpp \
     GPUFilterInvertedMesh.cpp \
-    GPUFilterVideoPlayerScene.cpp
+    GPUFilterVideoPlayerScene.cpp \
+    RGBToYUVProcesser.cpp \
+    YUVToRGBProcesser.cpp
 
 HEADERS += \
     GPUFilterFloorMesh.h \
     GPUFilterGeneralScene_global.h \
     GPUFilterInvertedMesh.h \
-    GPUFilterVideoPlayerScene.h
+    GPUFilterVideoPlayerScene.h \
+    RGBToYUVProcesser.h \
+    YUVToRGBProcesser.h
 
 # Default rules for deployment.
 unix {

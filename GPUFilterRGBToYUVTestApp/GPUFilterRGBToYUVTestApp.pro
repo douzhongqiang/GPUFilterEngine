@@ -13,24 +13,22 @@ DESTDIR += $$PWD/../GPUFilterTestApp/bin
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    RGBToYUVProcesser.cpp \
-    YUVToRGBProcesser.cpp \
     main.cpp \
     widget.cpp
 
 HEADERS += \
-    RGBToYUVProcesser.h \
-    YUVToRGBProcesser.h \
     widget.h
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../GPUFilterCore
 INCLUDEPATH += $$PWD/../GPUFilterVideoCore
 INCLUDEPATH += $$PWD/../GPUFilterModel
+INCLUDEPATH += $$PWD/../GPUFilterGeneralScene
 
 LIBS += -L$$DESTDIR -lGPUFilterCore
 LIBS += -L$$DESTDIR -lGPUFilterVideoCore
 LIBS += -L$$DESTDIR -lGPUFilterModel
+LIBS += -L$$DESTDIR -lGPUFilterGeneralScene
 
 INCLUDEPATH += $$PWD/../3party/ffmpeg/include
 LIBS += -L$$PWD/../3party/ffmpeg/libs -lavcodec -lavformat -lavutil -lswscale -lswresample

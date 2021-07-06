@@ -5,6 +5,7 @@
 #include <QMatrix4x4>
 #include <QtOpenGL>
 #include <QOpenGLContext>
+#include <QTimer>
 #include "OpenGLCore/GPUFilterScene.h"
 #include "OpenGLCore/GPUFilterMaterial.h"
 #include "OpenGLCore/GPUFilterRectMesh.h"
@@ -16,6 +17,7 @@
 #include "OpenGLCore/GPUFilterPostProcessScene.h"
 
 class GPUFilterVideoPlayerScene;
+class Widget;
 class PerformanceTestObject : public QObject
 {
     Q_OBJECT
@@ -28,6 +30,15 @@ public:
     void render(void);
     void resize(int w, int h);
 
+    void setSceneSize(int w, int h);
+    void getSceneSize(int& w, int& h);
+
+    void setParentWidget(Widget* pWidget);
+    QImage getCurrentImage(void);
+
+    // Start Test
+    void startTest(void);
+
 private:
     void initCreate(void);
 
@@ -35,6 +46,21 @@ private:
     QOpenGLContext* m_pContext = nullptr;
 
     GPUFilterVideoPlayerScene* m_pVideoPlayerScene = nullptr;
+    GPUFilterFBO* m_pFBO = nullptr;
+    GPUFilterPBO2* m_pPBO = nullptr;
+
+    Widget* m_pParentWidget = nullptr;
+
+    // Timer
+    QTimer* m_pTimer = nullptr;
+    void initTimer(void);
+    bool m_isInited = false;
+
+    int m_nWidth = 1280;
+    int m_nHeight = 720;
+
+private slots:
+    void onTimeout(void);
 };
 
 #endif
