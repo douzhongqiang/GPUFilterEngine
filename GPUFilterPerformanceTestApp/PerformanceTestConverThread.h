@@ -26,6 +26,10 @@ public:
     void setUsedGPU(bool isUsedGPU);
     bool isUsedGPU(void);
 
+    void setResizeEnabled(bool isEnabled);
+    bool isResizeEnabled(void);
+    void setResizeSize(int width, int height);
+
 private:
     RGBToYUVProcesser* m_pConverProcesser = nullptr;
     GPUFilterVideoEncodec* m_pVideoEncodec = nullptr;
@@ -38,6 +42,10 @@ private:
 
     qint64 m_nTotal = 0;
     qint64 m_avgValue = 0;
+
+    std::atomic<bool> m_isResizeEnabled;
+    std::atomic<int> m_nResizeWidth;
+    std::atomic<int> m_nResizeHeight;
 
 signals:
     void sendValues(qint64 currentValue, qint64 avgValue);

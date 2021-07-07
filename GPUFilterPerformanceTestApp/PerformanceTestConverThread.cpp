@@ -6,6 +6,9 @@
 PerformanceTestConverThread::PerformanceTestConverThread(QObject* parent)
     :QThread(parent)
     , m_isUsedGPU(true)
+    , m_isResizeEnabled(false)
+    , m_nResizeWidth(0)
+    , m_nResizeHeight(0)
 {
 
 }
@@ -62,6 +65,13 @@ void PerformanceTestConverThread::run(void)
             {
                 int nWidth = image.width() / 4;
                 int nHeight = image.height() + image.height() / 2;
+
+                if (m_isResizeEnabled)
+                {
+                    nWidth = m_nResizeWidth / 4;
+                    nHeight = m_nResizeHeight + m_nResizeHeight / 2;
+                }
+
                 m_pConverProcesser->resize(nWidth, nHeight);
                 int n1 = time.elapsed();
                 m_pConverProcesser->setImage(image);
@@ -71,6 +81,9 @@ void PerformanceTestConverThread::run(void)
                 QImage tempImage = m_pConverProcesser->packImage();
                 // End Conver
                 qDebug() << "Conver To YUV Data Frame:" << number++ << "[" << n1 << n2 << n3 << time.elapsed() << "]";
+
+                QString imagePath = QString("%1/ConverImage2/%2.bmp").arg(qApp->applicationDirPath()).arg(number);
+                tempImage.save(imagePath);
             }
             else
             {
@@ -99,4 +112,20 @@ void PerformanceTestConverThread::setUsedGPU(bool isUsedGPU)
 bool PerformanceTestConverThread::isUsedGPU(void)
 {
     return m_isUsedGPU;
+}
+
+void PerformanceTestConverThread::setResizeEnabled(bool isEnabled)
+{
+    m_isResizeEnabled = isEnabled;
+}
+
+bool PerformanceTestConverThread::isResizeEnabled(void)
+{
+    return m_isResizeEnabled;
+}
+
+void PerformanceTestConverThread::setResizeSize(int width, int height)
+{
+    m_nResizeWidth = width;
+    m_nResizeHeight = height;
 }
