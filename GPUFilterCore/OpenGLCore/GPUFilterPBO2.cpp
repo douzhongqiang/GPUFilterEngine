@@ -58,6 +58,9 @@ void GPUFilterPBO2::setImage(uchar* pImageData)
     qDebug() << __FUNCTION__ << time.elapsed();
     swapPBOBuffer();
 
+    g_GPUFunc->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_nPBO[m_nCurrentIndex]);
+    int bufferSize = m_nWidth * m_nHeight * m_nChannelCount;
+    g_GPUFunc->glBufferData(GL_PIXEL_UNPACK_BUFFER, bufferSize, 0, GL_STREAM_DRAW);
     GLubyte* ptr = (GLubyte*)g_GPUFunc->glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
     if (ptr)
     {

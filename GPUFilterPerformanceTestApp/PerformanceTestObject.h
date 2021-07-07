@@ -42,6 +42,7 @@ public:
     void startTest(void);
 
     void setUsedGPU(bool isUsedGPU);
+    void setResizeEnabled(bool isEnabled);
 
 private:
     void initCreate(void);

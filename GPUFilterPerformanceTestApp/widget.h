@@ -42,6 +42,8 @@ private:
     QSpinBox* m_pHeightSpinBox = nullptr;
     QComboBox* m_pSizeComboBox = nullptr;
     QCheckBox* m_pCheckBox = nullptr;
+    QCheckBox* m_pResizeCheckBox = nullptr;
+    QComboBox* m_pResizeComboBox = nullptr;
 
     SizeType m_sizeType;
     QString sizeTypeToString(SizeType type);
@@ -51,6 +53,8 @@ private slots:
     void onClickedButton(void);
     void onComboBoxCurrentIndexChanged(int index);
     void onCheckBoxCheckStatusChanged(int status);
+    void onResizeableCheckBoxStatusChanged(int status);
+    void onResizeComboBoxCurrentIndexChanged(int index);
 };
 
 #endif // WIDGET_H

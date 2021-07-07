@@ -86,6 +86,32 @@ QWidget* Widget::createConfigWidget(void)
     m_pCheckBox->setChecked(true);
     QObject::connect(m_pCheckBox, &QCheckBox::stateChanged, this, &Widget::onCheckBoxCheckStatusChanged);
 
+    // Resize Widget
+    QWidget* pResizeWidget = new QWidget;
+    pLayout->addWidget(pResizeWidget);
+    QHBoxLayout* pResizeBoxLayout = new QHBoxLayout(pResizeWidget);
+    pResizeBoxLayout->setMargin(0);
+    pResizeBoxLayout->setSpacing(2);
+    // Resize Checkbox
+    m_pResizeCheckBox = new QCheckBox(tr("Resize Enabled"));
+    QObject::connect(m_pResizeCheckBox, &QCheckBox::stateChanged, this, &Widget::onResizeableCheckBoxStatusChanged);
+    pResizeBoxLayout->addWidget(m_pResizeCheckBox);
+    m_pResizeCheckBox->setStyleSheet("background-color: red;");
+    pResizeBoxLayout->addSpacing(8);
+    // Resize To ComboBox
+    QLabel* pResizeComboBoxLabel = new QLabel(tr("Resize To:"));
+    //pWidthLabel->setFixedWidth(80);
+    pResizeBoxLayout->addWidget(pResizeComboBoxLabel);
+    m_pResizeComboBox = new QComboBox();
+    m_pResizeComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    for (int i = (int)t_Mode1; i < (int)t_Mode7 + 1; ++i)
+    {
+        QString typeString = sizeTypeToString((SizeType)i);
+        m_pResizeComboBox->addItem(typeString, i);
+    }
+    QObject::connect(m_pResizeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onResizeComboBoxCurrentIndexChanged(int)));
+    pResizeBoxLayout->addWidget(m_pResizeComboBox);
+
     return pW;
 }
 
@@ -125,6 +151,11 @@ void Widget::onComboBoxCurrentIndexChanged(int index)
     updateCurrentSizeType();
 }
 
+void Widget::onResizeComboBoxCurrentIndexChanged(int index)
+{
+
+}
+
 void Widget::onCheckBoxCheckStatusChanged(int status)
 {
     bool isUsedGPU = true;
@@ -134,6 +165,15 @@ void Widget::onCheckBoxCheckStatusChanged(int status)
     }
 
     m_pPerformanceTestObject->setUsedGPU(isUsedGPU);
+}
+
+void Widget::onResizeableCheckBoxStatusChanged(int status)
+{
+    bool isResizeable = false;
+    if (status == Qt::Checked)
+        isResizeable = true;
+
+    m_pPerformanceTestObject->setResizeEnabled(isResizeable);
 }
 
 void Widget::updateCurrentSizeType(void)

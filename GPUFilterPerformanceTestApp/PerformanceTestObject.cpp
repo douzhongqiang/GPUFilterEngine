@@ -184,3 +184,8 @@ void PerformanceTestObject::setUsedGPU(bool isUsedGPU)
 {
     m_pConverThread->setUsedGPU(isUsedGPU);
 }
+
+void PerformanceTestObject::setResizeEnabled(bool isEnabled)
+{
+
+}
