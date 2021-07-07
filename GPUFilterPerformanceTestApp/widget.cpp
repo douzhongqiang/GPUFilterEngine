@@ -79,8 +79,12 @@ QWidget* Widget::createConfigWidget(void)
     }
     QObject::connect(m_pSizeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxCurrentIndexChanged(int)));
     updateCurrentSizeType();
-
     pComboBoxLayout->addWidget(m_pSizeComboBox);
+    // Add Conver Mode
+    m_pCheckBox = new QCheckBox(tr("Used GPU Conver"));
+    pComboBoxLayout->addWidget(m_pCheckBox);
+    m_pCheckBox->setChecked(true);
+    QObject::connect(m_pCheckBox, &QCheckBox::stateChanged, this, &Widget::onCheckBoxCheckStatusChanged);
 
     return pW;
 }
@@ -119,6 +123,17 @@ void Widget::onComboBoxCurrentIndexChanged(int index)
 {
     m_sizeType = (SizeType)(m_pSizeComboBox->currentData().toInt());
     updateCurrentSizeType();
+}
+
+void Widget::onCheckBoxCheckStatusChanged(int status)
+{
+    bool isUsedGPU = true;
+    if (status != Qt::Checked)
+    {
+        isUsedGPU = false;
+    }
+
+    m_pPerformanceTestObject->setUsedGPU(isUsedGPU);
 }
 
 void Widget::updateCurrentSizeType(void)

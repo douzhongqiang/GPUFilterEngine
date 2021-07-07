@@ -1,5 +1,6 @@
 #include "PerformanceTestObject.h"
 #include "GPUFilterVideoPlayerScene.h"
+#include "PerformanceTestConverThread.h"
 #include "widget.h"
 #include <QApplication>
 #include <QDebug>
@@ -13,6 +14,10 @@ PerformanceTestObject::PerformanceTestObject(QObject* parent)
     m_pVideoPlayerScene = new GPUFilterVideoPlayerScene(this);
     m_pFBO = new GPUFilterFBO(this);
     m_pPBO = new GPUFilterPBO2(this);
+
+    // Conver Thread
+    m_pConverThread = new PerformanceTestConverThread(this);
+    QObject::connect(m_pConverThread, &PerformanceTestConverThread::sendValues, this, &PerformanceTestObject::onRecvValues);
 }
 
 PerformanceTestObject::~PerformanceTestObject()
@@ -41,6 +46,7 @@ QImage PerformanceTestObject::getCurrentImage(void)
 void PerformanceTestObject::startTest(void)
 {
     m_pTimer->start();
+    m_pConverThread->startConver();
 }
 
 void PerformanceTestObject::init(void)
@@ -135,7 +141,7 @@ void PerformanceTestObject::initCreate(void)
 void PerformanceTestObject::initTimer(void)
 {
     m_pTimer = new QTimer(this);
-    m_pTimer->setInterval(1000.0 / 30);
+    m_pTimer->setInterval(1000.0 / 15);
     QObject::connect(m_pTimer, &QTimer::timeout, this, &PerformanceTestObject::onTimeout);
 }
 
@@ -151,15 +157,30 @@ void PerformanceTestObject::onTimeout(void)
     render();
 
     // For Test Save Image
+    static int number = 0;
     QImage image = getCurrentImage();
-    if (!image.isNull())
-    {
-        static int number = 0;
-        QString imagePathName = qApp->applicationDirPath() + "/TestTempImages/%1.bmp";
-        imagePathName = imagePathName.arg(number++);
-        image.save(imagePathName);
+    QString tempFrameString = "Created Image %1 Frame";
+    m_pParentWidget->appendText(tempFrameString.arg(number++));
+    qApp->processEvents();
 
-        m_pParentWidget->appendText(QString("Rendered, Save Image As %1").arg(imagePathName));
-        qApp->processEvents();
+    m_pConverThread->addImage(image);
+}
+
+void PerformanceTestObject::onRecvValues(qint64 currentValue, qint64 avgValue)
+{
+    QString str = "%1Mode: Current delayed is %2, Avg is %3";
+    QString tempString = "GPU";
+    if (!m_pConverThread->isUsedGPU())
+    {
+        tempString = "FFMpeg";
     }
+
+    str = str.arg(tempString).arg(currentValue).arg(avgValue);
+    m_pParentWidget->appendText(str);
+    qApp->processEvents();
+}
+
+void PerformanceTestObject::setUsedGPU(bool isUsedGPU)
+{
+    m_pConverThread->setUsedGPU(isUsedGPU);
 }

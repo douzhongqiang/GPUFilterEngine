@@ -7,6 +7,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QTimer>
+#include <QImage>
 #include "GPUFilterVideoCore_global.h"
 extern "C"{
 #include <libavcodec/avcodec.h>
@@ -52,6 +53,8 @@ public:
     void endVideoEncodec(void);
 
     void run(void) override;
+
+    bool rgbConverToYUV(const QImage& image);
 
 private:
     AVCodec *m_pVideoCodec = nullptr;

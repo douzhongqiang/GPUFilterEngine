@@ -7,6 +7,7 @@
 #include <QSpinBox>
 #include <QLabel>
 #include <QComboBox>
+#include <QCheckBox>
 
 class PerformanceTestObject;
 class Widget : public QWidget
@@ -40,6 +41,7 @@ private:
     QSpinBox* m_pWidthSpinBox = nullptr;
     QSpinBox* m_pHeightSpinBox = nullptr;
     QComboBox* m_pSizeComboBox = nullptr;
+    QCheckBox* m_pCheckBox = nullptr;
 
     SizeType m_sizeType;
     QString sizeTypeToString(SizeType type);
@@ -48,6 +50,7 @@ private:
 private slots:
     void onClickedButton(void);
     void onComboBoxCurrentIndexChanged(int index);
+    void onCheckBoxCheckStatusChanged(int status);
 };
 
 #endif // WIDGET_H

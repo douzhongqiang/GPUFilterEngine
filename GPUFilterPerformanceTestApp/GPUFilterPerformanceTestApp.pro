@@ -13,11 +13,13 @@ DESTDIR += $$PWD/../GPUFilterTestApp/bin
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    PerformanceTestConverThread.cpp \
     PerformanceTestObject.cpp \
     main.cpp \
     widget.cpp
 
 HEADERS += \
+    PerformanceTestConverThread.h \
     PerformanceTestObject.h \
     widget.h
 

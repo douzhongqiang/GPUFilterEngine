@@ -41,7 +41,8 @@ public:
 
 private:
     PBOType m_pboType;
-    GLuint m_nPBO[2];
+    GLuint m_nPBO[4];
+    int m_nPBOSize = 2;
 
     int m_nWidth = 0;
     int m_nHeight = 0;

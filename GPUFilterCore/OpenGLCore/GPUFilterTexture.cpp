@@ -81,6 +81,9 @@ int GPUFilterTexture::getHeight(void)
 
 void GPUFilterTexture::setImage(const QImage& image)
 {
+    QTime time;
+    time.start();
+
     QImage tempImage = image;
     if (tempImage.format() == QImage::Format_RGB888)
         m_imageFormat = t_RGB;
@@ -91,58 +94,87 @@ void GPUFilterTexture::setImage(const QImage& image)
         m_imageFormat = t_RGBA;
         tempImage = tempImage.convertToFormat(QImage::Format_RGBA8888);
     }
+    int n1 = time.elapsed();
 
     // Fill Data
-    m_imageData.clear();
     int len = image.byteCount();
-    m_imageData.append((const char*)tempImage.constBits(), len);
+    int n2 = time.elapsed();
+
+    bool isEnteredPBO = false;
+    int n4 = 0;
 
     if (m_nWidth != image.width() && m_nHeight != image.height())
     {
         m_nWidth = image.width();
         m_nHeight = image.height();
 
+        if (m_pImageData != nullptr)
+        {
+            delete[] m_pImageData;
+        }
+        m_pImageData = new char[len];
+        memcpy(m_pImageData, tempImage.constBits(), len);
+        n4 = time.elapsed();
+
         // Set Data To Texture
         setImageDataToTexture();
     }
     else
     {
+        m_pImageData = (char*)image.constBits();
+        n4 = time.elapsed();
+
         // Update For Image Data To Texture
         updateImageDataToTexture();
+
+        isEnteredPBO = true;
     }
+
+    int n3 = time.elapsed();
+
+    qDebug() << __FUNCTION__ << n1 << n2 << n4 << n3 << isEnteredPBO;
 }
 
 void GPUFilterTexture::setImageDataToTexture(void)
 {
-    if (m_imageData.size() <= 0 || !m_hasCreated)
+    if (m_pImageData == nullptr || !m_hasCreated)
         return;
 
     this->bind();
 
     GLint type = coverToGLType(m_imageFormat);
     g_GPUFunc->glTexImage2D(GL_TEXTURE_2D, 0, type, m_nWidth, m_nHeight, \
-                            0, type, GL_UNSIGNED_BYTE, m_imageData.data());
+                            0, type, GL_UNSIGNED_BYTE, m_pImageData);
 
     this->unbind();
-    m_imageData.clear();
 
     // Reset PBO
     delete m_pPBO;
     m_pPBO = nullptr;
+
+    if (m_pImageData)
+    {
+        delete[] m_pImageData;
+        m_pImageData = nullptr;
+    }
 }
 
 void GPUFilterTexture::updateImageDataToTexture(void)
 {
-    if (m_imageData.size() <= 0 || !m_hasCreated)
+    if (m_pImageData == nullptr || !m_hasCreated)
         return;
 
+    QTime time;
+    time.start();
+
     this->bind();
+    qDebug() << __FUNCTION__ << "bind" << time.elapsed();
 
     GLint type = coverToGLType(m_imageFormat);
     if (!m_isUsedPBO)
     {
         g_GPUFunc->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_nWidth, m_nHeight, \
-                                type, GL_UNSIGNED_BYTE, m_imageData.data());
+                                type, GL_UNSIGNED_BYTE, m_pImageData);
     }
     else
     {
@@ -153,11 +185,12 @@ void GPUFilterTexture::updateImageDataToTexture(void)
             m_pPBO->create(m_nWidth, m_nHeight, (GPUFilterPBO2::POBImageType)m_imageFormat);
         }
 
-        m_pPBO->setImage((uchar*)m_imageData.data());
+        m_pPBO->setImage((uchar*)m_pImageData);
     }
 
+    qDebug() << __FUNCTION__ << time.elapsed() << "Size: " << m_nWidth << m_nHeight;
     this->unbind();
-    m_imageData.clear();
+    qDebug() << __FUNCTION__ << "Unbind" << time.elapsed();
 }
 
 void GPUFilterTexture::setImage(const QString& image)
@@ -171,7 +204,6 @@ void GPUFilterTexture::setImage(const QString& image)
 
 void GPUFilterTexture::setImageData(const char* pData, int width, int height)
 {
-    m_imageData.clear();
     int perCount = 0;
     if (m_imageFormat == t_RGB)
         perCount = 3;
@@ -180,18 +212,34 @@ void GPUFilterTexture::setImageData(const char* pData, int width, int height)
     else
         perCount = 1;
     int len = width * height * perCount;
-    m_imageData.append(pData, len);
 
     if (m_nWidth != width && m_nHeight != height)
     {
         m_nWidth = width;
         m_nHeight = height;
 
+        if (m_pImageData != nullptr)
+        {
+            delete[] m_pImageData;
+        }
+        m_pImageData = new char[len];
+        memcpy(m_pImageData, pData, len);
+
         // Set Data To Texture
         setImageDataToTexture();
+
+        if (m_pImageData)
+        {
+            delete[] m_pImageData;
+            m_pImageData = nullptr;
+        }
     }
     else
     {
+        /*if (m_pImageData)
+            memcpy(m_pImageData, pData, len);*/
+        m_pImageData = (char*)pData;
+
         // Update For Image Data To Texture
         updateImageDataToTexture();
     }

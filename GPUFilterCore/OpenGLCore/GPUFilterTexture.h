@@ -72,6 +72,7 @@ private:
     bool m_hasCreated = false;
 
     QByteArray m_imageData;
+    char* m_pImageData = nullptr;
     int m_nWidth = 0;
     int m_nHeight = 0;
     void setImageDataToTexture(void);

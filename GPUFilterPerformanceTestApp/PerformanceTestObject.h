@@ -18,6 +18,8 @@
 
 class GPUFilterVideoPlayerScene;
 class Widget;
+class PerformanceTestConverThread;
+
 class PerformanceTestObject : public QObject
 {
     Q_OBJECT
@@ -39,6 +41,8 @@ public:
     // Start Test
     void startTest(void);
 
+    void setUsedGPU(bool isUsedGPU);
+
 private:
     void initCreate(void);
 
@@ -50,6 +54,7 @@ private:
     GPUFilterPBO2* m_pPBO = nullptr;
 
     Widget* m_pParentWidget = nullptr;
+    PerformanceTestConverThread* m_pConverThread = nullptr;
 
     // Timer
     QTimer* m_pTimer = nullptr;
@@ -61,6 +66,7 @@ private:
 
 private slots:
     void onTimeout(void);
+    void onRecvValues(qint64 currentValue, qint64 avgValue);
 };
 
 #endif

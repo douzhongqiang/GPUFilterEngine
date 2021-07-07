@@ -1,4 +1,5 @@
 #include "RGBToYUVProcesser.h"
+#include "OpenGLCore/GPUFilterTool.h"
 
 RGBToYUVProcesser::RGBToYUVProcesser(QObject* parent)
     :QObject(parent)
@@ -43,6 +44,7 @@ void RGBToYUVProcesser::initCreate(void)
 
     // [3] Create Texture
     m_pTexture = new GPUFilterTexture(this);
+    m_pTexture->setPBOEnabled(true);
 
     // [4] Create PBO
     m_pPBO = new GPUFilterPBO2(this);
@@ -76,7 +78,7 @@ QImage RGBToYUVProcesser::packImage(void)
     QImage image;
     m_pPBO->getImage(image);
     m_pPostScene->getCurrentFBO()->unbind();
-    image = image.mirrored();
+    g_GPUFunc->glFlush();
     return image;
 }
 
@@ -92,6 +94,11 @@ void RGBToYUVProcesser::render(void)
 
 void RGBToYUVProcesser::resize(int w, int h)
 {
+    if (m_nWidth == w && m_nHeight == h)
+        return;
+
+    m_nWidth = w;
+    m_nHeight = h;
     m_pContext->makeCurrent(m_pSurface);
 
     m_pPostScene->resize(w, h);

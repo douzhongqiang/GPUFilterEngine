@@ -274,6 +274,32 @@ void GPUFilterVideoEncodec::addImage(const QImage& image)
     m_condition.wakeAll();
 }
 
+bool GPUFilterVideoEncodec::rgbConverToYUV(const QImage& image)
+{
+    // RGB Conver To YUV
+    if (m_pFrame == nullptr)
+    {
+        m_createInfo.width = image.width();
+        m_createInfo.height = image.height();
+
+        m_pFrame = av_frame_alloc();
+        m_pTempFrame = av_frame_alloc();
+
+        m_pFrame->width = image.width();
+        m_pFrame->height = image.height();
+        m_pFrame->format = AV_PIX_FMT_YUV420P;
+        av_frame_get_buffer(m_pFrame, 32);
+    }
+
+    av_frame_make_writable(m_pFrame);
+    av_frame_make_writable(m_pTempFrame);
+
+    avpicture_fill((AVPicture*)m_pTempFrame, (const uint8_t*)image.constBits(), AV_PIX_FMT_RGB24, \
+        image.width(), image.height());
+
+    return rgbConverToYUV();
+}
+
 bool GPUFilterVideoEncodec::rgbConverToYUV(void)
 {
     if (m_pSwsContext == nullptr)

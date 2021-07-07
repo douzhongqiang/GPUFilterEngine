@@ -40,6 +40,9 @@ private:
     GPUFilterTexture* m_pTexture = nullptr;
     GPUFilterPostProcessScene* m_pPostScene = nullptr;
     GPUFilterPBO2* m_pPBO = nullptr;
+
+    int m_nWidth = 0;
+    int m_nHeight = 0;
 };
 
 #endif
