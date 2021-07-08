@@ -61,6 +61,9 @@ public:
     void setUsedGPU(bool isUsedGPU);
     bool isUsedGPU(void);
 
+    void setScaledEnabled(bool isEnabled);
+    void setScaledImageSize(int width, int height);
+
 private:
     AVCodec *m_pVideoCodec = nullptr;
     AVCodecContext *m_pVideoCodecContext = nullptr;
@@ -96,6 +99,10 @@ private:
     InputImageType m_inputImageType;
     GPUFilterFrameConvertCore* m_pGPUConvertCore = nullptr;
     bool m_isUsedGPU = true;
+
+    bool m_isResizeEnabled = false;
+    int m_nResizeWidth = 0;
+    int m_nResizeHeight = 0;
 
 signals:
     void requestInputImage(void);

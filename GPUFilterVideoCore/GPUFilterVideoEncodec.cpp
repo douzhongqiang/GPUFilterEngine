@@ -146,6 +146,17 @@ bool GPUFilterVideoEncodec::createFormat(void)
     return true;
 }
 
+void GPUFilterVideoEncodec::setScaledEnabled(bool isEnabled)
+{
+    m_isResizeEnabled = isEnabled;
+}
+
+void GPUFilterVideoEncodec::setScaledImageSize(int width, int height)
+{
+    m_nResizeWidth = width;
+    m_nResizeHeight = height;
+}
+
 void GPUFilterVideoEncodec::endVideoEncodec(void)
 {
     stopTimer();
@@ -309,7 +320,7 @@ bool GPUFilterVideoEncodec::rgbConverToYUV(void)
 {
     if (m_isUsedGPU)
     {
-        m_pGPUConvertCore->rgb2yuv(m_pTempFrame, m_pFrame, false, 0, 0);
+        m_pGPUConvertCore->rgb2yuv(m_pTempFrame, m_pFrame, m_isResizeEnabled, m_nResizeWidth, m_nResizeHeight);
         return true;
     }
 
