@@ -68,7 +68,7 @@ void GPUFilterFrameConvertCore::rgb2yuv(AVFrame* rgbFrame, AVFrame* yuvFrame, bo
     image.save(imagePath);*/
 
     // [5] Fill To Frame
-    //fillToFrame(image, yuvFrame);
+    fillToFrame(image, yuvFrame);
     int n2 = time.elapsed();
 
     qDebug() << __FUNCTION__ << n1 << n2;
