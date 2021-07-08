@@ -58,6 +58,7 @@ void PerformanceTestConverThread::run(void)
             GPUFilterVideoEncodec::VideoInfo info;
             info.width = tempImageList.at(0).width();
             info.height = tempImageList.at(0).height();
+            info.fts = 15;
             m_pVideoEncodec->setCreateVideoInfo(str, info);
             m_pVideoEncodec->startVideoEncodec();
         }
@@ -124,6 +125,7 @@ void PerformanceTestConverThread::startConver(void)
 void PerformanceTestConverThread::setUsedGPU(bool isUsedGPU)
 {
     m_isUsedGPU = isUsedGPU;
+    m_pVideoEncodec->setUsedGPU(m_isUsedGPU);
 }
 
 bool PerformanceTestConverThread::isUsedGPU(void)

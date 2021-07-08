@@ -14,6 +14,8 @@ GPUFilterFrameConvertCore::~GPUFilterFrameConvertCore()
 
 void GPUFilterFrameConvertCore::rgb2yuv(AVFrame* rgbFrame, AVFrame* yuvFrame, bool isScale, int width, int height)
 {
+    QTime time;
+    time.start();
     // [0] Init
     if (m_isFirstRender)
     {
@@ -57,13 +59,17 @@ void GPUFilterFrameConvertCore::rgb2yuv(AVFrame* rgbFrame, AVFrame* yuvFrame, bo
 
     // [4] PackImage
     QImage image = this->packImage();
+    int n1 = time.elapsed();
 
-    static int number = 0;
+    /*static int number = 0;
     QString imagePath = QString("%1/ConverImage2/%2.bmp").arg(qApp->applicationDirPath()).arg(number++);
-    image.save(imagePath);
+    image.save(imagePath);*/
 
     // [5] Fill To Frame
     fillToFrame(image, yuvFrame);
+    int n2 = time.elapsed();
+
+    qDebug() << __FUNCTION__ << n1 << n2;
 }
 
 void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)

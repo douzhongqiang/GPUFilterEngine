@@ -313,6 +313,8 @@ bool GPUFilterVideoEncodec::rgbConverToYUV(void)
         return true;
     }
 
+    QTime time;
+    time.start();
     if (m_pSwsContext == nullptr)
     {
         m_pSwsContext = sws_getContext(m_createInfo.width, m_createInfo.height, AV_PIX_FMT_RGB24, \
@@ -332,6 +334,7 @@ bool GPUFilterVideoEncodec::rgbConverToYUV(void)
     image.save("./bin/Test_png.png");
     image.save("./bin/Test_bmp.bmp");*/
 
+    qDebug() << __FUNCTION__ << time.elapsed();
     return result > 0 ? true : false;
 }
 

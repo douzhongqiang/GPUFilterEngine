@@ -141,7 +141,7 @@ void PerformanceTestObject::initCreate(void)
 void PerformanceTestObject::initTimer(void)
 {
     m_pTimer = new QTimer(this);
-    m_pTimer->setInterval(1000.0 / 30);
+    m_pTimer->setInterval(1000.0 / 15);
     QObject::connect(m_pTimer, &QTimer::timeout, this, &PerformanceTestObject::onTimeout);
 }
 
