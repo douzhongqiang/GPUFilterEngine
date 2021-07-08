@@ -10,6 +10,7 @@ uniform int width;
 uniform int height;
 
 uniform int m_PostProcessType;      // 0，正常; 1，转成YUV; 
+uniform bool m_isBGR0;
 
 vec3 rgbToyuv(vec2 coord)
 {
@@ -18,6 +19,8 @@ vec3 rgbToyuv(vec2 coord)
 
     vec2 tempCoord = vec2(coord.x, 1.0 - coord.y);
     rgb = vec3(texture2D(fboSample, tempCoord));
+    if (m_isBGR0)
+        rgb = vec3(rgb.b, rgb.g, rgb.r);
 
     yuv = mat3(0.299,       -0.169,       0.5,
                0.587,       -0.331,       -0.419,
