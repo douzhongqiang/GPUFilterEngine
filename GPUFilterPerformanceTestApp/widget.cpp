@@ -153,7 +153,16 @@ void Widget::onComboBoxCurrentIndexChanged(int index)
 
 void Widget::onResizeComboBoxCurrentIndexChanged(int index)
 {
+    SizeType type = (SizeType)(m_pResizeComboBox->currentData().toInt());
 
+    QString sizeString = sizeTypeToString(type);
+    QStringList sizeStringList = sizeString.split("x");
+    int nWidth = sizeStringList.at(0).toInt();
+    int nHeight = sizeStringList.at(1).toInt();
+    m_pWidthSpinBox->setValue(nWidth);
+    m_pHeightSpinBox->setValue(nHeight);
+
+    m_pPerformanceTestObject->setResizeSize(nWidth, nHeight);
 }
 
 void Widget::onCheckBoxCheckStatusChanged(int status)

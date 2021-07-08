@@ -18,6 +18,12 @@ PerformanceTestConverThread::~PerformanceTestConverThread()
     this->requestInterruption();
     m_waitCondition.wakeAll();
     this->wait();
+
+    if (m_pVideoEncodec)
+    {
+        m_pVideoEncodec->endVideoEncodec();
+        m_pVideoEncodec->deleteLater();
+    }
 }
 
 void PerformanceTestConverThread::addImage(const QImage& image)
@@ -32,7 +38,7 @@ void PerformanceTestConverThread::run(void)
     while (!this->isInterruptionRequested())
     {
         m_mutex.lock();
-        while (m_imageList.isEmpty())
+        while (m_imageList.isEmpty() && !this->isInterruptionRequested())
             m_waitCondition.wait(&m_mutex);
 
         QList<QImage> tempImageList = m_imageList;
@@ -46,13 +52,22 @@ void PerformanceTestConverThread::run(void)
         }
 
         if (m_pVideoEncodec == nullptr)
+        {
             m_pVideoEncodec = new GPUFilterVideoEncodec;
+            QString str = qApp->applicationDirPath() + QString("/ConverImage2/") + "Test.mp4";
+            GPUFilterVideoEncodec::VideoInfo info;
+            info.width = tempImageList.at(0).width();
+            info.height = tempImageList.at(0).height();
+            m_pVideoEncodec->setCreateVideoInfo(str, info);
+            m_pVideoEncodec->startVideoEncodec();
+        }
 
         for (auto iter = tempImageList.begin(); iter != tempImageList.end(); ++iter)
         {
+
             // Conver By GPU
             QImage image = *iter;
-
+#if 0
             // GPU
             qDebug() << "================== Begin Conver ==================================================";
             static int number = 0;
@@ -82,8 +97,8 @@ void PerformanceTestConverThread::run(void)
                 // End Conver
                 qDebug() << "Conver To YUV Data Frame:" << number++ << "[" << n1 << n2 << n3 << time.elapsed() << "]";
 
-                QString imagePath = QString("%1/ConverImage2/%2.bmp").arg(qApp->applicationDirPath()).arg(number);
-                tempImage.save(imagePath);
+//                QString imagePath = QString("%1/ConverImage2/%2.bmp").arg(qApp->applicationDirPath()).arg(number);
+//                tempImage.save(imagePath);
             }
             else
             {
@@ -95,6 +110,8 @@ void PerformanceTestConverThread::run(void)
             m_nTotal += delayValue;
             m_avgValue = m_nTotal * 1.0 / number;
             emit sendValues(delayValue, m_avgValue);
+#endif
+            m_pVideoEncodec->addImage(image);
         }
     }
 }
@@ -117,6 +134,7 @@ bool PerformanceTestConverThread::isUsedGPU(void)
 void PerformanceTestConverThread::setResizeEnabled(bool isEnabled)
 {
     m_isResizeEnabled = isEnabled;
+    m_pConverProcesser->setRenderType(!m_isResizeEnabled);
 }
 
 bool PerformanceTestConverThread::isResizeEnabled(void)

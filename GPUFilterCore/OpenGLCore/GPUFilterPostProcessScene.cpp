@@ -67,6 +67,7 @@ void GPUFilterPostProcessScene::render(void)
     m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth());
     m_pShaderProgram->getShaderProgram()->setUniformValue("height", m_pFBO->getFBOHeight());
     m_pShaderProgram->getShaderProgram()->setUniformValue("m_PostProcessType", (int)m_type);
+    m_pShaderProgram->getShaderProgram()->setUniformValue("m_isBGR0", m_isBGR0);
     
     // Draw
     m_pMesh->draw();
@@ -113,4 +114,14 @@ GPUFilterFBO* GPUFilterPostProcessScene::getCurrentFBO(void)
 void GPUFilterPostProcessScene::setPostProcessType(PostProcessType type)
 {
     m_type = type;
+}
+
+void GPUFilterPostProcessScene::setBRR0Visible(bool isBGR0)
+{
+    m_isBGR0 = isBGR0;
+}
+
+bool GPUFilterPostProcessScene::isBGR0Visible(void)
+{
+    return m_isBGR0;
 }

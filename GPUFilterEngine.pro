@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS += \
     GPUFilterCore \
+    GPUFilterFrameConvert \
     GPUFilterModel \
     GPUFilterVideoCore \
     GPUFilterGeneralScene \

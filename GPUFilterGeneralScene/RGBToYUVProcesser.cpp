@@ -40,7 +40,10 @@ void RGBToYUVProcesser::initCreate(void)
 
     // [2] Create Scene
     m_pPostScene = new GPUFilterPostProcessScene(this);
-    m_pPostScene->setPostProcessType(GPUFilterPostProcessScene::t_toYUV);
+    if (m_isToYUV)
+        m_pPostScene->setPostProcessType(GPUFilterPostProcessScene::t_toYUV);
+    else
+        m_pPostScene->setPostProcessType(GPUFilterPostProcessScene::t_normal);
 
     // [3] Create Texture
     m_pTexture = new GPUFilterTexture(this);
@@ -80,6 +83,11 @@ QImage RGBToYUVProcesser::packImage(void)
     m_pPostScene->getCurrentFBO()->unbind();
     g_GPUFunc->glFlush();
     return image;
+}
+
+void RGBToYUVProcesser::setRenderType(bool isToYUV)
+{
+    m_isToYUV = isToYUV;
 }
 
 void RGBToYUVProcesser::render(void)

@@ -18,6 +18,8 @@ extern "C"{
 #include <libavutil/opt.h>
 }
 
+#include "GPUFilterFrameConvertCore.h"
+
 class GPUFILTERVIDEOCORE_EXPORT GPUFilterVideoEncodec : public QThread
 {
     Q_OBJECT
@@ -56,6 +58,9 @@ public:
 
     bool rgbConverToYUV(const QImage& image);
 
+    void setUsedGPU(bool isUsedGPU);
+    bool isUsedGPU(void);
+
 private:
     AVCodec *m_pVideoCodec = nullptr;
     AVCodecContext *m_pVideoCodecContext = nullptr;
@@ -89,6 +94,8 @@ private:
     QThread* m_pThread = nullptr;
 
     InputImageType m_inputImageType;
+    GPUFilterFrameConvertCore* m_pGPUConvertCore = nullptr;
+    bool m_isUsedGPU = true;
 
 signals:
     void requestInputImage(void);

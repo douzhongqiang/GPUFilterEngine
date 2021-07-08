@@ -163,6 +163,10 @@ void PerformanceTestObject::onTimeout(void)
     m_pParentWidget->appendText(tempFrameString.arg(number++));
     qApp->processEvents();
 
+    // For Test
+//    QString imagePath = QString("%1/ConverImage3/%2.bmp").arg(qApp->applicationDirPath()).arg(number);
+//    image.save(imagePath);
+
     m_pConverThread->addImage(image);
 }
 
@@ -187,5 +191,10 @@ void PerformanceTestObject::setUsedGPU(bool isUsedGPU)
 
 void PerformanceTestObject::setResizeEnabled(bool isEnabled)
 {
+    m_pConverThread->setResizeEnabled(isEnabled);
+}
 
+void PerformanceTestObject::setResizeSize(int width, int height)
+{
+    m_pConverThread->setResizeSize(width, height);
 }

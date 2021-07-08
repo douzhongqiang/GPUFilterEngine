@@ -40,6 +40,9 @@ public:
     void setRenderTextureID(GLuint id);
     GPUFilterRectMesh* getCurrentMesh(void);
 
+    void setBRR0Visible(bool isBGR0);
+    bool isBGR0Visible(void);
+
 private:
     GPUFilterRectMesh* m_pMesh = nullptr;
     GPUFilterShaderProgram* m_pShaderProgram = nullptr;
@@ -49,6 +52,7 @@ private:
     PostProcessType m_type;
 
     GLuint m_textureId = 0;
+    bool m_isBGR0 = false;
 };
 
 #endif

@@ -43,6 +43,7 @@ public:
 
     void setUsedGPU(bool isUsedGPU);
     void setResizeEnabled(bool isEnabled);
+    void setResizeSize(int width, int height);
 
 private:
     void initCreate(void);

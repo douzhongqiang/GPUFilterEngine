@@ -21,5 +21,7 @@ void main(void)
     OutCoord = coord;
 
     vec3 tempPos = vec3(m * vec4(pos, 1.0));
-    OutPostion = (tempPos + 1.0) * 0.5;     // 转换为[0, 1]
+    tempPos = (tempPos + 1.0) * 0.5;
+    tempPos = vec3(tempPos.x, 1.0 - tempPos.y, tempPos.z);
+    OutPostion = tempPos;     // 转换为[0, 1]
 }

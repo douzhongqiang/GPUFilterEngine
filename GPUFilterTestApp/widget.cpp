@@ -171,10 +171,10 @@ void Widget::onRecordTimeout(void)
     else if (m_pVideoEncodec->getInputImageType() == GPUFilterVideoEncodec::t_yuv420p)
         tempImage = m_pRenderWidget->grapImage2(m_nWidth, m_nHeight);
 
-    if (!tempImage.isNull())
+    /*if (!tempImage.isNull())
     {
         tempImage = tempImage.mirrored();
-    }
+    }*/
     //qDebug() << "Grab Image Delay" << time.elapsed() << ", " << nFrame++;
 #endif
 

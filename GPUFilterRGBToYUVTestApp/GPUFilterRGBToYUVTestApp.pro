@@ -24,11 +24,13 @@ INCLUDEPATH += $$PWD/../GPUFilterCore
 INCLUDEPATH += $$PWD/../GPUFilterVideoCore
 INCLUDEPATH += $$PWD/../GPUFilterModel
 INCLUDEPATH += $$PWD/../GPUFilterGeneralScene
+INCLUDEPATH += $$PWD/../GPUFilterFrameConvert
 
 LIBS += -L$$DESTDIR -lGPUFilterCore
 LIBS += -L$$DESTDIR -lGPUFilterVideoCore
 LIBS += -L$$DESTDIR -lGPUFilterModel
 LIBS += -L$$DESTDIR -lGPUFilterGeneralScene
+LIBS += -L$$DESTDIR -lGPUFilterCore
 
 INCLUDEPATH += $$PWD/../3party/ffmpeg/include
 LIBS += -L$$PWD/../3party/ffmpeg/libs -lavcodec -lavformat -lavutil -lswscale -lswresample

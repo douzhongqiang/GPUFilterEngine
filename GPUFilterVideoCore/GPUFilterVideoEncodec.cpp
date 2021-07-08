@@ -10,6 +10,7 @@ GPUFilterVideoEncodec::GPUFilterVideoEncodec(QObject* parent)
     avcodec_register_all();
 
     initTimer();
+    m_pGPUConvertCore = new GPUFilterFrameConvertCore(this);
 }
 
 GPUFilterVideoEncodec::~GPUFilterVideoEncodec()
@@ -187,6 +188,10 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
 
         m_pFrame->width = m_createInfo.width;
         m_pFrame->height = m_createInfo.height;
+        m_pTempFrame->width = m_createInfo.width;
+        m_pTempFrame->height = m_createInfo.height;
+        m_pTempFrame->format = AV_PIX_FMT_RGB24;
+
         m_pFrame->format = AV_PIX_FMT_YUV420P;
         av_frame_get_buffer(m_pFrame, 32);
     }
@@ -302,6 +307,12 @@ bool GPUFilterVideoEncodec::rgbConverToYUV(const QImage& image)
 
 bool GPUFilterVideoEncodec::rgbConverToYUV(void)
 {
+    if (m_isUsedGPU)
+    {
+        m_pGPUConvertCore->rgb2yuv(m_pTempFrame, m_pFrame, false, 0, 0);
+        return true;
+    }
+
     if (m_pSwsContext == nullptr)
     {
         m_pSwsContext = sws_getContext(m_createInfo.width, m_createInfo.height, AV_PIX_FMT_RGB24, \
@@ -322,6 +333,16 @@ bool GPUFilterVideoEncodec::rgbConverToYUV(void)
     image.save("./bin/Test_bmp.bmp");*/
 
     return result > 0 ? true : false;
+}
+
+void GPUFilterVideoEncodec::setUsedGPU(bool isUsedGPU)
+{
+    m_isUsedGPU = isUsedGPU;
+}
+
+bool GPUFilterVideoEncodec::isUsedGPU(void)
+{
+    return m_isUsedGPU;
 }
 
 void GPUFilterVideoEncodec::releaseAll(void)

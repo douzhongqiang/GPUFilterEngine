@@ -207,7 +207,7 @@ void GPUFilterTexture::setImageData(const char* pData, int width, int height)
     int perCount = 0;
     if (m_imageFormat == t_RGB)
         perCount = 3;
-    else if (m_imageFormat == t_RGBA)
+    else if (m_imageFormat == t_RGBA || m_imageFormat == t_BGR0)
         perCount = 4;
     else
         perCount = 1;
