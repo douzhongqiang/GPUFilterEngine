@@ -78,17 +78,6 @@ void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)
 {
     int index = 0;
 
-    qDebug() << image.width() << image.height();
-
-    QImage tempImage1 = image.copy(QRect(0, 0, image.width(), frame->height));
-    QImage tempImage2 = image.copy(QRect(0, frame->height, image.width() / 2, frame->height / 2));
-    QImage tempImage3 = image.copy(QRect(image.width() / 2, frame->height, image.width() / 2, frame->height / 2));
-
-    memcpy(frame->data[0], tempImage1.constBits(), frame->width * frame->height);
-    memcpy(frame->data[1], tempImage2.constBits(), frame->width / 2 * frame->height / 2);
-    memcpy(frame->data[2], tempImage3.constBits(), frame->width / 2 * frame->height / 2);
-
-    return;
     // Copy Y Data
     for (int i = 0; i < frame->height; ++i)
     {
