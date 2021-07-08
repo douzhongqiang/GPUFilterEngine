@@ -155,6 +155,9 @@ void GPUFilterVideoEncodec::setScaledImageSize(int width, int height)
 {
     m_nResizeWidth = width;
     m_nResizeHeight = height;
+
+    m_createInfo.width = m_nResizeWidth;
+    m_createInfo.height = m_nResizeHeight;
 }
 
 void GPUFilterVideoEncodec::endVideoEncodec(void)
@@ -191,6 +194,10 @@ void GPUFilterVideoEncodec::endVideoEncodec(void)
 
 void GPUFilterVideoEncodec::writeImage(const QImage& image)
 {
+    QImage tempImage;
+    if (m_isTestBGR0)
+        tempImage = rgbConverToBRG0(image);
+
     // RGB Conver To YUV
     if (m_pFrame == nullptr)
     {
@@ -199,19 +206,31 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
 
         m_pFrame->width = m_createInfo.width;
         m_pFrame->height = m_createInfo.height;
-        m_pTempFrame->width = m_createInfo.width;
-        m_pTempFrame->height = m_createInfo.height;
-        m_pTempFrame->format = AV_PIX_FMT_RGB24;
-
         m_pFrame->format = AV_PIX_FMT_YUV420P;
+
+        m_pTempFrame->width = m_createInfo.srcdWidth;
+        m_pTempFrame->height = m_createInfo.srcHeight;
+        if (!m_isTestBGR0)
+            m_pTempFrame->format = AV_PIX_FMT_RGB24;
+        else
+            m_pTempFrame->format = AV_PIX_FMT_BGR0;
+
         av_frame_get_buffer(m_pFrame, 32);
     }
 
     av_frame_make_writable(m_pFrame);
     av_frame_make_writable(m_pTempFrame);
 
-    avpicture_fill((AVPicture*)m_pTempFrame, (const uint8_t*)image.constBits(), AV_PIX_FMT_RGB24, \
-        image.width(), image.height());
+    if (!m_isTestBGR0)
+    {
+        avpicture_fill((AVPicture*)m_pTempFrame, (const uint8_t*)image.constBits(), AV_PIX_FMT_RGB24, \
+            image.width(), image.height());
+    }
+    else
+    {
+        avpicture_fill((AVPicture*)m_pTempFrame, (const uint8_t*)tempImage.constBits(), AV_PIX_FMT_BGR0, \
+            image.width(), image.height());
+    }
 
     if (m_inputImageType == t_rgb)
     {
@@ -304,6 +323,7 @@ bool GPUFilterVideoEncodec::rgbConverToYUV(const QImage& image)
         m_pFrame->width = image.width();
         m_pFrame->height = image.height();
         m_pFrame->format = AV_PIX_FMT_YUV420P;
+        
         av_frame_get_buffer(m_pFrame, 32);
     }
 
@@ -316,23 +336,74 @@ bool GPUFilterVideoEncodec::rgbConverToYUV(const QImage& image)
     return rgbConverToYUV();
 }
 
+QImage GPUFilterVideoEncodec::rgbConverToBRG0(const QImage& image)
+{
+    if (m_pFrame2 == nullptr)
+    {
+        m_pFrame2 = av_frame_alloc();
+        m_pTempFrame2 = av_frame_alloc();
+
+        m_pFrame2->width = image.width();
+        m_pFrame2->height = image.height();
+        m_pFrame2->format = AV_PIX_FMT_BGR0;
+
+        m_pTempFrame2->width = image.width();
+        m_pTempFrame2->height = image.height();
+        m_pTempFrame2->format = AV_PIX_FMT_RGB24;
+
+        av_frame_get_buffer(m_pFrame2, 32);
+
+        av_frame_make_writable(m_pFrame2);
+        av_frame_make_writable(m_pTempFrame2);
+    }
+
+    avpicture_fill((AVPicture*)m_pTempFrame2, (const uint8_t*)image.constBits(), AV_PIX_FMT_RGB24, \
+        image.width(), image.height());
+
+    if (m_pSwsContext2 == nullptr)
+    {
+        m_pSwsContext2 = sws_getContext(image.width(), image.height(), AV_PIX_FMT_RGB24, \
+            image.width(), image.height(), AV_PIX_FMT_BGR0, SWS_BILINEAR, nullptr, nullptr, nullptr);
+    }
+
+    int result = sws_scale(m_pSwsContext2, m_pTempFrame2->data, m_pTempFrame2->linesize, 0, image.height(), \
+        m_pFrame2->data, m_pFrame2->linesize);
+
+    QImage tempImage((uchar*)m_pFrame2->data[0], image.width(), image.height(), 
+        QImage::Format_RGBA8888);
+
+    qDebug() << tempImage.byteCount();
+
+    return tempImage;
+}
+
 bool GPUFilterVideoEncodec::rgbConverToYUV(void)
 {
+    QTime time;
+    time.start();
+
     if (m_isUsedGPU)
     {
         m_pGPUConvertCore->rgb2yuv(m_pTempFrame, m_pFrame, m_isResizeEnabled, m_nResizeWidth, m_nResizeHeight);
+        emit sendTimeDeleay(time.elapsed());
         return true;
     }
 
-    QTime time;
-    time.start();
     if (m_pSwsContext == nullptr)
     {
-        m_pSwsContext = sws_getContext(m_createInfo.width, m_createInfo.height, AV_PIX_FMT_RGB24, \
-            m_createInfo.width, m_createInfo.height, AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+        if (!m_isTestBGR0)
+        {
+            m_pSwsContext = sws_getContext(m_createInfo.srcdWidth, m_createInfo.srcHeight, AV_PIX_FMT_RGB24, \
+                m_createInfo.width, m_createInfo.height, AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+        }
+        else
+        {
+            m_pSwsContext = sws_getContext(m_createInfo.srcdWidth, m_createInfo.srcHeight, AV_PIX_FMT_BGR0, \
+                m_createInfo.width, m_createInfo.height, AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+        }
     }
 
-    int result = sws_scale(m_pSwsContext, m_pTempFrame->data, m_pTempFrame->linesize, 0, m_createInfo.height, \
+    int result = sws_scale(m_pSwsContext, m_pTempFrame->data, m_pTempFrame->linesize, 0, m_createInfo.srcHeight, \
         m_pFrame->data, m_pFrame->linesize);
 
     // For Test 
@@ -345,7 +416,7 @@ bool GPUFilterVideoEncodec::rgbConverToYUV(void)
     image.save("./bin/Test_png.png");
     image.save("./bin/Test_bmp.bmp");*/
 
-    qDebug() << __FUNCTION__ << time.elapsed();
+    emit sendTimeDeleay(time.elapsed());
     return result > 0 ? true : false;
 }
 

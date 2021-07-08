@@ -182,7 +182,11 @@ void GPUFilterTexture::updateImageDataToTexture(void)
         {
             m_pPBO = new GPUFilterPBO2(this);
             m_pPBO->setPBOType(GPUFilterPBO2::t_UnPack);
-            m_pPBO->create(m_nWidth, m_nHeight, (GPUFilterPBO2::POBImageType)m_imageFormat);
+
+            if (m_imageFormat == t_BGR0)
+                m_pPBO->create(m_nWidth, m_nHeight, GPUFilterPBO2::t_RGBA);
+            else
+                m_pPBO->create(m_nWidth, m_nHeight, GPUFilterPBO2::POBImageType(m_imageFormat));
         }
 
         m_pPBO->setImage((uchar*)m_pImageData);

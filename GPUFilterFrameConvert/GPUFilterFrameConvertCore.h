@@ -44,6 +44,7 @@ private:
 
     void setImage(const QImage& image);
     QImage packImage(void);
+    void packImage2(char* pY, char* pU, char* pV);
 
     QOffscreenSurface* m_pSurface = nullptr;
     QOpenGLContext* m_pContext = nullptr;

@@ -10,7 +10,11 @@ PerformanceTestConverThread::PerformanceTestConverThread(QObject* parent)
     , m_nResizeWidth(0)
     , m_nResizeHeight(0)
 {
+    m_pVideoEncodec = new GPUFilterVideoEncodec;
+    m_pVideoEncodec->setTestBGRTest(true);
 
+    QObject::connect(m_pVideoEncodec, &GPUFilterVideoEncodec::sendTimeDeleay, \
+        this, &PerformanceTestConverThread::onRecvDeleay);
 }
 
 PerformanceTestConverThread::~PerformanceTestConverThread()
@@ -51,13 +55,24 @@ void PerformanceTestConverThread::run(void)
             m_pConverProcesser->init();
         }
 
-        if (m_pVideoEncodec == nullptr)
+        if (!m_isInited)
         {
-            m_pVideoEncodec = new GPUFilterVideoEncodec;
+            m_isInited = true;
             QString str = qApp->applicationDirPath() + QString("/ConverImage2/") + "Test.mp4";
             GPUFilterVideoEncodec::VideoInfo info;
-            info.width = tempImageList.at(0).width();
-            info.height = tempImageList.at(0).height();
+            info.srcdWidth = tempImageList.at(0).width();
+            info.srcHeight = tempImageList.at(0).height();
+            if (m_isResizeEnabled)
+            {
+                info.width = m_nResizeWidth;
+                info.height = m_nResizeHeight;
+            }
+            else
+            {
+                info.width = info.srcdWidth;
+                info.height = info.srcHeight;
+
+            }
             info.fts = 15;
             m_pVideoEncodec->setCreateVideoInfo(str, info);
             m_pVideoEncodec->startVideoEncodec();
@@ -136,7 +151,8 @@ bool PerformanceTestConverThread::isUsedGPU(void)
 void PerformanceTestConverThread::setResizeEnabled(bool isEnabled)
 {
     m_isResizeEnabled = isEnabled;
-    m_pConverProcesser->setRenderType(!m_isResizeEnabled);
+    //m_pConverProcesser->setRenderType(!m_isResizeEnabled);
+    m_pVideoEncodec->setScaledEnabled(isEnabled);
 }
 
 bool PerformanceTestConverThread::isResizeEnabled(void)
@@ -148,4 +164,11 @@ void PerformanceTestConverThread::setResizeSize(int width, int height)
 {
     m_nResizeWidth = width;
     m_nResizeHeight = height;
+
+    m_pVideoEncodec->setScaledImageSize(width, height);
+}
+
+void PerformanceTestConverThread::onRecvDeleay(int time)
+{
+    emit sendValues(time, 0);
 }

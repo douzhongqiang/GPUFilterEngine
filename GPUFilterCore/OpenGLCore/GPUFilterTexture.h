@@ -21,8 +21,8 @@ public:
     {
         t_RGB,
         t_RGBA,
-        t_BGR0,
-        t_LUMINANCE
+        t_LUMINANCE,
+        t_BGR0
     };
 
 public:

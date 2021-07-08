@@ -35,6 +35,7 @@ private:
     GPUFilterVideoEncodec* m_pVideoEncodec = nullptr;
 
     QList<QImage> m_imageList;
+    bool m_isInited = false;
 
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
@@ -49,6 +50,9 @@ private:
 
 signals:
     void sendValues(qint64 currentValue, qint64 avgValue);
+
+private slots:
+    void onRecvDeleay(int time);
 };
 
 #endif

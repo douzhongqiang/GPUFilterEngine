@@ -30,6 +30,9 @@ public:
         int width = 800;
         int height = 600;
 
+        int srcdWidth = 800;
+        int srcHeight = 600;
+
         int fts = 30;
         int coverType = 0;      // YUV420P
     };
@@ -57,12 +60,17 @@ public:
     void run(void) override;
 
     bool rgbConverToYUV(const QImage& image);
+    QImage rgbConverToBRG0(const QImage& image);
 
     void setUsedGPU(bool isUsedGPU);
     bool isUsedGPU(void);
 
     void setScaledEnabled(bool isEnabled);
     void setScaledImageSize(int width, int height);
+
+    void setTestBGRTest(bool isVisible) {
+        m_isTestBGR0 = isVisible;
+    }
 
 private:
     AVCodec *m_pVideoCodec = nullptr;
@@ -73,6 +81,10 @@ private:
     AVFrame* m_pFrame = nullptr;
     AVFrame* m_pTempFrame = nullptr;
     SwsContext* m_pSwsContext = nullptr;
+
+    SwsContext* m_pSwsContext2 = nullptr;
+    AVFrame* m_pFrame2 = nullptr;
+    AVFrame* m_pTempFrame2 = nullptr;
 
     QString m_fileName;
     VideoInfo m_createInfo;
@@ -104,8 +116,11 @@ private:
     int m_nResizeWidth = 0;
     int m_nResizeHeight = 0;
 
+    bool m_isTestBGR0 = false;
+
 signals:
     void requestInputImage(void);
+    void sendTimeDeleay(int time);
 };
 
 #endif

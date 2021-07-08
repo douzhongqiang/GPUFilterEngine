@@ -35,6 +35,7 @@ void GPUFilterFrameConvertCore::rgb2yuv(AVFrame* rgbFrame, AVFrame* yuvFrame, bo
         nHeight = height + height / 2;
     }
     this->resize(nWidth, nHeight);
+    m_pPBO->setSrcSize(rgbFrame->width, rgbFrame->height);
 
     // [2] Set Texture
     if (rgbFrame->format == AV_PIX_FMT_RGB24)
@@ -58,6 +59,7 @@ void GPUFilterFrameConvertCore::rgb2yuv(AVFrame* rgbFrame, AVFrame* yuvFrame, bo
     this->render();
 
     // [4] PackImage
+    //this->packImage2((char*)yuvFrame->data[0], (char*)yuvFrame->data[1], (char*)yuvFrame->data[2]);
     QImage image = this->packImage();
     int n1 = time.elapsed();
 
@@ -66,7 +68,7 @@ void GPUFilterFrameConvertCore::rgb2yuv(AVFrame* rgbFrame, AVFrame* yuvFrame, bo
     image.save(imagePath);*/
 
     // [5] Fill To Frame
-    fillToFrame(image, yuvFrame);
+    //fillToFrame(image, yuvFrame);
     int n2 = time.elapsed();
 
     qDebug() << __FUNCTION__ << n1 << n2;
@@ -78,6 +80,15 @@ void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)
 
     qDebug() << image.width() << image.height();
 
+    QImage tempImage1 = image.copy(QRect(0, 0, image.width(), frame->height));
+    QImage tempImage2 = image.copy(QRect(0, frame->height, image.width() / 2, frame->height / 2));
+    QImage tempImage3 = image.copy(QRect(image.width() / 2, frame->height, image.width() / 2, frame->height / 2));
+
+    memcpy(frame->data[0], tempImage1.constBits(), frame->width * frame->height);
+    memcpy(frame->data[1], tempImage2.constBits(), frame->width / 2 * frame->height / 2);
+    memcpy(frame->data[2], tempImage3.constBits(), frame->width / 2 * frame->height / 2);
+
+    return;
     // Copy Y Data
     for (int i = 0; i < frame->height; ++i)
     {
@@ -146,6 +157,7 @@ void GPUFilterFrameConvertCore::initCreate(void)
 
     // [4] Create PBO
     m_pPBO = new GPUFilterPBO2(this);
+    m_pPBO->setPBOSize(6);
 }
 
 void GPUFilterFrameConvertCore::init(void)
@@ -178,6 +190,16 @@ QImage GPUFilterFrameConvertCore::packImage(void)
     m_pPostScene->getCurrentFBO()->unbind();
     g_GPUFunc->glFlush();
     return image;
+}
+
+void GPUFilterFrameConvertCore::packImage2(char* pY, char* pU, char* pV)
+{
+    m_pContext->makeCurrent(m_pSurface);
+
+    m_pPostScene->getCurrentFBO()->bind();
+    m_pPBO->getImage(pY, pU, pV);
+    m_pPostScene->getCurrentFBO()->unbind();
+    g_GPUFunc->glFlush();
 }
 
 void GPUFilterFrameConvertCore::render(void)

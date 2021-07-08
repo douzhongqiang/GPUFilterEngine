@@ -5,7 +5,8 @@ GPUFilterPBO2::GPUFilterPBO2(QObject* parent)
     :QObject(parent)
     , m_pboType(t_Pack)
 {
-
+    m_index[0] = 0; // 0, 1, 2
+    m_index[1] = 3; // 3, 4, 5
 }
 
 GPUFilterPBO2::~GPUFilterPBO2()
@@ -40,6 +41,82 @@ void GPUFilterPBO2::getImage(QImage& image)
         g_GPUFunc->glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
     }
 
+    g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+}
+
+void GPUFilterPBO2::getImage(char* pY, char* pU, char* pV)
+{
+    // Read Pixel Data To PBO
+    // Y
+    g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[m_nCurrentIndex]);
+    if (m_nChannelCount == 3)
+        g_GPUFunc->glReadPixels(0, m_srcHeight / 2.0, m_nWidth, m_srcHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    else if (m_nChannelCount == 4)
+        g_GPUFunc->glReadPixels(0, m_srcHeight / 2.0, m_nWidth, m_srcHeight, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+    // U
+    g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[++m_nCurrentIndex]);
+    if (m_nChannelCount == 3)
+        g_GPUFunc->glReadPixels(0, 0, m_nWidth / 2, m_srcHeight / 2, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    else if (m_nChannelCount == 4)
+        g_GPUFunc->glReadPixels(0, 0, m_nWidth / 2, m_srcHeight / 2, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+    // V
+    g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[++m_nCurrentIndex]);
+    if (m_nChannelCount == 3)
+        g_GPUFunc->glReadPixels(0 + m_nWidth / 2, 0, m_nWidth / 2, m_srcHeight / 2, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    else if (m_nChannelCount == 4)
+        g_GPUFunc->glReadPixels(0 + m_nWidth / 2, 0, m_nWidth / 2, m_srcHeight / 2, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+
+    swapPBOBuffer2();
+    m_nCurrentIndex = m_index[m_nCurrentIndex2];
+
+    // Read Data To RAM
+    // Y
+    g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[m_nCurrentIndex]);
+    GLubyte* src = (GLubyte*)g_GPUFunc->glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+    if (src)
+    {
+#if 1
+        if (m_nChannelCount == 3)
+            memcpy(pY, src, m_nWidth * m_srcHeight * 3);
+        else if (m_nChannelCount == 4)
+            memcpy(pY, src, m_nWidth * m_srcHeight * 4);
+#endif
+
+        g_GPUFunc->glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+    }
+    // U
+    g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[++m_nCurrentIndex]);
+    src = (GLubyte*)g_GPUFunc->glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+    if (src)
+    {
+#if 1
+        if (m_nChannelCount == 3)
+            memcpy(pU, src, m_nWidth / 2 * m_srcHeight / 2 * 3);
+        else if (m_nChannelCount == 4)
+            memcpy(pU, src, m_nWidth / 2 * m_srcHeight / 2 * 4);
+#endif
+
+        g_GPUFunc->glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+    }
+    // V
+    g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[++m_nCurrentIndex]);
+    src = (GLubyte*)g_GPUFunc->glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+    if (src)
+    {
+#if 1
+        if (m_nChannelCount == 3)
+            memcpy(pV, src, m_nWidth / 2 * m_srcHeight / 2 * 3);
+        else if (m_nChannelCount == 4)
+            memcpy(pV, src, m_nWidth / 2 * m_srcHeight / 2 * 4);
+#endif
+
+        g_GPUFunc->glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+    }
+
+    m_nCurrentIndex = m_index[m_nCurrentIndex2];
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 }
 
@@ -147,6 +224,14 @@ void GPUFilterPBO2::swapPBOBuffer(void)
         m_nCurrentIndex = 3;*/
     else
         m_nCurrentIndex = 0;
+}
+
+void GPUFilterPBO2::swapPBOBuffer2(void)
+{
+    if (m_nCurrentIndex2 == 0)
+        m_nCurrentIndex2 = 1;
+    else
+        m_nCurrentIndex2 = 0;
 }
 
 void GPUFilterPBO2::bind(void)
