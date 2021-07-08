@@ -64,7 +64,10 @@ void GPUFilterPostProcessScene::render(void)
 
     m_pShaderProgram->getShaderProgram()->setUniformValue("m", m_pMesh->getModelMatrix());
     m_pShaderProgram->getShaderProgram()->setUniformValue("fboSample", 0);
-    m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth());
+    if (m_textureId == 0)
+        m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth());
+    else
+        m_pShaderProgram->getShaderProgram()->setUniformValue("width", m_pFBO->getFBOWidth() * 4);
     m_pShaderProgram->getShaderProgram()->setUniformValue("height", m_pFBO->getFBOHeight());
     m_pShaderProgram->getShaderProgram()->setUniformValue("m_PostProcessType", (int)m_type);
     m_pShaderProgram->getShaderProgram()->setUniformValue("m_isBGR0", m_isBGR0);

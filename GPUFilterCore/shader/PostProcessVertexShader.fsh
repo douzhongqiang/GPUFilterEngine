@@ -16,7 +16,8 @@ vec3 rgbToyuv(vec2 coord)
     vec3 yuv;
     vec3 rgb;
 
-    rgb = vec3(texture2D(fboSample, coord));
+    vec2 tempCoord = vec2(coord.x, 1.0 - coord.y);
+    rgb = vec3(texture2D(fboSample, tempCoord));
 
     yuv = mat3(0.299,       -0.169,       0.5,
                0.587,       -0.331,       -0.419,
