@@ -273,6 +273,7 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
         }
     }
 
+#if 0
     AVPacket *pkt = av_packet_alloc();
     av_init_packet(pkt);
 
@@ -297,6 +298,7 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
 
     result = av_interleaved_write_frame(m_pFormatContext, pkt);
     av_packet_free(&pkt);
+#endif
 }
 
 void GPUFilterVideoEncodec::addImage(const QImage& image)

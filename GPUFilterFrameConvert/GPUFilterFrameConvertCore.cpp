@@ -83,7 +83,7 @@ void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)
     {
         int interval = i * frame->linesize[0];
         int srcInterval = i * frame->width;
-        memset(frame->data[0] + interval, 0, frame->linesize[0]);
+        //memset(frame->data[0] + interval, 0, frame->linesize[0]);
         memcpy(frame->data[0] + interval, image.constBits() + srcInterval, frame->width);
     }
 
@@ -94,7 +94,7 @@ void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)
         int interval = i * frame->linesize[1];
         int srcInterval = index + frame->width / 4 * 4 * i;
 
-        memset(frame->data[1] + interval, 255 / 2, frame->linesize[1]);
+        //memset(frame->data[1] + interval, 255 / 2, frame->linesize[1]);
         memcpy(frame->data[1] + interval, image.constBits() + srcInterval, frame->width / 2);
     }
 
@@ -105,7 +105,7 @@ void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)
         int interval = i * frame->linesize[2];
         int srcInterval = index + frame->width / 4 * 4 * i + frame->width / 4 * 4 / 2;
 
-        memset(frame->data[2] + interval, 255 / 2, frame->linesize[2]);
+        //memset(frame->data[2] + interval, 255 / 2, frame->linesize[2]);
         memcpy(frame->data[2] + interval, image.constBits() + srcInterval, frame->width / 2);
     }
 }

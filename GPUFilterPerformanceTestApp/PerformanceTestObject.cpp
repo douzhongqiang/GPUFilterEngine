@@ -158,16 +158,19 @@ void PerformanceTestObject::onTimeout(void)
 
     // For Test Save Image
     static int number = 0;
-    QImage image = getCurrentImage();
-    QString tempFrameString = "Created Image %1 Frame";
-    m_pParentWidget->appendText(tempFrameString.arg(number++));
-    qApp->processEvents();
+    if (number < 10)
+    {
+        m_tempImage = getCurrentImage();
+        QString tempFrameString = "Created Image %1 Frame";
+        m_pParentWidget->appendText(tempFrameString.arg(number++));
+        qApp->processEvents();
+    }
 
     // For Test
 //    QString imagePath = QString("%1/ConverImage3/%2.bmp").arg(qApp->applicationDirPath()).arg(number);
 //    image.save(imagePath);
 
-    m_pConverThread->addImage(image);
+    m_pConverThread->addImage(m_tempImage);
 }
 
 void PerformanceTestObject::onRecvValues(qint64 currentValue, qint64 avgValue)

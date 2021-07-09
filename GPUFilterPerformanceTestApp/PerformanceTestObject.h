@@ -66,6 +66,8 @@ private:
     int m_nWidth = 1280;
     int m_nHeight = 720;
 
+    QImage m_tempImage;
+
 private slots:
     void onTimeout(void);
     void onRecvValues(qint64 currentValue, qint64 avgValue);

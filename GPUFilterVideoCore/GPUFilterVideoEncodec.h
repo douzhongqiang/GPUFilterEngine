@@ -69,7 +69,7 @@ public:
     void setScaledImageSize(int width, int height);
 
     void setTestBGRTest(bool isVisible) {
-        m_isTestBGR0 = isVisible;
+        //m_isTestBGR0 = isVisible;
     }
 
 private:
