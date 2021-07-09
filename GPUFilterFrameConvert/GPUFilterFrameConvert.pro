@@ -22,10 +22,12 @@ INCLUDEPATH += $$PWD/../3party/ffmpeg/include
 LIBS += -L$$PWD/../3party/ffmpeg/libs -lavcodec -lavformat -lavutil -lswscale -lswresample
 
 SOURCES += \
+    FastMemcpy.c \
     GPUFilterFrameConvertCore.cpp \
     gpufilterframeconvert.cpp
 
 HEADERS += \
+    FastMemcpy.h \
     GPUFilterFrameConvertCore.h \
     GPUFilterFrameConvert_global.h \
     gpufilterframeconvert.h

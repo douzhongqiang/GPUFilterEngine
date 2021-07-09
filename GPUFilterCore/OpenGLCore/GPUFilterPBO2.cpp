@@ -36,6 +36,7 @@ void GPUFilterPBO2::getImage(QImage& image)
             image = QImage(src, m_nWidth, m_nHeight, QImage::Format_RGB888);
         else if (m_nChannelCount == 4)
             image = QImage(src, m_nWidth, m_nHeight, QImage::Format_RGBA8888);
+
         qDebug() << __FUNCTION__ << time.elapsed();
 
         g_GPUFunc->glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
@@ -50,23 +51,23 @@ void GPUFilterPBO2::getImage(char* pY, char* pU, char* pV)
     // Y
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[m_nCurrentIndex]);
     if (m_nChannelCount == 3)
-        g_GPUFunc->glReadPixels(0, m_srcHeight / 2.0, m_nWidth, m_srcHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
+        g_GPUFunc->glReadPixels(0, 0, m_nWidth, m_srcHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
     else if (m_nChannelCount == 4)
-        g_GPUFunc->glReadPixels(0, m_srcHeight / 2.0, m_nWidth, m_srcHeight, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        g_GPUFunc->glReadPixels(0, 0, m_nWidth, m_srcHeight, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     // U
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[++m_nCurrentIndex]);
     if (m_nChannelCount == 3)
-        g_GPUFunc->glReadPixels(0, 0, m_nWidth / 2, m_srcHeight / 2, GL_RGB, GL_UNSIGNED_BYTE, 0);
+        g_GPUFunc->glReadPixels(0, m_srcHeight, m_nWidth / 2, m_srcHeight / 2, GL_RGB, GL_UNSIGNED_BYTE, 0);
     else if (m_nChannelCount == 4)
-        g_GPUFunc->glReadPixels(0, 0, m_nWidth / 2, m_srcHeight / 2, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        g_GPUFunc->glReadPixels(0, m_srcHeight, m_nWidth / 2, m_srcHeight / 2, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     // V
     g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[++m_nCurrentIndex]);
     if (m_nChannelCount == 3)
-        g_GPUFunc->glReadPixels(0 + m_nWidth / 2, 0, m_nWidth / 2, m_srcHeight / 2, GL_RGB, GL_UNSIGNED_BYTE, 0);
+        g_GPUFunc->glReadPixels(m_nWidth / 2, m_srcHeight, m_nWidth / 2, m_srcHeight / 2, GL_RGB, GL_UNSIGNED_BYTE, 0);
     else if (m_nChannelCount == 4)
-        g_GPUFunc->glReadPixels(0 + m_nWidth / 2, 0, m_nWidth / 2, m_srcHeight / 2, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        g_GPUFunc->glReadPixels(m_nWidth / 2, m_srcHeight, m_nWidth / 2, m_srcHeight / 2, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 
     swapPBOBuffer2();
@@ -82,7 +83,9 @@ void GPUFilterPBO2::getImage(char* pY, char* pU, char* pV)
         if (m_nChannelCount == 3)
             memcpy(pY, src, m_nWidth * m_srcHeight * 3);
         else if (m_nChannelCount == 4)
+        {
             memcpy(pY, src, m_nWidth * m_srcHeight * 4);
+        }
 #endif
 
         g_GPUFunc->glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
@@ -96,7 +99,9 @@ void GPUFilterPBO2::getImage(char* pY, char* pU, char* pV)
         if (m_nChannelCount == 3)
             memcpy(pU, src, m_nWidth / 2 * m_srcHeight / 2 * 3);
         else if (m_nChannelCount == 4)
+        {
             memcpy(pU, src, m_nWidth / 2 * m_srcHeight / 2 * 4);
+        }
 #endif
 
         g_GPUFunc->glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
@@ -271,6 +276,13 @@ void GPUFilterPBO2::resizePack(int w, int h)
 
     for (int i = 0; i < m_nPBOSize; ++i)
     {
+        if (m_isYUV && (i == 0 || i == 3))
+            bufferSize = m_nWidth * m_srcHeight * m_nChannelCount;
+        else if (m_isYUV && (i == 1 || i == 4))
+            bufferSize = m_nWidth / 2 * m_srcHeight / 2 * m_nChannelCount;
+        else if (m_isYUV && (i == 2 || i == 5))
+            bufferSize = m_nWidth / 2 * m_srcHeight / 2 * m_nChannelCount;
+
         g_GPUFunc->glBindBuffer(GL_PIXEL_PACK_BUFFER, m_nPBO[i]);
         g_GPUFunc->glBufferData(GL_PIXEL_PACK_BUFFER, bufferSize, 0, GL_STREAM_READ);
     }

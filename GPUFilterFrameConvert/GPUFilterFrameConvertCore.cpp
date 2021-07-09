@@ -1,5 +1,6 @@
 #include "GPUFilterFrameConvertCore.h"
 #include "OpenGLCore/GPUFilterTool.h"
+#include "FastMemcpy.h"
 
 GPUFilterFrameConvertCore::GPUFilterFrameConvertCore(QObject* parent)
     :QObject(parent)
@@ -14,8 +15,6 @@ GPUFilterFrameConvertCore::~GPUFilterFrameConvertCore()
 
 void GPUFilterFrameConvertCore::rgb2yuv(AVFrame* rgbFrame, AVFrame* yuvFrame, bool isScale, int width, int height)
 {
-    QTime time;
-    time.start();
     // [0] Init
     if (m_isFirstRender)
     {
@@ -34,8 +33,8 @@ void GPUFilterFrameConvertCore::rgb2yuv(AVFrame* rgbFrame, AVFrame* yuvFrame, bo
         nWidth = width / 4;
         nHeight = height + height / 2;
     }
-    this->resize(nWidth, nHeight);
     m_pPBO->setSrcSize(rgbFrame->width, rgbFrame->height);
+    this->resize(nWidth, nHeight);
 
     // [2] Set Texture
     if (rgbFrame->format == AV_PIX_FMT_RGB24)
@@ -59,19 +58,13 @@ void GPUFilterFrameConvertCore::rgb2yuv(AVFrame* rgbFrame, AVFrame* yuvFrame, bo
     this->render();
 
     // [4] PackImage
-    //this->packImage2((char*)yuvFrame->data[0], (char*)yuvFrame->data[1], (char*)yuvFrame->data[2]);
-    QImage image = this->packImage();
-    int n1 = time.elapsed();
-
-    /*static int number = 0;
-    QString imagePath = QString("%1/ConverImage2/%2.bmp").arg(qApp->applicationDirPath()).arg(number++);
-    image.save(imagePath);*/
-
-    // [5] Fill To Frame
-    fillToFrame(image, yuvFrame);
-    int n2 = time.elapsed();
-
-    qDebug() << __FUNCTION__ << n1 << n2;
+    if (yuvFrame->linesize[0] == yuvFrame->width)
+        this->packImage2((char*)yuvFrame->data[0], (char*)yuvFrame->data[1], (char*)yuvFrame->data[2]);
+    else
+    {
+        QImage image = this->packImage();
+        fillToFrame(image, yuvFrame);
+    }
 }
 
 void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)
@@ -85,6 +78,7 @@ void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)
         int srcInterval = i * frame->width;
         //memset(frame->data[0] + interval, 0, frame->linesize[0]);
         memcpy(frame->data[0] + interval, image.constBits() + srcInterval, frame->width);
+        //memcpy_fast(frame->data[0] + interval, image.constBits() + srcInterval, frame->width);
     }
 
     // Copy U Data
@@ -96,6 +90,7 @@ void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)
 
         //memset(frame->data[1] + interval, 255 / 2, frame->linesize[1]);
         memcpy(frame->data[1] + interval, image.constBits() + srcInterval, frame->width / 2);
+        //memcpy_fast(frame->data[1] + interval, image.constBits() + srcInterval, frame->width / 2);
     }
 
     // Copy V Data
@@ -107,6 +102,7 @@ void GPUFilterFrameConvertCore::fillToFrame(const QImage& image, AVFrame* frame)
 
         //memset(frame->data[2] + interval, 255 / 2, frame->linesize[2]);
         memcpy(frame->data[2] + interval, image.constBits() + srcInterval, frame->width / 2);
+        //memcpy_fast(frame->data[2] + interval, image.constBits() + srcInterval, frame->width / 2);
     }
 }
 
@@ -147,6 +143,7 @@ void GPUFilterFrameConvertCore::initCreate(void)
     // [4] Create PBO
     m_pPBO = new GPUFilterPBO2(this);
     m_pPBO->setPBOSize(6);
+    m_pPBO->setYUVVisble(true);
 }
 
 void GPUFilterFrameConvertCore::init(void)

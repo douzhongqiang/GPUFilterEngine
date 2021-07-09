@@ -33,6 +33,9 @@ public:
         m_srcWidth = width;
         m_srcHeight = height;
     }
+    void setYUVVisble(bool isVisible) {
+        m_isYUV = isVisible;
+    }
 
     void setPBOType(PBOType type);
 
@@ -65,6 +68,8 @@ private:
 
     int m_nCurrentIndex = 0;
     int m_nCurrentIndex2 = 0;
+
+    bool m_isYUV = false;
 
     void createPack(int width, int height);
     void createUnpack(int width, int height);
