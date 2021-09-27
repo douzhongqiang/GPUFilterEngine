@@ -52,8 +52,8 @@ void GPUFilterTexture::release(void)
 {
     g_GPUFunc->glDeleteTextures(1, &m_nTextureID);
 
-    if (m_pPBO)
-        m_pPBO->release();
+    /*if (m_pPBO)
+        m_pPBO->release();*/
 }
 
 void GPUFilterTexture::bind(void)
