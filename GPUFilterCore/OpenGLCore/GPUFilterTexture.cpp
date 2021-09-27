@@ -20,8 +20,8 @@ bool GPUFilterTexture::create(void)
 
     bind();
 
-    g_GPUFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    g_GPUFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    g_GPUFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    g_GPUFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
     GLint filterType = GL_NEAREST;
     if (m_filterType == t_linear)
@@ -51,6 +51,9 @@ bool GPUFilterTexture::hasCreated(void)
 void GPUFilterTexture::release(void)
 {
     g_GPUFunc->glDeleteTextures(1, &m_nTextureID);
+
+    if (m_pPBO)
+        m_pPBO->release();
 }
 
 void GPUFilterTexture::bind(void)
@@ -181,6 +184,7 @@ void GPUFilterTexture::updateImageDataToTexture(void)
         if (m_pPBO == nullptr)
         {
             m_pPBO = new GPUFilterPBO2(this);
+            m_pPBO->setPBOSize(2);
             m_pPBO->setPBOType(GPUFilterPBO2::t_UnPack);
 
             if (m_imageFormat == t_BGR0)
@@ -192,7 +196,6 @@ void GPUFilterTexture::updateImageDataToTexture(void)
         m_pPBO->setImage((uchar*)m_pImageData);
     }
 
-    qDebug() << __FUNCTION__ << time.elapsed() << "Size: " << m_nWidth << m_nHeight;
     this->unbind();
     qDebug() << __FUNCTION__ << "Unbind" << time.elapsed();
 }
@@ -225,6 +228,7 @@ void GPUFilterTexture::setImageData(const char* pData, int width, int height)
         if (m_pImageData != nullptr)
         {
             delete[] m_pImageData;
+            m_pImageData = nullptr;
         }
         m_pImageData = new char[len];
         memcpy(m_pImageData, pData, len);

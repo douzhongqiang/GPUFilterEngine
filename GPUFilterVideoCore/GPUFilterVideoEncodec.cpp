@@ -273,7 +273,7 @@ void GPUFilterVideoEncodec::writeImage(const QImage& image)
         }
     }
 
-#if 0
+#if 1
     AVPacket *pkt = av_packet_alloc();
     av_init_packet(pkt);
 

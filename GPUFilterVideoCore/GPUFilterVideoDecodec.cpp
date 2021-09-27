@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QImage>
+#include <QTime>
 
 GPUFilterVideoDecodec::GPUFilterVideoDecodec(QObject* parent)
     :QThread(parent)
